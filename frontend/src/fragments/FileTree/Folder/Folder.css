@@ -1,0 +1,31 @@
+.folder {
+    display: flex;
+    position: relative;
+    width: 100%;
+    /* era 90% */
+    align-items: center;
+    border: 1px solid #4389FA;
+    height: 2rem;
+    background-color: #00bbff30;
+    padding-left: 0.25rem;
+    transition: background-color 0.3s ease;
+}
+
+
+.folder-name {
+    position: relative;
+    border: 0px;
+
+}
+
+.folder-icon {
+    margin-right: 1rem;
+    width: 24px;
+    height: 24px;
+}
+
+
+.folder:hover {
+    background-color: #00bbff80;
+    cursor: pointer;
+}

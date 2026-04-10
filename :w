@@ -1,0 +1,172 @@
+import File from "../../fragments/FileTree/File/File.jsx";
+import Folder from "../../fragments/FileTree/Folder/Folder.jsx";
+import { useState, useEffect } from "react";
+import "./FileTree.css";
+import { getUserFolders, getFolderFiles, deleteFile, createFolder } from "../../services/filetree_api.js";
+
+
+export default function FileTree() {
+    const [folders, setFolders] = useState([]);
+    const [selectedFolder, setSelectedFolder] = useState(null);
+    const [files, setFiles] = useState([]);
+
+    const [foldersLoading, setFoldersLoading] = useState(true);
+    const [filesLoading, setFilesLoading] = useState(false);
+
+    const [modalState, setModalState] = useState({ type: null });
+    const [modalResponseLoading, setModalResponseLoading] = useState(false);
+
+    const [newFolderName, setNewFolderName] = useState("");
+
+    useEffect(() => {
+        loadFolders();
+    }, []);
+
+    async function loadFolders() {
+        try {
+            setFoldersLoading(true);
+            const data = await getUserFolders();
+            setFolders(data);
+        } catch (err) {
+            console.error("Nu s-au putut incarca fisierele: ", err);
+        } finally {
+            setFoldersLoading(false);
+        }
+    }
+
+    async function handleOpenFolder(folder) {
+        try {
+            setSelectedFolder(folder);
+            setFilesLoading(true);
+
+            const data = await getFolderFiles(folder.id);
+            setFiles(data);
+        } catch (err) {
+            console.error("Eroare la incarcarea fisierelor in folderul: ", folder.name);
+        } finally {
+            setFilesLoading(false);
+        }
+    }
+
+    async function handleCreateFolder(name) {
+        try {
+            setModalResponseLoading(true);
+            await createFolder(name);
+        } catch (error) {
+            console.error("Nu s-a putut crea un nou folder");
+        } finally {
+            setModalResponseLoading(false);
+            setModalState({ type: null });
+        }
+    }
+
+    function handleAskDeleteFile(file) {
+        setModalResponseLoading(false);
+        setModalState({ type: "delete-file", file });
+    }
+
+    function handleCancelDeleteFile() {
+        setModalState({ type: null });
+    }
+
+    async function handleConfirmDeleteFile() {
+        if (modalState.type !== "delete-file" || !modalState.file) return;
+        try {
+            setModalResponseLoading(true);
+            await deleteFile(modalState.file.id);
+            setFiles((prevFiles) => prevFiles.filter((file) => file.id != modalState.file.id));
+        } catch (err) {
+            console.error("Nu s-a putut sterge fisierul");
+        } finally {
+            setModalState({ type: null });
+            setModalResponseLoading(false);
+        }
+    }
+
+
+    function handleBackToFolders() {
+        setSelectedFolder(null);
+        setFiles([]);
+    }
+
+    const visibleFolders = selectedFolder ? [selectedFolder] : folders;
+
+    return (
+        <>
+            <div className="file-tree-page">
+                <h1>Your personal File Storage System</h1>
+                <p className="file-tree-cite"></p>
+            </div>
+            <div className="file-tree-layout">
+                <section>
+                    <h2> Folders </h2>
+                    <div className="folder-layout">
+                        <button className="button-add" onClick={() => setModalState({ type: "create-folder" })}> Create Folder </button>
+                        {selectedFolder && (<button className="Back" onClick={handleBackToFolders}> Back </button>)}
+                        {foldersLoading ? (
+                            <p> Loading folders... </p>
+                        ) : folders.length === 0 ? (
+                            <p> You currently have no folders created </p>
+                        ) : (
+                            <ul className="layout-folders">
+                                {visibleFolders.map((folder) => (
+                                    <li key={folder.id} >
+                                        <Folder folder={folder} onClick={() => handleOpenFolder(folder)} />
+                                    </li>
+                                ))}
+                            </ul>
+                        )
+                        }
+                    </div>
+                </section>
+                <section>
+                    {!selectedFolder ? (
+                        <p>Select a folder....</p>
+                    ) : filesLoading ? (
+                        <p>Loading files....</p>
+                    ) : files.length === 0 ? (
+                        <p>This folder is empty.... </p>
+                    ) : (
+                        <ul>
+                            {files.map((file) => (
+                                <li key={file.id}>
+                                    <File file={file} onRemove={handleAskDeleteFile} />
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+                {modalState.type === "delete-file" && (
+                    <div className="modal-overlay">
+                        <div className="delete-modal">
+                            {modalResponseLoading ? (
+                                <p>Removing File....</p>
+                            ) : (<>
+                                <p> Are you sure you want to delete {modalState.file.name}? </p>
+                                <button className="confirm" onClick={handleConfirmDeleteFile}>Confirm </button>
+                                <button className="cancel" onClick={handleCancelDeleteFile}> Cancel </button>
+                            </>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {modalState.type === "create-folder" && (
+                    <div className="modal-overlay">
+                        <div className="create-folder-modal">
+                            {!modalResponseLoading ? (
+                                <>
+                                    <h2>Add a new Folder </h2>  <h2>Add a new Folder </h2>
+                                    <input className="text-input" type="text" value={newFolderName} onChange={(input) => setNewFolderName(input.target.value)} placeholder="New Folder Name" />
+                                    <button className="confirm" onClick={handleCreateFolder}>Confirm </button>
+                                </>
+                            ) : (
+                                <p> Creating the new folder.... </p>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div >
+        </>
+    );
+}

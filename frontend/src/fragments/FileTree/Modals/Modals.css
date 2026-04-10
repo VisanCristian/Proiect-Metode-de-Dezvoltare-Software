@@ -1,0 +1,64 @@
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.filetree-modal {
+    background-color: #00bbff90;
+    border: 1px solid #4389FA;
+    color: white;
+    min-width: 320px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-bottom: 1rem;
+    padding-top: 0.25rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.filetree-modal input {
+    background-color: #1C2167;
+    color: white;
+    border: 1px solid #4389FA;
+    border-radius: 5px;
+    width: 90%;
+}
+
+.filetree-modal input:focus {
+    outline: 1px solid cyan;
+}
+
+.modal-options {
+    margin-top: 1rem;
+    display: flex;
+    gap: 2.5rem;
+}
+
+.modal-options button {
+    color: white;
+}
+
+
+.button-confirm {
+    background-color: #02ff0e80;
+    border: 1px solid #02ff0e;
+}
+
+.button-confirm:hover {
+    background-color: #02ff0eCC;
+}
+
+.button-cancel {
+    background-color: #ff2e0080;
+    border: 1px solid #ff2e00;
+}
+
+.button-cancel:hover {
+    background-color: #ff2e00CC;
+}

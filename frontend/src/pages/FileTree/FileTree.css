@@ -1,0 +1,69 @@
+body.filetree-body {
+    margin-top: 50px;
+    margin-left: 5%;
+    margin-right: 5%;
+    background-color: #1C2167;
+
+
+    color: white;
+}
+
+body.filetree-body h1 {
+    text-align: center;
+}
+
+.folder-options {
+    display: flex;
+}
+
+.folder-layout {
+    text-align: left;
+}
+
+.folder-tree h2 {
+    text-align: center;
+}
+
+.folder-layout ul {
+    list-style-type: none;
+    margin-top: 0.5rem;
+}
+
+.layout-folders {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+}
+
+.layout-folders li {
+    position: relative;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.button-add {
+    border: 0;
+    color: white;
+
+    border: 1px solid #4389FA;
+    height: 1.5rem;
+    background-color: #00bbff30;
+    transition: background-color 0.3s ease;
+    margin-left: 1rem;
+}
+
+.button-add:hover {
+    background-color: #00bbff80;
+    cursor: pointer;
+}
+
+.button-back {
+    background-color: #ff2e0080;
+    border: 1px solid #ff2e00;
+}
+
+.button-back:hover {
+    background-color: #ff2e00CC;
+}
