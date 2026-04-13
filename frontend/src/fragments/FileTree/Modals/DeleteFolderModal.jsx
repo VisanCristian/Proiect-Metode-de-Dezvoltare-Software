@@ -15,8 +15,10 @@ export default function DeleteFolderModal({ folder, files, isLoading, onConfirm,
                             {files.map((file) => (
                                 <p key={file.id}> {file.name} </p>
                             ))}
-                            <button className="button-confirm" onClick={onConfirm}>Confirm</button>
-                            <button className="button-cancel" onClick={onCancel}>Cancel</button>
+                            <div className="modal-options">
+                                <button className="button-confirm" onClick={onConfirm}>Confirm</button>
+                                <button className="button-cancel" onClick={onCancel}>Cancel</button>
+                            </div>
                         </>
                     )}
                 </div>

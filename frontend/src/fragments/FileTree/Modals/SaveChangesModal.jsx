@@ -11,7 +11,7 @@ export default function SaveChangesModal({ file, isLoading, onCancel, onConfirm 
                     ) : (
                         <>
                             <p> There are unsaved changes. Do you want to save them? </p>
-                            <div className="saveChanges-options">
+                            <div className="modal-options">
                                 <button className="button-cancel" onClick={onCancel}> Don't Save </button>
                                 <button className="button-confirm" onClick={onConfirm}> Save </button>
                             </div>

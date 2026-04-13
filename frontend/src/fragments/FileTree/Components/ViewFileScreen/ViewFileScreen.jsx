@@ -25,17 +25,13 @@ export default function EditFileScreen({ file, onBack, onExport }) {
 
     return (
         <>
-            <div className="file-tree-page" >
-                <h1>Your personal File Storage System</h1>
-                <p className="file-tree-cite"></p>
-            </div>
             <div className="file-view-subpage">
                 {isLoadingContent ? (
                     <p className="loading"> Loading content..... </p>
                 ) : (
                     <>
-                        < h2 > {file.name} </h2>
                         <div className="view-options">
+                            < h2 > Viewing file: {file.name} </h2>
                             <button className="button-back" onClick={() => onBack()}> Back </button>
                             <button className="button-export" onClick={() => onExport()}> Export </button>
                         </div>

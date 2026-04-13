@@ -11,8 +11,10 @@ export default function DeleteFileModal({ file, isLoading, onConfirm, onCancel }
                 ) : (
                     <>
                         <p>Are you sure you want to delete {file.name}?</p>
-                        <button className="confirm" onClick={onConfirm}>Confirm</button>
-                        <button className="cancel" onClick={onCancel}>Cancel</button>
+                        <div className="modal-options">
+                            <button className="button-confirm" onClick={onConfirm}>Confirm</button>
+                            <button className="button-cancel" onClick={onCancel}>Cancel</button>
+                        </div>
                     </>
                 )}
             </div>

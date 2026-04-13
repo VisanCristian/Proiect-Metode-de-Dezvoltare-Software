@@ -1,0 +1,90 @@
+.edit-options {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.edit-options button {
+    color: white;
+    height: 2rem;
+    width: 5rem;
+}
+
+.button-save-changes {
+    background-color: #02ff0e80;
+    border: 1px solid #02ff0e;
+}
+
+.button-save-changes:hover {
+    background-color: #02ff0eCC;
+}
+
+.edit-content-options {
+    display: flex;
+    align-items: center;
+}
+
+.edit-content-options button {
+    height: 2rem;
+    width: 6rem;
+    text-align: center;
+    margin-right: 0.25rem;
+    font-size: 1.25rem;
+}
+
+.button-text {
+    border: 0;
+    color: white;
+
+    border: 1px solid #4389FA;
+    background-color: #00bbff30;
+    transition: background-color 0.3s ease;
+}
+
+.button-text:hover {
+    background-color: #00bbff80;
+    cursor: pointer;
+}
+
+.button-pdf {
+    border: 0;
+    color: white;
+
+    border: 1px solid #4389FA;
+    background-color: #00bbff30;
+    transition: background-color 0.3s ease;
+}
+
+.button-pdf:hover {
+    background-color: #00bbff80;
+    cursor: pointer;
+}
+
+
+
+.edit-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-content-display {
+    display: flex;
+    width: 70%;
+    margin-top: 2rem;
+    align-self: center;
+}
+
+.edit-content-display textarea {
+    width: 100%;
+    height: 50vh;
+
+    color: white;
+    background-color: #00bbff30;
+    transition: background-color 0.3s ease;
+    border: 1px solid #4389FA;
+}
+
+.edit-content-display textarea:focus {
+    outline: 1px solid cyan;
+    background-color: #00bbff50;
+}

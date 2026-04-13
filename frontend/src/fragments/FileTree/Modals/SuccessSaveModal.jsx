@@ -10,11 +10,13 @@ export default function SuccessSaveModal({ isLoading, onConfirm }) {
                     ) : (
                         <>
                             <p>File has been saved succesfully </p>
-                            <button className="button-success" onClick={onConfirm}> Ok </button>
+                            <div className="modal-options">
+                                <button className="button-confirm" onClick={onConfirm}> Ok </button>
+                            </div>
                         </>
                     )}
                 </dev>
-            </dev>
+            </dev >
         </>
     );
 }

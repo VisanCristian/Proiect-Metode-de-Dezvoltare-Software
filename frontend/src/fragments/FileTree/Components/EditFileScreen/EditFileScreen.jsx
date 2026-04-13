@@ -27,7 +27,7 @@ export default function EditFileScreen({ file, onBack, onSave }) {
             setOriginalContent(data);
             setDraftContent(data);
         } catch (err) {
-            setContentError(true);
+            console.error("Eroare la incarcarea continutului fisierului:", err);
         } finally {
             setIsLoadingContent(false);
         }
@@ -35,19 +35,15 @@ export default function EditFileScreen({ file, onBack, onSave }) {
 
     return (
         <>
-            <div className="file-tree-page" >
-                <h1>Your personal File Storage System</h1>
-                <p className="file-tree-cite"></p>
-            </div>
             <div className="file-edit-subpage">
                 {isLoadingContent ? (
                     <p className="loading"> Loading content..... </p>
                 ) : (
                     <>
-                        < h2 > {file.name} </h2>
                         <div className="edit-options" >
+                            < h2 > Editing File: {file.name} </h2>
                             <button className="button-back" onClick={() => onBack(hasUnsavedChanges, draftContent)}> Back </button>
-                            <button className="save-changes" onClick={() => {
+                            <button className="button-save-changes" onClick={() => {
                                 if (hasUnsavedChanges) {
                                     onSave(draftContent);
                                     setOriginalContent(draftContent);

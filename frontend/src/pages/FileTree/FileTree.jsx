@@ -244,12 +244,16 @@ export default function FileTree() {
                                 />
                             </div>
                             <div className="file-tree">
-                                {selectedFolder && (<input
-                                    className="search-bar"
-                                    type="text"
-                                    onChange={(e) => setSearchFilter(e.target.value)}
-                                    placeholder="File Search"
-                                />)}
+                                {selectedFolder && (
+                                    <>
+                                        <h2> Files </h2>
+                                        <input
+                                            className="search-bar"
+                                            type="text"
+                                            onChange={(e) => setSearchFilter(e.target.value)}
+                                            placeholder="File Search"
+                                        />
+                                    </>)}
 
                                 <FileList
                                     selectedFolder={selectedFolder}

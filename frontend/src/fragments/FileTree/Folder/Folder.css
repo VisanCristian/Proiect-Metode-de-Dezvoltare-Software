@@ -2,26 +2,27 @@
     display: flex;
     position: relative;
     width: 100%;
-    /* era 90% */
     align-items: center;
     border: 1px solid #4389FA;
-    height: 2rem;
+    height: 4rem;
     background-color: #00bbff30;
     padding-left: 0.25rem;
     transition: background-color 0.3s ease;
+    color: white;
 }
 
 
 .folder-name {
     position: relative;
     border: 0px;
+    font-size: 2rem;
 
 }
 
 .folder-icon {
     margin-right: 1rem;
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
 }
 
 
