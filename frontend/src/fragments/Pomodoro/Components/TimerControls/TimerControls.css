@@ -1,0 +1,30 @@
+.controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.ctrl-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface-card);
+    color: var(--text-h);
+    font-size: 18px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ctrl-primary {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+}
