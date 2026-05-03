@@ -1,4 +1,4 @@
-import "./upload-pdf-style.css";
+import "./uploadPdf.css";
 
 
 export default function UploadPdfModal({ open, onClose }) {

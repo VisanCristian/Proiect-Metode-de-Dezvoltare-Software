@@ -1,8 +1,8 @@
-@import './buttons.css';
-@import './card.css';
-@import './forms.css';
+@import '../../fragments/FlashCard/CardNav/buttons.css';
+@import '../../fragments/FlashCard/Card/card.css';
+@import '../../fragments/FlashCard/Form/forms.css';
 @import './layout.css';
-@import './topbar.css';
+@import '../../fragments/FlashCard/TopBar/topbar.css';
 
 :root {
   --accent: #89abd2;

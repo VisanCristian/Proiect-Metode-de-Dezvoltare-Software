@@ -1,16 +1,25 @@
-import "./css/main.css";
-import UploadPdfModal from "./pdf/upload-pdf";
-import { useFlashCards } from "./hooks/useFlashCards";
-import TopBar from "./components/TopBar";
-import CreateForm from "./components/CreateForm";
-import Metrics from "./components/Metrics";
-import ProgressBar from "./components/ProgressBar";
-import FlashCard from "./components/FlashCard";
-import CardNav from "./components/CardNav";
-import SessionEnd from "./components/SessionEnd";
+import "./main.css";
+import UploadPdfModal from "../../fragments/FlashCard/PDF/UploadPdf";
+import { useFlashCards } from "../../hooks/FlashCard/useFlashCards";
+import TopBar from "../../fragments/FlashCard/TopBar/TopBar";
+import CreateForm from "../../fragments/FlashCard/Form/CreateForm";
+import Metrics from "../../fragments/FlashCard/Metrics/Metrics";
+import ProgressBar from "../../fragments/FlashCard/ProgressBar/ProgressBar";
+import FlashCard from "../../fragments/FlashCard/Card/FlashCard";
+import CardNav from "../../fragments/FlashCard/CardNav/CardNav";
+import SessionEnd from "../../fragments/FlashCard/SessionEnd/SessionEnd";
 
 export default function FlashCardApp() {
   const fc = useFlashCards();
+
+  if (fc.loading) {
+    return (
+      <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white'}}>
+        <h2>Loading flashcard sets...</h2>
+      </div>
+    );
+  }
+  
 
   return (
     <div className="flash-page">

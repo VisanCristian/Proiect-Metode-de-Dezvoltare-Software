@@ -4,7 +4,7 @@ export default function TopBar({ sets, setId, showForm, ADD_NEW_VALUE, handleSet
       <div className="group">
         <label style={{ fontSize: 13, color: "var(--accent)" }}>Set</label>
         <select value={setId} onChange={handleSetChange}>
-          {sets.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          {sets.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
           <option value={ADD_NEW_VALUE}>Add new</option>
         </select>
       </div>
