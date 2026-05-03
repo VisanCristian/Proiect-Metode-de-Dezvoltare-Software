@@ -1,21 +1,22 @@
 .upload-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(10, 12, 18, 0.6);
+  background: rgba(6, 10, 24, 0.72);
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: 80px 16px;
   z-index: 50;
+  backdrop-filter: blur(3px);
 }
 
 .upload-modal {
   width: min(520px, 100%);
-  background: var(--bg-page);
+  background: linear-gradient(180deg, rgba(18, 34, 84, 0.96), rgba(14, 26, 68, 0.96));
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 18px 20px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-strong);
 }
 
 .upload-modal-header {
@@ -31,11 +32,16 @@
 }
 
 .upload-modal-close {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border);
-  color: var(--text-muted);
+  color: var(--text-primary);
   padding: 6px 12px;
   border-radius: 8px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.upload-modal-close:hover {
+  border-color: var(--accent);
+  background: rgba(142, 200, 255, 0.12);
 }
 
 .upload-modal-desc {
