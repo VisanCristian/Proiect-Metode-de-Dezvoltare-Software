@@ -7,7 +7,7 @@ class FlashcardSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class DeckSerializer(serializers.ModelSerializer):
-    cards = FlashcardSerializer(many=True, read_only=True)
+    cards = FlashcardSerializer(source='flashcards', many=True, read_only=True)
 
     class Meta:
         model = Deck
