@@ -1,0 +1,138 @@
+.file-edit-subpage {
+    border: 1px solid #4389FA;
+    border-radius: 12px;
+    background-color: #00bbff1a;
+    padding: 1rem;
+}
+
+.file-edit-subpage h2 {
+    margin: 0;
+    font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+}
+
+.edit-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.edit-options button {
+    min-width: 6.8rem;
+}
+
+.button-save-changes {
+    background-color: #02ff0e33;
+    border: 1px solid #02ff0e;
+}
+
+.button-save-changes:hover {
+    background-color: #02ff0e80;
+}
+
+.edit-content-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: center;
+}
+
+.edit-content-options button {
+    min-height: 2.1rem;
+    min-width: 6rem;
+    text-align: center;
+}
+
+.active-tab {
+    background-color: #00bbff80;
+    border-color: cyan;
+}
+
+
+
+.edit-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-top: 0.75rem;
+}
+
+.edit-content-display {
+    display: flex;
+    width: 100%;
+    align-self: center;
+}
+
+.edit-content-display textarea {
+    width: 100%;
+    min-height: 55vh;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 0.9rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    resize: vertical;
+
+    color: white;
+    background-color: #00bbff30;
+    transition: background-color 0.3s ease;
+    border: 1px solid #4389FA;
+}
+
+.edit-content-display textarea:focus {
+    outline: none;
+    border-color: cyan;
+    background-color: #00bbff50;
+}
+
+.rendered-content {
+    width: 100%;
+    min-height: 55vh;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 0.9rem;
+    line-height: 1.5;
+    color: white;
+    background-color: #00bbff30;
+    border: 1px solid #4389FA;
+    overflow: auto;
+}
+
+.rendered-content h1,
+.rendered-content h2,
+.rendered-content h3,
+.rendered-content h4,
+.rendered-content h5,
+.rendered-content h6,
+.rendered-content p,
+.rendered-content ul,
+.rendered-content pre {
+    margin-top: 0;
+}
+
+.rendered-content pre {
+    background-color: #09153e;
+    padding: 0.85rem;
+    border-radius: 8px;
+    overflow: auto;
+}
+
+.pdf-frame {
+    width: 100%;
+    min-height: 70vh;
+    border: 1px solid #4389FA;
+    border-radius: 10px;
+    background-color: white;
+}
+
+.pdf-preview-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.pdf-preview-message {
+    margin: 0;
+}
