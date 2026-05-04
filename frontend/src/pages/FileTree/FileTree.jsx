@@ -3,14 +3,16 @@ import FolderList from "../../fragments/FileTree/Folder/FolderList.jsx";
 import DeleteFileModal from "../../fragments/FileTree/Modals/DeleteFileModal.jsx";
 import CreateFolderModal from "../../fragments/FileTree/Modals/CreateFolderModal.jsx";
 import DeleteFolderModal from "../../fragments/FileTree/Modals/DeleteFolderModal.jsx";
+import AddFileModal from "../../fragments/FileTree/Modals/AddFileModal.jsx";
 import ExportFileModal from "../../fragments/FileTree/Modals/ExportFileModal.jsx";
 import SaveChangesModal from "../../fragments/FileTree/Modals/SaveChangesModal.jsx";
 import SuccessSaveModal from "../../fragments/FileTree/Modals/SuccessSaveModal.jsx";
+import ErrorModal from "../../fragments/FileTree/Modals/ErrorModal.jsx";
 import ViewFileScreen from "../../fragments/FileTree/Components/ViewFileScreen/ViewFileScreen.jsx";
 import EditFileScreen from "../../fragments/FileTree/Components/EditFileScreen/EditFileScreen.jsx";
 import { useState, useEffect } from "react";
 import "./FileTree.css";
-import { getUserFolders, getFolderFiles, deleteFile, createFolder, deleteFolder, exportFile, saveFileChanges } from "../../services/filetree_api.js";
+import { getUserFolders, getFolderFiles, deleteFile, createFolder, deleteFolder, exportFile, saveFileChanges, addFile, convertMarkdownFileToPdf } from "../../services/filetree_api.js";
 
 
 export default function FileTree() {
@@ -26,8 +28,18 @@ export default function FileTree() {
     const [pageMode, setPageMode] = useState({ type: "browser" });
 
     const [newFolderName, setNewFolderName] = useState("");
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
 
     const [searchFilter, setSearchFilter] = useState("");
+
+    function showError(message) {
+        if (!message) return;
+        setErrorMessage("");
+        window.setTimeout(() => {
+            setErrorMessage(message);
+        }, 0);
+    }
 
     useEffect(() => {
         loadFolders();
@@ -49,6 +61,7 @@ export default function FileTree() {
             setFolders(data);
         } catch (err) {
             console.error("Could not load folders:", err);
+            showError(err.message || "Could not load your folders.");
         } finally {
             setFoldersLoading(false);
         }
@@ -73,6 +86,7 @@ export default function FileTree() {
             setFiles(data);
         } catch (err) {
             console.error("Error loading files from folder:", err);
+            showError(err.message || "Could not load the files from this folder.");
         } finally {
             setFilesLoading(false);
         }
@@ -95,17 +109,56 @@ export default function FileTree() {
     }
 
     async function handleCreateFolder() {
+        let wasSuccessful = false;
+
         try {
             setModalResponseLoading(true);
             await createFolder({ name: newFolderName });
-            loadFolders();
+            await loadFolders();
+            wasSuccessful = true;
 
         } catch (error) {
             console.error("Could not create a new folder:\n", error);
+            showError(error.message || "Could not create the folder.");
         } finally {
             setModalResponseLoading(false);
-            setModalState({ type: null });
-            setNewFolderName("");
+            if (wasSuccessful) {
+                setModalState({ type: null });
+                setNewFolderName("");
+            }
+        }
+    }
+
+    async function handleConfirmAddFile() {
+        if (!selectedFile) {
+            showError("Please choose a file before confirming.");
+            return;
+        }
+
+        if (!selectedFolder) {
+            showError("Please select a folder before adding a file.");
+            return;
+        }
+
+        let wasSuccessful = false;
+
+        try {
+            setModalResponseLoading(true);
+
+            await addFile({ file: selectedFile, folderId: selectedFolder.id });
+            
+            const data = await getFolderFiles(selectedFolder.id);
+            setFiles(data);
+            wasSuccessful = true;
+        } catch (error) {
+            console.error("Could not add file:", error);
+            showError(error.message || "Could not add the selected file.");
+        } finally {
+            setModalResponseLoading(false);
+            if (wasSuccessful) {
+                setModalState({ type: null });
+                setSelectedFile(null);
+            }
         }
     }
 
@@ -124,21 +177,30 @@ export default function FileTree() {
 
     async function handleConfirmDeleteFile() {
         if (modalState.type !== "delete-file" || !modalState.file) return;
+
+        let wasSuccessful = false;
+
         try {
             setModalResponseLoading(true);
             await deleteFile(modalState.file.id);
             setFiles((prevFiles) => prevFiles.filter((file) => file.id != modalState.file.id));
+            wasSuccessful = true;
         } catch (err) {
             console.error("Could not delete file:", err);
+            showError(err.message || "Could not delete the selected file.");
         } finally {
-            setModalState({ type: null });
             setModalResponseLoading(false);
+            if (wasSuccessful) {
+                setModalState({ type: null });
+            }
         }
     }
 
 
     async function handleConfirmDeleteFolder() {
         if (modalState.type !== "delete-folder" || !modalState.folder) return;
+
+        let wasSuccessful = false;
 
         try {
             setModalResponseLoading(true);
@@ -147,11 +209,15 @@ export default function FileTree() {
             await loadFolders();
             setFiles([]);
             setSearchFilter("");
+            wasSuccessful = true;
         } catch (err) {
             console.error("Could not delete folder\n", err);
+            showError(err.message || "Could not delete the selected folder.");
         } finally {
-            setModalState({ type: null });
             setModalResponseLoading(false);
+            if (wasSuccessful) {
+                setModalState({ type: null });
+            }
         }
     }
 
@@ -159,14 +225,37 @@ export default function FileTree() {
     async function handleConfirmExportFile(format) {
         if (modalState.type !== "export-file" || !modalState.file) return;
 
+        let wasSuccessful = false;
+
         try {
             setModalResponseLoading(true);
             await exportFile(modalState.file, format);
+            wasSuccessful = true;
         } catch (err) {
             console.error("Could not export file\n", err);
+            showError(err.message || "Could not export this file.");
         } finally {
-            setModalState({ type: null });
             setModalResponseLoading(false);
+            if (wasSuccessful) {
+                setModalState({ type: null });
+            }
+        }
+    }
+
+
+    async function handleConvertFileToPdf(file) {
+        try {
+            const newFile = await convertMarkdownFileToPdf(file);
+
+            if (selectedFolder) {
+                const data = await getFolderFiles(selectedFolder.id);
+                setFiles(data);
+            }
+
+            setPageMode({ type: "view-file", file: newFile });
+        } catch (error) {
+            console.error("Could not convert markdown file to PDF:", error);
+            showError(error.message || "Could not convert the markdown file to PDF.");
         }
     }
 
@@ -181,30 +270,44 @@ export default function FileTree() {
 
 
     async function handleSaveFile(newContent) {
+        let wasSuccessful = false;
+
         try {
-            setModalState({ type: "success-save" });
             setModalResponseLoading(true);
             await saveFileChanges(pageMode.file.id, newContent);
+            wasSuccessful = true;
         } catch (err) {
             console.error("Changes couldn't be written to file:", err);
+            showError(err.message || "Could not save the file changes.");
         } finally {
             setModalResponseLoading(false);
+            if (wasSuccessful) {
+                setModalState({ type: "success-save" });
+            }
         }
+
+        return wasSuccessful;
     }
 
 
     async function handleConfirmSaveFile() {
         if (modalState.type !== "save-changes" || !modalState.file) return;
 
+        let wasSuccessful = false;
+
         try {
             setModalResponseLoading(true);
             await saveFileChanges(pageMode.file.id, modalState.changes);
+            wasSuccessful = true;
         } catch (error) {
             console.error("Changes couldn't be written to file:", error);
+            showError(error.message || "Could not save the file changes.");
         } finally {
             setModalResponseLoading(false);
-            setModalState({ type: null });
-            setPageMode({ type: "browser" });
+            if (wasSuccessful) {
+                setModalState({ type: null });
+                setPageMode({ type: "browser" });
+            }
         }
     }
 
@@ -213,6 +316,7 @@ export default function FileTree() {
     return (
 
         <>
+            <ErrorModal message={errorMessage} onClose={() => setErrorMessage("")} />
             <div className="file-tree-main">
                 <div className="file-tree-body">
                     <h1>Your personal File Storage System</h1>
@@ -222,12 +326,14 @@ export default function FileTree() {
                             file={pageMode.file}
                             onBack={() => setPageMode({ type: "browser" })}
                             onExport={() => setModalState({ type: "export-file", file: pageMode.file })}
+                            onConvertToPdf={handleConvertFileToPdf}
                         />
                     ) : pageMode.type === "edit-file" ? (
                         < EditFileScreen
                             file={pageMode.file}
                             onBack={handleBackFromEdit}
                             onSave={handleSaveFile}
+                            onConvertToPdf={handleConvertFileToPdf}
                         />
                     ) : pageMode.type === "browser" ? (
                         <div className="file-tree-page" >
@@ -246,13 +352,18 @@ export default function FileTree() {
                             <div className="file-tree">
                                 {selectedFolder && (
                                     <>
-                                        <h2> Files </h2>
-                                        <input
-                                            className="search-bar"
-                                            type="text"
-                                            onChange={(e) => setSearchFilter(e.target.value)}
-                                            placeholder="File Search"
-                                        />
+                                        <div className="file-tree-toolbar">
+                                            <h2> Files </h2>
+                                            <button className="button-add" onClick={() => setModalState({ type: "add-file" })}>
+                                                Add File
+                                            </button>
+                                            <input
+                                                className="search-bar"
+                                                type="text"
+                                                onChange={(e) => setSearchFilter(e.target.value)}
+                                                placeholder="File Search"
+                                            />
+                                        </div>
                                     </>)}
 
                                 <FileList
@@ -288,6 +399,18 @@ export default function FileTree() {
                         isLoading={modalResponseLoading}
                         onFolderNameChange={setNewFolderName}
                         onConfirm={handleCreateFolder}
+                        onCancel={handleCancel}
+                    />
+                )
+            }
+
+            {
+                modalState.type === "add-file" && (
+                    <AddFileModal
+                        file={selectedFile}
+                        isLoading={modalResponseLoading}
+                        onFileChange={setSelectedFile}
+                        onConfirm={handleConfirmAddFile}
                         onCancel={handleCancel}
                     />
                 )

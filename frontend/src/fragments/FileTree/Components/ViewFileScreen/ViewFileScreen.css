@@ -1,55 +1,119 @@
+.file-view-subpage {
+    border: 1px solid #4389FA;
+    border-radius: 12px;
+    background-color: #00bbff1a;
+    padding: 1rem;
+}
+
+.file-view-subpage h2 {
+    margin: 0;
+    font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+}
+
 .view-options {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
     align-items: center;
+    justify-content: space-between;
 }
 
 .view-options button {
-    color: white;
-    height: 2rem;
-    width: 5rem;
+    min-width: 6.2rem;
 }
 
 .button-export {
-    background-color: #02ff0e80;
+    background-color: #02ff0e33;
     border: 1px solid #02ff0e;
 }
 
 .button-export:hover {
-    background-color: #02ff0eCC;
+    background-color: #02ff0e80;
 }
 
 .view-content-options {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
     align-items: center;
 }
 
 .view-content-options button {
-    height: 2rem;
-    width: 6rem;
+    min-height: 2.1rem;
+    min-width: 6rem;
     text-align: center;
-    margin-right: 0.25rem;
-    font-size: 1.25rem;
+}
+
+.active-tab {
+    background-color: #00bbff80;
+    border-color: cyan;
 }
 
 .view-content {
     display: flex;
     flex-direction: column;
+    gap: 0.65rem;
+    margin-top: 0.75rem;
 }
 
 .view-content-display {
     display: flex;
-    width: 70%;
-    margin-top: 2rem;
+    width: 100%;
     align-self: center;
 }
 
 .view-content-display pre {
+    margin: 0;
     width: 100%;
-    height: 50vh;
+    min-height: 55vh;
+    border-radius: 10px;
+    box-sizing: border-box;
+    overflow: auto;
+    padding: 0.9rem;
+    line-height: 1.45;
 
     color: white;
     background-color: #00bbff30;
     border: 1px solid #4389FA;
-    outline: 1px solid cyan;
+    outline: none;
+}
+
+.rendered-content {
+    width: 100%;
+    min-height: 55vh;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 0.9rem;
+    line-height: 1.5;
+    color: white;
+    background-color: #00bbff30;
+    border: 1px solid #4389FA;
+    overflow: auto;
+}
+
+.rendered-content h1,
+.rendered-content h2,
+.rendered-content h3,
+.rendered-content h4,
+.rendered-content h5,
+.rendered-content h6,
+.rendered-content p,
+.rendered-content ul,
+.rendered-content pre {
+    margin-top: 0;
+}
+
+.rendered-content pre {
+    background-color: #09153e;
+    padding: 0.85rem;
+    border-radius: 8px;
+    overflow: auto;
+}
+
+.pdf-frame {
+    width: 100%;
+    min-height: 70vh;
+    border: 1px solid #4389FA;
+    border-radius: 10px;
+    background-color: white;
 }
