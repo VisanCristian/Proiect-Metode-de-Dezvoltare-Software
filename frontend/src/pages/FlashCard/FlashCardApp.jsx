@@ -1,5 +1,6 @@
 import "./main.css";
-import UploadPdfModal from "../../fragments/FlashCard/PDF/UploadPdf";
+import CreateDeckModal from "../../fragments/FlashCard/Form/CreateDeckModal";
+import RecommendationsPopup from "../../fragments/FlashCard/Recommendations/RecommendationsPopup";
 import { useFlashCards } from "../../hooks/FlashCard/useFlashCards";
 import TopBar from "../../fragments/FlashCard/TopBar/TopBar";
 import CreateForm from "../../fragments/FlashCard/Form/CreateForm";
@@ -25,12 +26,28 @@ export default function FlashCardApp() {
     <div className="flash-page">
       <TopBar
         sets={fc.sets} setId={fc.setId} showForm={fc.showForm}
-        ADD_NEW_VALUE={fc.ADD_NEW_VALUE}
         handleSetChange={fc.handleSetChange}
         setShowForm={fc.setShowForm}
+        setShowUploadModal={fc.setShowUploadModal}
       />
 
-      <UploadPdfModal open={fc.showUploadModal} onClose={() => fc.setShowUploadModal(false)} />
+      <CreateDeckModal 
+        open={fc.showUploadModal} 
+        onClose={() => fc.setShowUploadModal(false)} 
+        createDeck={fc.createDeck}
+      />
+
+      <RecommendationsPopup
+        open={fc.showRecommendations}
+        onClose={() => fc.setShowRecommendations(false)}
+        recommendedDecks={fc.recommendedDecks}
+        onSelectDeck={(id) => {
+          fc.setSetId(id);
+          fc.setShowRecommendations(false);
+          // Actualizăm listă eliminând pachetul ales (dacă dorim din UI imediat)
+          fc.setRecommendedDecks(old => old.filter(d => d.id !== id));
+        }}
+      />
 
       {fc.showForm && (
         <CreateForm q={fc.q} a={fc.a} setQ={fc.setQ} setA={fc.setA} addCard={fc.addCard} />
@@ -41,13 +58,14 @@ export default function FlashCardApp() {
 
       {!fc.cards.length ? (
         <div className="state-box">
-          <h3>No cards in this set.</h3>
-          <button className="btn-primary" onClick={() => fc.setShowForm(true)}>Create flashcard</button>
+          <h3>There are no cards in this deck.</h3>
+          <button className="btn-primary" onClick={() => fc.setShowForm(true)}>Create card</button>
         </div>
       ) : fc.finished ? (
         <SessionEnd
           known={fc.known} unknown={fc.unknown}
           resetSession={fc.resetSession} retryUnknownOnly={fc.retryUnknownOnly}
+          saveSessionStats={fc.saveSessionStats}
         />
       ) : (
         <>
@@ -61,6 +79,33 @@ export default function FlashCardApp() {
           />
         </>
       )}
+
+      {/* Buton fix jos pentru Recomandari */}
+      <button 
+        onClick={fc.fetchRecommendations}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          padding: '12px 24px',
+          borderRadius: '50px',
+          backgroundColor: 'var(--accent)',
+          color: 'var(--bg)',
+          fontWeight: 'bold',
+          border: 'none',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+          cursor: 'pointer',
+          zIndex: 1000,
+          fontSize: '1rem',
+          transition: 'transform 0.2s',
+        }}
+        onMouseOver={(e) => e.target.style.transform = 'translateX(-50%) scale(1.05)'}
+        onMouseOut={(e) => e.target.style.transform = 'translateX(-50%) scale(1)'}
+      >
+        Recommendations
+      </button>
+
     </div>
   );
 }

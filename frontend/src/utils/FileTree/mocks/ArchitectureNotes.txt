@@ -1,0 +1,3 @@
+- Split UI into browser/view/edit modes
+- Keep modal state centralized
+- Derive backend from frontend workflow

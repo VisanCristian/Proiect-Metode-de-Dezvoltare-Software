@@ -14,6 +14,8 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Quick-start development settings - unsuitable for production
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'FlashCards',
+    'FileTree',
 ]
 
 MIDDLEWARE = [
@@ -81,10 +84,10 @@ DATABASES = {
     'default': { 
         'ENGINE': 'django.db.backends.postgresql', 
         'NAME': 'studyapp_db',
-        'USER': 'studyapp_user',
-        'PASSWORD': 'studyapp_pass',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'USER': 'studyapp_user', 
+        'PASSWORD': 'studyapp_pass', 
+        'HOST': 'localhost', 
+        'PORT': '5432', 
     }
 }
 
@@ -125,8 +128,4 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+CORS_ALLOW_ALL_ORIGINS = True

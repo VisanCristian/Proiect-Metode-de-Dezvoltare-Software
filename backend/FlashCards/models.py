@@ -82,5 +82,17 @@ class SourceDocument(models.Model):
         if self.file:
             self.file_name = self.file.name
         super().save(*args, **kwargs)
-        
-        
+
+class DeckSession(models.Model):
+    # Records a completed study session for a deck
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='deck_sessions', null=True, blank=True)
+    deck = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name='sessions')
+    date = models.DateField(auto_now_add=True)
+    mistakes = models.IntegerField(default=0)
+    responses = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.deck.title} session on {self.date}"

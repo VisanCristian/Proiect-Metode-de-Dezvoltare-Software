@@ -1,0 +1,3 @@
+January: 1200
+February: 980
+March: 1340

@@ -30,7 +30,7 @@ export function useFlashCards() {
   // 1. Aducem seturile de la backend. Datorită modificării din Django, 
   // response.data conține acum și cardurile imbricate direct în set!
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/flashcards/decks/")
+    axios.get("http://127.0.0.1:8080/api/flashcards/decks/")
       .then((response) => {
         const fetchedDecks = response.data;
         setSets(fetchedDecks);
@@ -144,7 +144,12 @@ export function useFlashCards() {
   // 4. Modificăm salvarea cardurilor noi ca să meargă spre Backend
   function addCard(e) {
     e.preventDefault();
+    if (!setId) {
+      alert("Vă rugăm să creați sau să selectați un pachet mai întâi!");
+      return;
+    }
     if (!q.trim() || !a.trim()) return;
+
     
     const newCardData = { 
         deck: setId, 
@@ -153,7 +158,7 @@ export function useFlashCards() {
     };
 
     // Trimitem POST request; modelul Flashcard nu necesită User, deci va funcționa
-    axios.post("http://127.0.0.1:8000/api/flashcards/cards/", newCardData)
+    axios.post("http://127.0.0.1:8080/api/flashcards/cards/", newCardData)
         .then((response) => {
             const savedCard = response.data;
             setSets((oldSets) => oldSets.map((s) => (String(s.id) === String(setId) ? { ...s, cards: [...(s.cards || []), savedCard] } : s)));
@@ -162,6 +167,45 @@ export function useFlashCards() {
         })
         .catch((error) => console.error("Eroare la adăugarea cardului în baza de date:", error));
   }
+
+  function createDeck(title) {
+    const newDeckData = { title: title, user_id: 0 };
+    axios.post("http://127.0.0.1:8080/api/flashcards/decks/", newDeckData)
+        .then((response) => {
+            const savedDeck = response.data;
+            setSets((oldSets) => [...oldSets, savedDeck]);
+            setSetId(savedDeck.id);
+            setPrevSetId(savedDeck.id);
+            setShowUploadModal(false); // Refolosim aceasta stare pt noul modal
+        })
+        .catch((error) => console.error("Eroare la crearea pachetului:", error));
+  }
+
+  function saveSessionStats() {
+    if (!setId) return;
+    const sessionData = {
+      deck: setId,
+      mistakes: unknown,
+      responses: known + unknown,
+      user_id: 0
+    };
+    axios.post("http://127.0.0.1:8080/api/flashcards/sessions/", sessionData)
+        .then(() => console.log("Sesiune salvată cu succes!"))
+        .catch((error) => console.error("Eroare la salvarea sesiunii:", error));
+  }
+
+  const [recommendedDecks, setRecommendedDecks] = useState([]);
+  const [showRecommendations, setShowRecommendations] = useState(false);
+
+  function fetchRecommendations() {
+    axios.get("http://127.0.0.1:8080/api/flashcards/recommendations/")
+        .then((response) => {
+            setRecommendedDecks(response.data);
+            setShowRecommendations(true);
+        })
+        .catch((error) => console.error("Eroare la preluarea recomandarilor:", error));
+  }
+
 
   function handleSetChange(e) {
     const value = e.target.value;
@@ -175,6 +219,7 @@ export function useFlashCards() {
     showForm, setShowForm, q, setQ, a, setA,
     showUploadModal, setShowUploadModal,
     ADD_NEW_VALUE, loading,
-    prev, next, mark, resetSession, shuffleCards, retryUnknownOnly, addCard, handleSetChange,
+    recommendedDecks, showRecommendations, setShowRecommendations, setRecommendedDecks,
+    prev, next, mark, resetSession, shuffleCards, retryUnknownOnly, addCard, handleSetChange, createDeck, saveSessionStats, fetchRecommendations
   };
 }
