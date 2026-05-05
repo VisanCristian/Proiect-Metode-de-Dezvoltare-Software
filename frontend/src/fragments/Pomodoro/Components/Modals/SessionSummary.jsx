@@ -1,4 +1,5 @@
 import { CalendarIcon, ClockIcon, CircleIcon, CheckIcon, DropIcon, StarIcon } from '../Icons/Icons'
+import { formatDuration } from '../../../../utils/Pomodoro/formatDuration'
 import './SessionSummary.css'
 
 function SessionSummary({ session, onClose }) {
@@ -8,16 +9,14 @@ function SessionSummary({ session, onClose }) {
     const formatTime = (d) => d.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })
     const formatDate = (d) => d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })
 
-    const focusMin = Math.floor(session.totalFocusTime / 60)
-    const breakMin = Math.floor(session.totalBreakTime / 60)
     const points = session.completedPomodoros * 10
     const doneTasks = session.tasks.filter(t => t.completed).length
 
     const rows = [
         { icon: <CalendarIcon />, label: 'Data', value: formatDate(startDate) },
         { icon: <ClockIcon size={14} />, label: 'Interval', value: `${formatTime(startDate)} → ${formatTime(endDate)}` },
-        { icon: <ClockIcon size={14} stroke="#5b8fb9" />, label: 'Timp focus', value: `${focusMin} min` },
-        { icon: <DropIcon stroke="#4ecdc4" />, label: 'Timp pauze', value: `${breakMin} min` },
+        { icon: <ClockIcon size={14} stroke="#5b8fb9" />, label: 'Timp focus', value: formatDuration(session.totalFocusTime) },
+        { icon: <DropIcon stroke="#4ecdc4" />, label: 'Timp pauze', value: formatDuration(session.totalBreakTime) },
         { icon: <CircleIcon size={14} style={{ color: '#e06469' }} />, label: 'Pomodoro-uri', value: session.completedPomodoros },
         { icon: <CheckIcon stroke="#4ecdc4" />, label: 'Task-uri', value: `${doneTasks}/${session.tasks.length}` },
         { icon: <StarIcon style={{ color: '#e0a84e' }} />, label: 'Puncte', value: points, valueColor: '#e0a84e' },

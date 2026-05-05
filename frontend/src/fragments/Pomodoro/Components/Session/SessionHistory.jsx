@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ClockIcon, ChevronIcon, TrashIcon, CheckIcon } from '../Icons/Icons'
+import { formatDuration } from '../../../../utils/Pomodoro/formatDuration'
 
 function SessionHistory({ sessions, onClearAll }) {
     const [isOpen, setIsOpen] = useState(false)
@@ -13,11 +14,6 @@ function SessionHistory({ sessions, onClearAll }) {
         new Date(ts).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })
     const formatTime = (ts) =>
         new Date(ts).toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })
-    const formatDuration = (sec) => {
-        const m = Math.floor(sec / 60)
-        return m > 0 ? `${m} min` : `${sec}s`
-    }
-
     const totalPomodoros = sessions.reduce((s, x) => s + x.completedPomodoros, 0)
     const totalFocus = sessions.reduce((s, x) => s + x.totalFocusTime, 0)
 

@@ -34,3 +34,9 @@ Object.defineProperty(window, 'confirm', {
   value: vi.fn(() => true),
   configurable: true,
 })
+
+Object.defineProperty(globalThis, 'fetch', {
+  value: vi.fn(),
+  configurable: true,
+  writable: true,
+})

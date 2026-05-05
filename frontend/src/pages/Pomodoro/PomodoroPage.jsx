@@ -19,71 +19,212 @@ import '../../fragments/Pomodoro/index.css'
 import './PomodoroPage.css'
 
 export default function PomodoroPage() {
-    const [settings, setSettings] = useState(() => pomodoroStorage.getSettings() || DEFAULTS)
-    const [tasks, setTasks] = useState(() => pomodoroStorage.getTasks())
+    const [settings, setSettings] = useState(DEFAULTS)
+    const [tasks, setTasks] = useState([])
     const [activeTaskId, setActiveTaskId] = useState(null)
+    const [currentSessionId, setCurrentSessionId] = useState(null)
 
     const [sessionState, setSessionState] = useState('idle')
     const [sessionStartTime, setSessionStartTime] = useState(null)
     const [totalFocusTime, setTotalFocusTime] = useState(0)
     const [totalBreakTime, setTotalBreakTime] = useState(0)
     const [sessionSummary, setSessionSummary] = useState(null)
-    const [pastSessions, setPastSessions] = useState(() => pomodoroStorage.getSessions())
+    const [pastSessions, setPastSessions] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [errorMessage, setErrorMessage] = useState('')
 
     const timer = usePomodoro(settings)
     const { playForPhase } = useSound()
     const { notify } = useBrowserNotification()
     useBeforeUnload(sessionState === 'active')
     const prevPhaseRef = useRef(timer.phase)
+    const prevCompletedCycleRef = useRef(timer.completedCycle)
+    const taskSyncVersionRef = useRef(0)
 
-    const handleSaveSettings = (s) => {
-        setSettings(s)
-        pomodoroStorage.saveSettings(s)
-    }
-    const handleTasksChange = (t) => { setTasks(t); pomodoroStorage.saveTasks(t) }
-    const incrementActiveTaskPomodoro = useCallback(() => {
+    const applyCurrentSession = useCallback((session) => {
+        setCurrentSessionId(session.id)
+        setSettings(session.settings ?? DEFAULTS)
+        setTasks(session.tasks ?? [])
+        setSessionStartTime(session.startTime)
+        setTotalFocusTime(session.totalFocusTime ?? 0)
+        setTotalBreakTime(session.totalBreakTime ?? 0)
+        setActiveTaskId((prev) => (session.tasks ?? []).some((task) => task.id === prev) ? prev : null)
+    }, [])
+
+    const runWithErrorHandling = useCallback(async (action) => {
+        setErrorMessage('')
+        try {
+            return await action()
+        } catch (error) {
+            setErrorMessage(error instanceof Error ? error.message : 'A apărut o eroare la comunicarea cu backend-ul.')
+            throw error
+        }
+    }, [])
+
+    useEffect(() => {
+        let isMounted = true
+
+        const hydrate = async () => {
+            try {
+                const [currentSession, sessions] = await Promise.all([
+                    pomodoroStorage.getCurrentSession(),
+                    pomodoroStorage.getSessions(),
+                ])
+
+                if (!isMounted) {
+                    return
+                }
+
+                applyCurrentSession(currentSession)
+                setPastSessions(sessions)
+                setSessionState(currentSession.status === 'active' ? 'active' : 'idle')
+            } catch (error) {
+                if (isMounted) {
+                    setErrorMessage(error instanceof Error ? error.message : 'A apărut o eroare la încărcarea datelor.')
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false)
+                }
+            }
+        }
+
+        void hydrate()
+
+        return () => {
+            isMounted = false
+        }
+    }, [applyCurrentSession])
+
+    const handleSaveSettings = useCallback(async (nextSettings) => {
+        setSettings(nextSettings)
+
+        if (!currentSessionId) {
+            return
+        }
+
+        const updatedSession = await runWithErrorHandling(() => (
+            pomodoroStorage.saveSettings(currentSessionId, nextSettings)
+        ))
+
+        applyCurrentSession(updatedSession)
+    }, [applyCurrentSession, currentSessionId, runWithErrorHandling])
+
+    const persistTasks = useCallback(async (nextTasks) => {
+        if (!currentSessionId) {
+            return nextTasks
+        }
+
+        const requestVersion = taskSyncVersionRef.current + 1
+        taskSyncVersionRef.current = requestVersion
+
+        const savedTasks = await runWithErrorHandling(() => (
+            pomodoroStorage.saveTasks(currentSessionId, nextTasks)
+        ))
+
+        if (requestVersion === taskSyncVersionRef.current) {
+            setTasks(savedTasks)
+            setActiveTaskId((prev) => savedTasks.some((task) => task.id === prev) ? prev : null)
+        }
+
+        return savedTasks
+    }, [currentSessionId, runWithErrorHandling])
+
+    const handleTasksChange = useCallback(async (nextTasks) => {
+        setTasks(nextTasks)
+        await persistTasks(nextTasks)
+    }, [persistTasks])
+
+    const incrementActiveTaskPomodoro = useCallback(async () => {
         if (!activeTaskId) return
 
-        setTasks(prev => {
-            const updated = prev.map(t =>
-                t.id === activeTaskId ? { ...t, actualPomodoros: t.actualPomodoros + 1 } : t
-            )
-            pomodoroStorage.saveTasks(updated)
-            return updated
-        })
-    }, [activeTaskId])
+        const updatedTasks = tasks.map((task) =>
+            task.id === activeTaskId
+                ? { ...task, actualPomodoros: task.actualPomodoros + 1 }
+                : task
+        )
 
-    const startSession = () => {
+        setTasks(updatedTasks)
+        await persistTasks(updatedTasks)
+    }, [activeTaskId, persistTasks, tasks])
+
+    const startSession = useCallback(async () => {
+        if (!currentSessionId) {
+            return
+        }
+
+        const startedSession = await runWithErrorHandling(() => (
+            pomodoroStorage.startSession(currentSessionId)
+        ))
+
+        applyCurrentSession(startedSession)
         timer.reset()
+        if (startedSession.settings?.AUTO_START) {
+            timer.start()
+        }
         setSessionState('active')
-        setSessionStartTime(Date.now())
-        setTotalFocusTime(0)
-        setTotalBreakTime(0)
-    }
+        setSessionStartTime(startedSession.startTime ?? Date.now())
+        setTotalFocusTime(startedSession.totalFocusTime)
+        setTotalBreakTime(startedSession.totalBreakTime)
+    }, [applyCurrentSession, currentSessionId, runWithErrorHandling, timer])
 
-    const endSession = () => {
+    const endSession = useCallback(async () => {
+        if (!currentSessionId) {
+            return
+        }
+
         const summary = {
             startTime: sessionStartTime,
             endTime: Date.now(),
-            totalFocusTime, totalBreakTime,
+            totalFocusTime,
+            totalBreakTime,
             completedPomodoros: timer.completedCycle,
             tasks: [...tasks],
             points: timer.completedCycle * 10,
         }
-        pomodoroStorage.saveSession(summary)
-        setPastSessions(pomodoroStorage.getSessions())
+
+        await runWithErrorHandling(() => pomodoroStorage.saveSession(currentSessionId, summary))
+
+        const [currentSession, sessions] = await runWithErrorHandling(() => Promise.all([
+            pomodoroStorage.getCurrentSession(),
+            pomodoroStorage.getSessions(),
+        ]))
+
+        applyCurrentSession(currentSession)
+        setPastSessions(sessions)
         setSessionSummary(summary)
         setSessionState('ended')
         timer.reset()
-    }
+    }, [
+        applyCurrentSession,
+        currentSessionId,
+        runWithErrorHandling,
+        sessionStartTime,
+        tasks,
+        timer,
+        totalBreakTime,
+        totalFocusTime,
+    ])
 
-    const abandonSession = () => {
+    const abandonSession = useCallback(async () => {
+        if (!currentSessionId) {
+            return
+        }
+
         if (window.confirm('Ești sigur? Datele sesiunii nu vor fi salvate.')) {
+            await runWithErrorHandling(() => pomodoroStorage.abandonSession(currentSessionId))
+            const [currentSession, sessions] = await runWithErrorHandling(() => Promise.all([
+                pomodoroStorage.getCurrentSession(),
+                pomodoroStorage.getSessions(),
+            ]))
+
+            applyCurrentSession(currentSession)
+            setPastSessions(sessions)
             setSessionState('idle')
             setSessionStartTime(null)
             timer.reset()
         }
-    }
+    }, [applyCurrentSession, currentSessionId, runWithErrorHandling, timer])
 
     const closeSummary = () => {
         setSessionSummary(null)
@@ -91,24 +232,22 @@ export default function PomodoroPage() {
         setSessionStartTime(null)
     }
 
-    const clearHistory = () => {
+    const clearHistory = useCallback(async () => {
         if (window.confirm('Ești sigur? Istoricul sesiunilor va fi șters permanent.')) {
-            pomodoroStorage.clearSessions()
+            await runWithErrorHandling(() => pomodoroStorage.clearSessions())
             setPastSessions([])
         }
-    }
+    }, [runWithErrorHandling])
 
-    // Acumulează timp focus/break
     useEffect(() => {
         if (sessionState !== 'active' || !timer.isRunning) return
         const interval = setInterval(() => {
-            if (timer.phase === 'focus') setTotalFocusTime(p => p + 1)
-            else setTotalBreakTime(p => p + 1)
+            if (timer.phase === 'focus') setTotalFocusTime((previous) => previous + 1)
+            else setTotalBreakTime((previous) => previous + 1)
         }, 1000)
         return () => clearInterval(interval)
     }, [sessionState, timer.isRunning, timer.phase])
 
-    // Sunet + notificare + auto-count pomodoro la schimbare de fază
     useEffect(() => {
         if (prevPhaseRef.current !== timer.phase) {
             playForPhase(timer.phase)
@@ -118,18 +257,17 @@ export default function PomodoroPage() {
                     ? 'Timpul de concentrare a început!'
                     : 'E timpul pentru o pauză!'
             )
-            if (prevPhaseRef.current === 'focus' && activeTaskId) {
-                const timeout = setTimeout(() => {
-                    incrementActiveTaskPomodoro()
-                }, 0)
-                prevPhaseRef.current = timer.phase
-                return () => clearTimeout(timeout)
-            }
             prevPhaseRef.current = timer.phase
         }
-    }, [timer.phase, playForPhase, notify, activeTaskId, incrementActiveTaskPomodoro])
+    }, [timer.phase, playForPhase, notify])
 
-    // Tab title
+    useEffect(() => {
+        if (timer.completedCycle > prevCompletedCycleRef.current && activeTaskId) {
+            void incrementActiveTaskPomodoro()
+        }
+        prevCompletedCycleRef.current = timer.completedCycle
+    }, [timer.completedCycle, activeTaskId, incrementActiveTaskPomodoro])
+
     useEffect(() => {
         const mins = String(Math.floor(timer.timeLeft / 60)).padStart(2, '0')
         const secs = String(timer.timeLeft % 60).padStart(2, '0')
@@ -138,11 +276,21 @@ export default function PomodoroPage() {
             : 'StudyApp – Pomodoro'
     }, [timer.timeLeft, timer.phase, timer.isRunning])
 
-    // ── Idle screen ──
+    const errorBanner = errorMessage ? <p role="alert">{errorMessage}</p> : null
+
+    if (isLoading) {
+        return (
+            <div className="pomodoro-page">
+                <p>Se încarcă...</p>
+            </div>
+        )
+    }
+
     if (sessionState === 'idle') {
         return (
             <div className="pomodoro-page">
                 <SettingsPanel settings={settings} onSave={handleSaveSettings} />
+                {errorBanner}
                 <div className="idle-icon"><TimerClockIcon /></div>
                 <h1 className="idle-title">Pomodoro</h1>
                 <p className="idle-desc">Pregătește-ți task-urile și începe o sesiune de studiu.</p>
@@ -151,17 +299,17 @@ export default function PomodoroPage() {
                     onTasksChange={handleTasksChange} onSelectTask={setActiveTaskId} />
                 <SessionHistory sessions={pastSessions} onClearAll={clearHistory} />
 
-                <button onClick={startSession} className="start-btn">
+                <button onClick={() => void startSession()} className="start-btn">
                     <PlayIcon size={16} /> Start Sesiune
                 </button>
             </div>
         )
     }
 
-    // ── Active screen ──
     return (
         <div className="pomodoro-page">
             <SettingsPanel settings={settings} onSave={handleSaveSettings} />
+            {errorBanner}
             <PhaseIndicator phase={timer.phase} />
             <Timer timeLeft={timer.timeLeft} totalPhaseTime={timer.totalPhaseTime} phase={timer.phase} />
             <CycleIndicator completedCycle={timer.completedCycle} total={settings.CYCLES_BEFORE_LONG_BREAK} />
@@ -175,10 +323,10 @@ export default function PomodoroPage() {
                 onTasksChange={handleTasksChange} onSelectTask={setActiveTaskId} />
 
             <div className="session-actions">
-                <button onClick={endSession} className="end-btn">
+                <button onClick={() => void endSession()} className="end-btn">
                     <CheckIcon size={14} stroke="#fff" /> Încheie
                 </button>
-                <button onClick={abandonSession} className="abandon-btn">
+                <button onClick={() => void abandonSession()} className="abandon-btn">
                     <CloseIcon size={14} /> Abandonează
                 </button>
             </div>
