@@ -41,7 +41,7 @@ class FileListSerializer(serializers.Serializer):
         return value
 
 class FileAddSerializer(serializers.Serializer):
-    file = serializers.FileField()
+    file = serializers.FileField(allow_empty_file=True)
     folderId = serializers.IntegerField()
     userId = serializers.IntegerField(required=False, default=0)
 
