@@ -1,6 +1,30 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/Auth/useAuth';
 
+const extractErrorMessages = (value) => {
+  if (!value) return [];
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap(extractErrorMessages);
+  if (typeof value === 'object') {
+    return Object.entries(value).flatMap(([field, fieldErrors]) => {
+      const messages = extractErrorMessages(fieldErrors);
+      return messages.map((message) =>
+        field === 'non_field_errors' || field === 'detail'
+          ? message
+          : `${field}: ${message}`
+      );
+    });
+  }
+  return [];
+};
+
+const formatRegisterError = (error) => {
+  const messages = extractErrorMessages(error);
+  return messages.length > 0
+    ? [...new Set(messages)].join(' ')
+    : 'Error creating account.';
+};
+
 const RegisterForm = ({ onRegisterSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +46,7 @@ const RegisterForm = ({ onRegisterSuccess }) => {
       alert('Account created successfully! You can now log in.');
       onRegisterSuccess();
     } else {
-      setError('Error creating account. Please try a different username.');
+      setError(formatRegisterError(result.error));
     }
   };
 

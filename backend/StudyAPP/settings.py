@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'LoginSystem',
-     'FileTree',
 ]
 
 REST_FRAMEWORK = {
@@ -59,20 +58,19 @@ DJOSER = {
         'user_create': 'djoser.serializers.UserCreateSerializer',
         'user': 'djoser.serializers.UserSerializer',
     },
-}
-
-DJOSER = {
+    
     'LOGIN_FIELD': 'username',
     'USER_CREATE_PASSWORD_RETYPE': True,
     'SERIALIZERS': {
-        # Signup 
+        # Signup we change the default serializer to our custom one
         'user_create': 'LoginSystem.serializers.MyUserCreateSerializer', 
-        #search other users
+        #search other users, we use the default one
         'user': 'djoser.serializers.UserSerializer', 
-        # after the login -> Profile page
+        # after the login -> Profile page, we use the default one
         'current_user': 'djoser.serializers.UserSerializer', # => page profile
     },
 }
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
