@@ -26,6 +26,11 @@ function normalizeErrorMessage(value) {
     return "";
 }
 
+function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Token ${token}` } : {};
+}
+
 async function throwApiError(response, fallbackMessage) {
     let message = fallbackMessage;
 
@@ -77,6 +82,7 @@ export async function getUserFolders() {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
+            ...getAuthHeaders(),
         },
     });
 
@@ -93,6 +99,7 @@ export async function getFolderFiles(folder_id) {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
+            ...getAuthHeaders(),
         },
     });
 
@@ -109,6 +116,7 @@ export async function getFileContent(file_id) {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
+            ...getAuthHeaders(),
         },
     });
 
@@ -124,6 +132,7 @@ export async function createFolder({ name }) {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            ...getAuthHeaders(),
         },
         body: JSON.stringify({ name }),
     });
@@ -136,14 +145,16 @@ export async function createFolder({ name }) {
     return { id: data.id, name };
 }
 
-export async function addFile({ file, folderId, userId = 0 }) {
+export async function addFile({ file, folderId }) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("folderId", folderId);
-    formData.append("userId", userId);
 
     const response = await fetch("http://localhost:8080/api/filesystem/files/add", {
         method: "POST",
+        headers: {
+            ...getAuthHeaders(),
+        },
         body: formData,
     });
 
@@ -159,6 +170,7 @@ export async function saveFileChanges(file_id, content) {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
+            ...getAuthHeaders(),
         },
         body: JSON.stringify({ id: file_id, content }),
     });
@@ -175,6 +187,7 @@ export async function exportFile(file) {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
+            ...getAuthHeaders(),
         },
     });
 
@@ -207,6 +220,7 @@ export async function convertMarkdownFileToPdf(file) {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            ...getAuthHeaders(),
         },
         body: JSON.stringify({ id: file.id }),
     });
@@ -223,6 +237,7 @@ export async function deleteFile(file_id) {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
+            ...getAuthHeaders(),
         },
     });
 
@@ -238,6 +253,7 @@ export async function deleteFolder(folder_id) {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
+            ...getAuthHeaders(),
         },
     });
 
@@ -251,3 +267,4 @@ export async function deleteFolder(folder_id) {
 export async function getFolderParent() {
     return null;
 }
+

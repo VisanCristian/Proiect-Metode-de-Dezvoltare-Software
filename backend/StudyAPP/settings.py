@@ -42,9 +42,38 @@ INSTALLED_APPS = [
     
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
+    'LoginSystem',
     'FlashCards',
     'FileTree',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
+
+DJOSER = {
+    'USER_ID_FIELD': 'username',
+    'LOGIN_FIELD': 'username',
+    'SERIALIZERS': {
+        'user_create': 'djoser.serializers.UserCreateSerializer',
+        'user': 'djoser.serializers.UserSerializer',
+    },
+    
+    'LOGIN_FIELD': 'username',
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        # Signup we change the default serializer to our custom one
+        'user_create': 'LoginSystem.serializers.MyUserCreateSerializer', 
+        #search other users, we use the default one
+        'user': 'djoser.serializers.UserSerializer', 
+        # after the login -> Profile page, we use the default one
+        'current_user': 'djoser.serializers.UserSerializer', # => page profile
+    },
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -84,10 +113,10 @@ DATABASES = {
     'default': { 
         'ENGINE': 'django.db.backends.postgresql', 
         'NAME': 'studyapp_db',
-        'USER': 'studyapp_user', 
-        'PASSWORD': 'studyapp_pass', 
-        'HOST': 'localhost', 
-        'PORT': '5432', 
+        'USER': 'studyapp_user',
+        'PASSWORD': 'studyapp_pass',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

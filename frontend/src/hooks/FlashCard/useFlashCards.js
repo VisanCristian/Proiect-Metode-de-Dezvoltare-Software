@@ -5,6 +5,11 @@ import { shuffleArray } from "../../utils/FlashCard/shuffle";
 const STORAGE_KEY = "flashcards_stable_v1";
 const ADD_NEW_VALUE = "__add_new__";
 
+function getAuthConfig() {
+  const token = localStorage.getItem('token');
+  return token ? { headers: { Authorization: `Token ${token}` } } : {};
+}
+
 export function useFlashCards() {
   const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
 
@@ -30,7 +35,7 @@ export function useFlashCards() {
   // 1. Aducem seturile de la backend. Datorită modificării din Django, 
   // response.data conține acum și cardurile imbricate direct în set!
   useEffect(() => {
-    axios.get("http://127.0.0.1:8080/api/flashcards/decks/")
+    axios.get("http://127.0.0.1:8080/api/flashcards/decks/", getAuthConfig())
       .then((response) => {
         const fetchedDecks = response.data;
         setSets(fetchedDecks);
@@ -158,7 +163,7 @@ export function useFlashCards() {
     };
 
     // Trimitem POST request; modelul Flashcard nu necesită User, deci va funcționa
-    axios.post("http://127.0.0.1:8080/api/flashcards/cards/", newCardData)
+    axios.post("http://127.0.0.1:8080/api/flashcards/cards/", newCardData, getAuthConfig())
         .then((response) => {
             const savedCard = response.data;
             setSets((oldSets) => oldSets.map((s) => (String(s.id) === String(setId) ? { ...s, cards: [...(s.cards || []), savedCard] } : s)));
@@ -169,8 +174,8 @@ export function useFlashCards() {
   }
 
   function createDeck(title) {
-    const newDeckData = { title: title, user_id: 0 };
-    axios.post("http://127.0.0.1:8080/api/flashcards/decks/", newDeckData)
+    const newDeckData = { title: title };
+    axios.post("http://127.0.0.1:8080/api/flashcards/decks/", newDeckData, getAuthConfig())
         .then((response) => {
             const savedDeck = response.data;
             setSets((oldSets) => [...oldSets, savedDeck]);
@@ -187,9 +192,8 @@ export function useFlashCards() {
       deck: setId,
       mistakes: unknown,
       responses: known + unknown,
-      user_id: 0
     };
-    axios.post("http://127.0.0.1:8080/api/flashcards/sessions/", sessionData)
+    axios.post("http://127.0.0.1:8080/api/flashcards/sessions/", sessionData, getAuthConfig())
         .then(() => console.log("Sesiune salvată cu succes!"))
         .catch((error) => console.error("Eroare la salvarea sesiunii:", error));
   }
@@ -198,7 +202,7 @@ export function useFlashCards() {
   const [showRecommendations, setShowRecommendations] = useState(false);
 
   function fetchRecommendations() {
-    axios.get("http://127.0.0.1:8080/api/flashcards/recommendations/")
+    axios.get("http://127.0.0.1:8080/api/flashcards/recommendations/", getAuthConfig())
         .then((response) => {
             setRecommendedDecks(response.data);
             setShowRecommendations(true);

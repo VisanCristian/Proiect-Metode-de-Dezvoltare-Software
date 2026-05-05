@@ -1,21 +1,58 @@
-import { StrictMode } from 'react'
+import React from 'react'
 import { createRoot } from 'react-dom/client'
-
-import App from './App.jsx'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import './App.css'
+import AuthApp from './pages/Auth/AuthApp.jsx'
+import HomePage from './pages/Home/HomePage.jsx'
+import ModulePlaceholder from './pages/Home/ModulePlaceholder.jsx'
+import PrivateRoute from './routes/PrivateRoute.jsx'
 import FlashCardApp from './pages/FlashCard/FlashCardApp.jsx'
 import FileTree from './pages/FileTree/FileTree.jsx'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/filetree" element={<FileTree />} />
-        <Route path="/flashcards" element={<FlashCardApp />} />
+        <Route path="/" element={<Navigate to="/home" />} />
+        <Route path="/auth" element={<AuthApp />} />
+        <Route
+          path="/home"
+          element={
+            <PrivateRoute>
+              <HomePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/pomodoro"
+          element={
+            <PrivateRoute>
+              <ModulePlaceholder
+                title="Pomodoro module"
+                description="This route is prepared from the authenticated dashboard. The final Pomodoro screen can be connected here once the feature branch is merged."
+              />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/flashcards"
+          element={
+            <PrivateRoute>
+              <FlashCardApp />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/filetree"
+          element={
+            <PrivateRoute>
+              <FileTree />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
-  </StrictMode>,
+  </React.StrictMode>,
 )
 
 

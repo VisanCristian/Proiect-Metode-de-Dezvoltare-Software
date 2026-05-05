@@ -23,8 +23,6 @@ def get_file_type(file_name: str) -> str:
     return 'text'
 
 def folder_create(*, folder_name: str, user_id: int) -> models.Folder:
-    if user_id is None:
-        user_id = 0
     folder = models.Folder(user=user_id, name=folder_name)
     folder.save()
     return folder

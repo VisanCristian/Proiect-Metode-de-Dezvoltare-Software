@@ -4,16 +4,19 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from . import serializers, selectors, services
 
 # Create your views here.
 
 class FolderCreateApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             serializer = serializers.FolderCreateSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            folder = services.folder_create(folder_name=serializer.validated_data['name'], user_id=0)
+            folder = services.folder_create(folder_name=serializer.validated_data['name'], user_id=request.user.id)
             return Response({'id': folder.id}, status=status.HTTP_201_CREATED)
         except ValidationError as exc:
             return Response({'message': 'Folder creation failed.', 'errors': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
@@ -21,11 +24,11 @@ class FolderCreateApi(APIView):
             return Response({'message': 'An unexpected error occurred while creating the folder.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class FolderListApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
-            serializer = serializers.FolderListSerializer(data=request.query_params)
-            serializer.is_valid(raise_exception=True)
-            folders = selectors.get_folders(user_id=serializer.validated_data.get('id', 0))
+            folders = selectors.get_folders(user_id=request.user.id)
             return Response({'contents': [{'id': f.id, 'name': f.name} for f in folders]}, status=status.HTTP_200_OK)
         except ValidationError as exc:
             return Response({'message': 'Could not load folders.', 'errors': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
@@ -33,6 +36,8 @@ class FolderListApi(APIView):
             return Response({'message': 'An unexpected error occurred while loading folders.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class FolderRemoveApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request):
         try:
             serializer = serializers.FolderRemoveSerializer(data=request.query_params)
@@ -47,6 +52,8 @@ class FolderRemoveApi(APIView):
 
 
 class FileListApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             folder_id = request.query_params.get('id')
@@ -60,11 +67,13 @@ class FileListApi(APIView):
             return Response({'message': 'An unexpected error occurred while loading folder files.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class FileAddApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             file = request.FILES.get('file')
             folder_id = request.data.get('folderId')
-            user_id = request.data.get('userId')
+            user_id = request.user.id
             serializer = serializers.FileAddSerializer(data={'file': file, 'folderId': folder_id, 'userId': user_id})
             serializer.is_valid(raise_exception=True)
             new_file = services.file_add(
@@ -78,6 +87,8 @@ class FileAddApi(APIView):
         except Exception:
             return Response({'message': 'An unexpected error occurred while adding the file.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class FileRemoveApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request):
         try:
             file_id = request.query_params.get('id')
@@ -93,6 +104,8 @@ class FileRemoveApi(APIView):
 
 
 class FileContentApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             file_id = request.query_params.get('id')
@@ -107,6 +120,8 @@ class FileContentApi(APIView):
 
 
 class FileUpdateApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def put(self, request):
         try:
             serializer = serializers.FileUpdateSerializer(data=request.data)
@@ -120,6 +135,8 @@ class FileUpdateApi(APIView):
 
 
 class FileExportApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             file_id = request.query_params.get('id')
@@ -134,6 +151,8 @@ class FileExportApi(APIView):
 
 
 class FileConvertToPdfApi(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             serializer = serializers.FileConvertToPdfSerializer(data=request.data)

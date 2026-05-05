@@ -18,6 +18,7 @@ class UserCardProgressSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserCardProgress
         fields = '__all__'
+        read_only_fields = ['user']
 
 class SourceDocumentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,3 +29,4 @@ class DeckSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeckSession
         fields = '__all__'
+        read_only_fields = ['user']
