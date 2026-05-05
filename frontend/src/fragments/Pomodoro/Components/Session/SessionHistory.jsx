@@ -11,9 +11,9 @@ function SessionHistory({ sessions, onClearAll }) {
     const sorted = [...sessions].reverse()
 
     const formatDate = (ts) =>
-        new Date(ts).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })
+        new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
     const formatTime = (ts) =>
-        new Date(ts).toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })
+        new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
     const totalPomodoros = sessions.reduce((s, x) => s + x.completedPomodoros, 0)
     const totalFocus = sessions.reduce((s, x) => s + x.totalFocusTime, 0)
 
@@ -22,7 +22,7 @@ function SessionHistory({ sessions, onClearAll }) {
             <button onClick={() => setIsOpen(!isOpen)} className="history-toggle">
                 <span className="history-toggle-title">
                     <ClockIcon stroke="var(--accent)" />
-                    Istoric sesiuni
+                    Session history
                     <span className="history-count">{sessions.length}</span>
                 </span>
                 <ChevronIcon open={isOpen} stroke="var(--text)" />
@@ -61,15 +61,15 @@ function SessionHistory({ sessions, onClearAll }) {
                                                     <div className="stat-value">{formatDuration(session.totalFocusTime)}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="stat-label">Pauze</div>
+                                                    <div className="stat-label">Breaks</div>
                                                     <div className="stat-value">{formatDuration(session.totalBreakTime)}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="stat-label">Task-uri</div>
+                                                    <div className="stat-label">Tasks</div>
                                                     <div className="stat-value">{doneTasks}/{session.tasks.length}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="stat-label">Puncte</div>
+                                                    <div className="stat-label">Points</div>
                                                     <div className="stat-value" style={{ color: '#e0a84e' }}>
                                                         {session.completedPomodoros * 10}
                                                     </div>
@@ -105,7 +105,7 @@ function SessionHistory({ sessions, onClearAll }) {
 
                     {sessions.length > 1 && (
                         <button onClick={onClearAll} className="history-clear">
-                            <TrashIcon size={12} /> Șterge tot istoricul
+                            <TrashIcon size={12} /> Clear all history
                         </button>
                     )}
                 </div>

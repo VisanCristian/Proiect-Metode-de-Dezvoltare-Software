@@ -56,24 +56,24 @@ function TaskList({ tasks, activeTaskId, onTasksChange, onSelectTask }) {
         <div className="task-section">
             <h3 className="task-header">
                 <ListIcon stroke="var(--accent)" />
-                Task-uri
+                Tasks
             </h3>
 
             <div className="task-form">
-                <input type="text" placeholder="Adaugă un task..." value={newTitle}
+                <input type="text" placeholder="Add a task..." value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && addTask()}
                     className="task-input" />
                 <input type="number" min="1" max="20" value={newEstimate}
                     onChange={(e) => setNewEstimate(Number(e.target.value))}
-                    title="Pomodoro-uri estimate" className="task-estimate" />
-                <button onClick={addTask} className="task-add-btn" aria-label="Adaugă task">
+                    title="Estimated pomodoros" className="task-estimate" />
+                <button onClick={addTask} className="task-add-btn" aria-label="Add task">
                     <PlusIcon />
                 </button>
             </div>
 
             {tasks.length === 0 ? (
-                <p className="task-empty">Niciun task adăugat</p>
+                <p className="task-empty">No tasks added</p>
             ) : (
                 tasks.map(task => (
                     <TaskItem key={task.id} task={task}

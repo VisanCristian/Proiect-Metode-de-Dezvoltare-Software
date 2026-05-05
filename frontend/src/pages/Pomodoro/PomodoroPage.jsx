@@ -56,7 +56,7 @@ export default function PomodoroPage() {
         try {
             return await action()
         } catch (error) {
-            setErrorMessage(error instanceof Error ? error.message : 'A apărut o eroare la comunicarea cu backend-ul.')
+            setErrorMessage(error instanceof Error ? error.message : 'An error occurred while communicating with the backend.')
             throw error
         }
     }, [])
@@ -80,7 +80,7 @@ export default function PomodoroPage() {
                 setSessionState(currentSession.status === 'active' ? 'active' : 'idle')
             } catch (error) {
                 if (isMounted) {
-                    setErrorMessage(error instanceof Error ? error.message : 'A apărut o eroare la încărcarea datelor.')
+                    setErrorMessage(error instanceof Error ? error.message : 'An error occurred while loading the data.')
                 }
             } finally {
                 if (isMounted) {
@@ -211,7 +211,7 @@ export default function PomodoroPage() {
             return
         }
 
-        if (window.confirm('Ești sigur? Datele sesiunii nu vor fi salvate.')) {
+        if (window.confirm('Are you sure? The session data will not be saved.')) {
             await runWithErrorHandling(() => pomodoroStorage.abandonSession(currentSessionId))
             const [currentSession, sessions] = await runWithErrorHandling(() => Promise.all([
                 pomodoroStorage.getCurrentSession(),
@@ -233,7 +233,7 @@ export default function PomodoroPage() {
     }
 
     const clearHistory = useCallback(async () => {
-        if (window.confirm('Ești sigur? Istoricul sesiunilor va fi șters permanent.')) {
+        if (window.confirm('Are you sure? The session history will be permanently deleted.')) {
             await runWithErrorHandling(() => pomodoroStorage.clearSessions())
             setPastSessions([])
         }
@@ -254,8 +254,8 @@ export default function PomodoroPage() {
             notify(
                 PHASE_LABELS[timer.phase],
                 timer.phase === 'focus'
-                    ? 'Timpul de concentrare a început!'
-                    : 'E timpul pentru o pauză!'
+                    ? 'Focus time has started!'
+                    : 'Time for a break!'
             )
             prevPhaseRef.current = timer.phase
         }
@@ -281,7 +281,7 @@ export default function PomodoroPage() {
     if (isLoading) {
         return (
             <div className="pomodoro-page">
-                <p>Se încarcă...</p>
+                <p>Loading...</p>
             </div>
         )
     }
@@ -293,14 +293,14 @@ export default function PomodoroPage() {
                 {errorBanner}
                 <div className="idle-icon"><TimerClockIcon /></div>
                 <h1 className="idle-title">Pomodoro</h1>
-                <p className="idle-desc">Pregătește-ți task-urile și începe o sesiune de studiu.</p>
+                <p className="idle-desc">Prepare your tasks and start a study session.</p>
 
                 <TaskList tasks={tasks} activeTaskId={activeTaskId}
                     onTasksChange={handleTasksChange} onSelectTask={setActiveTaskId} />
                 <SessionHistory sessions={pastSessions} onClearAll={clearHistory} />
 
                 <button onClick={() => void startSession()} className="start-btn">
-                    <PlayIcon size={16} /> Start Sesiune
+                    <PlayIcon size={16} /> Start Session
                 </button>
             </div>
         )
@@ -324,10 +324,10 @@ export default function PomodoroPage() {
 
             <div className="session-actions">
                 <button onClick={() => void endSession()} className="end-btn">
-                    <CheckIcon size={14} stroke="#fff" /> Încheie
+                    <CheckIcon size={14} stroke="#fff" /> Finish
                 </button>
                 <button onClick={() => void abandonSession()} className="abandon-btn">
-                    <CloseIcon size={14} /> Abandonează
+                    <CloseIcon size={14} /> Abandon
                 </button>
             </div>
 

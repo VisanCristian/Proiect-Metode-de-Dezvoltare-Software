@@ -16,8 +16,8 @@ function TimerControls({ isRunning, onStart, onPause, onReset, onSkip }) {
                 onClick={isRunning ? onPause : onStart}
                 className="ctrl-btn ctrl-primary"
                 style={{ background: primaryColor, boxShadow: primaryShadow }}
-                title={isRunning ? 'Pauză' : 'Start'}
-                aria-label={isRunning ? 'Pauză' : 'Start'}
+                title={isRunning ? 'Pause' : 'Start'}
+                aria-label={isRunning ? 'Pause' : 'Start'}
             >
                 {isRunning ? <PauseIcon /> : <PlayIcon />}
             </button>

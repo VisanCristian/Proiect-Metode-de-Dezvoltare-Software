@@ -193,41 +193,41 @@ describe('PomodoroPage', () => {
     cleanup()
   })
 
-  it('porneste o sesiune cu setarile salvate recent', async () => {
+  it('starts a session with the most recently saved settings', async () => {
     createBackendMock()
 
     render(<PomodoroPage />)
 
-    fireEvent.click(await screen.findByTitle('Setări'))
+    fireEvent.click(await screen.findByTitle('Settings'))
     fireEvent.change(screen.getByLabelText('Focus (min)'), { target: { value: '30' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Salvează' }))
-    fireEvent.click(await screen.findByRole('button', { name: /Start Sesiune/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(await screen.findByRole('button', { name: /Start Session/i }))
 
     expect(await screen.findByText('30:00')).toBeInTheDocument()
   })
 
-  it('porneste automat timerul initial cand auto-start este activat din setari', async () => {
+  it('starts the initial timer automatically when auto-start is enabled in settings', async () => {
     createBackendMock()
 
     render(<PomodoroPage />)
 
-    fireEvent.click(await screen.findByTitle('Setări'))
+    fireEvent.click(await screen.findByTitle('Settings'))
     fireEvent.click(screen.getByLabelText('Auto-start'))
-    fireEvent.click(screen.getByRole('button', { name: 'Salvează' }))
-    fireEvent.click(await screen.findByRole('button', { name: /Start Sesiune/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(await screen.findByRole('button', { name: /Start Session/i }))
 
-    expect(await screen.findByRole('button', { name: 'Pauză' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Pause' })).toBeInTheDocument()
   })
 
-  it('avanseaza sesiunea si pastreaza taskul activ dupa pornire', async () => {
+  it('advances the session and keeps the active task after starting', async () => {
     createBackendMock({ focusTime: 1 })
 
     render(<PomodoroPage />)
 
-    fireEvent.change(await screen.findByPlaceholderText('Adaugă un task...'), { target: { value: 'Capitol 1' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Adaugă task' }))
+    fireEvent.change(await screen.findByPlaceholderText('Add a task...'), { target: { value: 'Capitol 1' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Add task' }))
     fireEvent.click(screen.getByText('Capitol 1'))
-    fireEvent.click(screen.getByRole('button', { name: /Start Sesiune/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Start Session/i }))
     fireEvent.click(await screen.findByRole('button', { name: 'Start' }))
 
     await waitFor(() => {
@@ -236,13 +236,13 @@ describe('PomodoroPage', () => {
     })
   })
 
-  it('pastreaza progresul separat de checkbox-ul taskului', async () => {
+  it('keeps progress separate from the task checkbox', async () => {
     createBackendMock()
 
     render(<PomodoroPage />)
 
-    fireEvent.change(await screen.findByPlaceholderText('Adaugă un task...'), { target: { value: 'sa fac ceva' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Adaugă task' }))
+    fireEvent.change(await screen.findByPlaceholderText('Add a task...'), { target: { value: 'sa fac ceva' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Add task' }))
 
     await waitFor(() => {
       expect(screen.getAllByText('sa fac ceva')).toHaveLength(1)
@@ -253,13 +253,13 @@ describe('PomodoroPage', () => {
     expect(await screen.findByText('0/1')).toBeInTheDocument()
   })
 
-  it('salveaza sesiunea prin API cand se incheie', async () => {
+  it('saves the session through the API when it ends', async () => {
     const backendState = createBackendMock()
 
     render(<PomodoroPage />)
 
-    fireEvent.click(await screen.findByRole('button', { name: /Start Sesiune/i }))
-    fireEvent.click(await screen.findByRole('button', { name: /Încheie/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /Start Session/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /Finish/i }))
 
     await waitFor(() => {
       expect(backendState.history).toHaveLength(1)
@@ -273,6 +273,6 @@ describe('PomodoroPage', () => {
         total_break_time: 0,
       })
     )
-    expect(await screen.findByText('Rezumat Sesiune')).toBeInTheDocument()
+    expect(await screen.findByText('Session Summary')).toBeInTheDocument()
   })
 })

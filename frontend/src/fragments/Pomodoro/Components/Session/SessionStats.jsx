@@ -40,7 +40,7 @@ function SessionStats({ totalFocusTime, completedPomodoros, tasks, phase }) {
                 <div className="stat-value" style={{ fontSize: '13px', color: PHASE_COLORS[phase] }}>
                     {PHASE_LABELS[phase]}
                 </div>
-                <div className="stat-label">Faza</div>
+                <div className="stat-label">Phase</div>
             </div>
         </div>
     )

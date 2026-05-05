@@ -32,7 +32,7 @@ function SettingsPanel({ settings, onSave }) {
 
     if (!isOpen) {
         return (
-            <button onClick={openPanel} className="settings-toggle" title="Setări">
+            <button onClick={openPanel} className="settings-toggle" title="Settings">
                 <GearIcon />
             </button>
         )
@@ -41,7 +41,7 @@ function SettingsPanel({ settings, onSave }) {
     return (
         <div className="settings-panel">
             <div className="settings-header">
-                <h3><GearIcon /> Setări</h3>
+                <h3><GearIcon /> Settings</h3>
                 <button onClick={() => setIsOpen(false)} className="settings-close">
                     <CloseIcon />
                 </button>
@@ -55,22 +55,22 @@ function SettingsPanel({ settings, onSave }) {
             </div>
 
             <div className="settings-row">
-                <span>Pauză scurtă (min)</span>
-                <input type="number" min="1" max="30" value={breakMin} aria-label="Pauză scurtă (min)"
+                <span>Short break (min)</span>
+                <input type="number" min="1" max="30" value={breakMin} aria-label="Short break (min)"
                     onChange={(e) => setBreakMin(Number(e.target.value))}
                     className="settings-input" />
             </div>
 
             <div className="settings-row">
-                <span>Pauză lungă (min)</span>
-                <input type="number" min="1" max="60" value={longBreakMin} aria-label="Pauză lungă (min)"
+                <span>Long break (min)</span>
+                <input type="number" min="1" max="60" value={longBreakMin} aria-label="Long break (min)"
                     onChange={(e) => setLongBreakMin(Number(e.target.value))}
                     className="settings-input" />
             </div>
 
             <div className="settings-row">
-                <span>Cicluri</span>
-                <input type="number" min="1" max="10" value={cycles} aria-label="Cicluri"
+                <span>Cycles</span>
+                <input type="number" min="1" max="10" value={cycles} aria-label="Cycles"
                     onChange={(e) => setCycles(Number(e.target.value))}
                     className="settings-input" />
             </div>
@@ -88,7 +88,7 @@ function SettingsPanel({ settings, onSave }) {
                 </div>
             </div>
 
-            <button onClick={handleSave} className="settings-save">Salvează</button>
+            <button onClick={handleSave} className="settings-save">Save</button>
         </div>
     )
 }

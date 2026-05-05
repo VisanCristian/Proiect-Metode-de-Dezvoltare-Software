@@ -15,6 +15,6 @@ export const PHASE_COLORS = {
 
 export const PHASE_LABELS = {
   focus: 'Focus',
-  break: 'Pauză scurtă',
-  longbreak: 'Pauză lungă',
+  break: 'Short break',
+  longbreak: 'Long break',
 }

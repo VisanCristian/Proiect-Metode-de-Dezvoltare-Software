@@ -30,7 +30,7 @@ function TaskItem({ task, isActive, onSelect, onToggle, onDelete, onDragStart, o
             <button
                 onClick={(e) => { e.stopPropagation(); onDelete(task.id) }}
                 className="task-delete"
-                title="Șterge"
+                title="Delete"
             >
                 <TrashIcon />
             </button>
