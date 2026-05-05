@@ -1,0 +1,15 @@
+:root {
+  --bg-page: #1c2167; 
+  --bg-surface:  rgba(28, 33, 103, 0.92);
+  --bg-surface-elevated:   rgba(18, 76, 127, 0.88);
+  --text-primary: #d5dfe8;
+  --green: #4ecdc4;
+  --red: #e06469;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, var(--bg-page) 0%, var(--bg-surface) 55%, var(--bg-surface-elevated) 100%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+}
