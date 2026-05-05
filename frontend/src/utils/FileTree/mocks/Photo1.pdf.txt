@@ -1,0 +1,2 @@
+Mock PDF content for preview purposes.
+This is a local mock file used by the FileTree page.

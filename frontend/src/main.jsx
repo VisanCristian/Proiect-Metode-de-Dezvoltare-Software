@@ -6,6 +6,8 @@ import AuthApp from './pages/Auth/AuthApp.jsx'
 import HomePage from './pages/Home/HomePage.jsx'
 import ModulePlaceholder from './pages/Home/ModulePlaceholder.jsx'
 import PrivateRoute from './routes/PrivateRoute.jsx'
+import FlashCardApp from './pages/FlashCard/FlashCardApp.jsx'
+import FileTree from './pages/FileTree/FileTree.jsx'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -13,13 +15,13 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<Navigate to="/home" />} />
         <Route path="/auth" element={<AuthApp />} />
-        <Route 
-          path="/home" 
+        <Route
+          path="/home"
           element={
             <PrivateRoute>
               <HomePage />
             </PrivateRoute>
-          } 
+          }
         />
         <Route
           path="/pomodoro"
@@ -36,10 +38,7 @@ createRoot(document.getElementById('root')).render(
           path="/flashcards"
           element={
             <PrivateRoute>
-              <ModulePlaceholder
-                title="FlashCards module"
-                description="This route is prepared from the authenticated dashboard. The final FlashCards screen can be connected here once the feature branch is merged."
-              />
+              <FlashCardApp />
             </PrivateRoute>
           }
         />
@@ -47,10 +46,7 @@ createRoot(document.getElementById('root')).render(
           path="/filetree"
           element={
             <PrivateRoute>
-              <ModulePlaceholder
-                title="FileTree module"
-                description="This route is prepared from the authenticated dashboard. The final FileTree screen can be connected here once the feature branch is merged."
-              />
+              <FileTree />
             </PrivateRoute>
           }
         />
@@ -58,3 +54,5 @@ createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </React.StrictMode>,
 )
+
+
