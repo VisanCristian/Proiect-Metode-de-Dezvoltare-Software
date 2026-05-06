@@ -1,0 +1,58 @@
+@import '../../fragments/FlashCard/CardNav/buttons.css';
+@import '../../fragments/FlashCard/Card/card.css';
+@import '../../fragments/FlashCard/Form/forms.css';
+@import './layout.css';
+@import '../../fragments/FlashCard/TopBar/topbar.css';
+
+:root {
+  --accent: #6ba3cc;
+  --accent-strong: #5b8fb9;
+  --accent-dim: rgba(107, 163, 204, 0.22);
+  --bg-page: #1c2167; 
+  --bg-surface:  rgba(28, 33, 103, 0.92);
+  --bg-surface-elevated:   rgba(18, 76, 127, 0.88);
+  /* --bg-input: #1a2530; */
+  --border: #1f4b76;
+  --border-hover: rgba(107, 163, 204, 0.4);
+  --text-primary: #d5dfe8;
+  --text-muted: #8a9bb0;
+  --text-hint: rgba(138, 155, 176, 0.76);
+  --green: #4ecdc4;
+  --red: #e06469;
+  --shadow-soft: 0 8px 24px rgba(3, 8, 26, 0.24);
+  --shadow-strong: 0 18px 44px rgba(2, 6, 22, 0.36);
+  --focus-ring: 0 0 0 3px rgba(107, 163, 204, 0.4);
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100%;
+}
+
+html {
+  box-sizing: border-box;
+  color-scheme: dark;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, var(--bg-page) 0%, var(--bg-surface) 55%, var(--bg-surface-elevated) 100%);
+  
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: Inter, system-ui, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.flash-page {
+  min-height: 100vh;
+  padding: 24px;
+  color: var(--text-primary);
+  font-family: inherit;
+  background: transparent;
+}

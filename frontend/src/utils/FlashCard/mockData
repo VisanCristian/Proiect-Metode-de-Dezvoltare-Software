@@ -1,0 +1,21 @@
+export const initialSets = [
+  {
+    id: "set-1",
+    name: "Network Protocols",
+    cards: [
+      { id: "p1", question: "What does HTTP stand for?", answer: "HyperText Transfer Protocol." },
+      { id: "p2", question: "Which protocol is used to send emails?", answer: "SMTP (Simple Mail Transfer Protocol)." },
+      { id: "p3", question: "What is the main purpose of DNS?", answer: "To translate domain names (like google.com) into IP addresses." },
+      { id: "p4", question: "What is the difference between TCP and UDP?", answer: "TCP is reliable and connection-oriented, while UDP is faster but doesn't guarantee delivery." }
+    ]
+  },
+  {
+    id: "set-2",
+    name: "JavaScript Advanced",
+    cards: [
+      { id: "j1", question: "What is 'Hoisting' in JavaScript?", answer: "A behavior where variable and function declarations are moved to the top of their scope." },
+      { id: "j2", question: "What is the difference between 'null' and 'undefined'?", answer: "Undefined means a variable has been declared but not assigned a value; null is an assigned value representing 'nothing'." },
+      { id: "j3", question: "What are Arrow Functions?", answer: "A shorter syntax for writing functions that doesn't have its own 'this' context." }
+    ]
+  },
+];

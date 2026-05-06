@@ -1,0 +1,32 @@
+from rest_framework import serializers
+from .models import Deck, Flashcard, UserCardProgress, SourceDocument, DeckSession
+
+class FlashcardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flashcard
+        fields = '__all__'
+
+class DeckSerializer(serializers.ModelSerializer):
+    cards = FlashcardSerializer(source='flashcards', many=True, read_only=True)
+
+    class Meta:
+        model = Deck
+        fields = ['id', 'user', 'title', 'description', 'created_at', 'updated_at', 'cards']
+        read_only_fields = ['user']
+
+class UserCardProgressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserCardProgress
+        fields = '__all__'
+        read_only_fields = ['user']
+
+class SourceDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SourceDocument
+        fields = '__all__'
+
+class DeckSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeckSession
+        fields = '__all__'
+        read_only_fields = ['user']

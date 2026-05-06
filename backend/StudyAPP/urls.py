@@ -20,4 +20,8 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/pomodoro/', include('apps.pomodoro.urls')),
+    path('api/auth/', include('djoser.urls')),
+    path('api/auth/', include('djoser.urls.authtoken')),
+    path('api/flashcards/', include('FlashCards.urls')),
+    path('api/filesystem/', include('FileTree.urls')),
 ]
