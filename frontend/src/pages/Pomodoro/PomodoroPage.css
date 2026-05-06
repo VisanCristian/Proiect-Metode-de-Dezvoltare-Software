@@ -1,10 +1,28 @@
 .pomodoro-page {
     position: relative;
     padding: 48px 24px;
-    text-align: center;
-    max-width: 560px;
-    margin: 0 auto;
     min-height: 100vh;
+}
+
+.pomodoro-layout {
+    display: flex;
+    gap: 32px;
+    max-width: 900px;
+    margin: 0 auto;
+    align-items: flex-start;
+}
+
+.pomodoro-main {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+}
+
+.pomodoro-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 48px;
 }
 
 .pomodoro-page h1 {
@@ -95,6 +113,13 @@
     gap: 6px;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 720px) {
+    .pomodoro-layout {
+        flex-direction: column;
+    }
+    .pomodoro-sidebar {
+        width: 100%;
+        position: static;
+    }
     .pomodoro-page { padding: 24px 16px; }
 }

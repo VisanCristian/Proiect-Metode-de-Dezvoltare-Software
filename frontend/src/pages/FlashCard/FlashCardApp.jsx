@@ -9,6 +9,8 @@ import ProgressBar from "../../fragments/FlashCard/ProgressBar/ProgressBar";
 import FlashCard from "../../fragments/FlashCard/Card/FlashCard";
 import CardNav from "../../fragments/FlashCard/CardNav/CardNav";
 import SessionEnd from "../../fragments/FlashCard/SessionEnd/SessionEnd";
+import PomodoroWidget from "../../fragments/CrossModule/PomodoroWidget";
+import FileTreeWidget from "../../fragments/CrossModule/FileTreeWidget";
 
 export default function FlashCardApp() {
   const fc = useFlashCards();
@@ -24,6 +26,10 @@ export default function FlashCardApp() {
 
   return (
     <div className="flash-page">
+      <div className="cross-widget-bar">
+        <PomodoroWidget />
+        <FileTreeWidget />
+      </div>
       <TopBar
         sets={fc.sets} setId={fc.setId} showForm={fc.showForm}
         handleSetChange={fc.handleSetChange}
@@ -105,6 +111,7 @@ export default function FlashCardApp() {
       >
         Recommendations
       </button>
+
 
     </div>
   );

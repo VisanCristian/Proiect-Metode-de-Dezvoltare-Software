@@ -1,23 +1,21 @@
-import { useState } from 'react'
-import { GearIcon, CloseIcon } from '../Icons/Icons'
+import { useState, useEffect } from 'react'
+import { GearIcon } from '../Icons/Icons'
 import './SettingsPanel.css'
 
 function SettingsPanel({ settings, onSave }) {
-    const [isOpen, setIsOpen] = useState(false)
     const [focusMin, setFocusMin] = useState(settings.FOCUS_TIME / 60)
     const [breakMin, setBreakMin] = useState(settings.BREAK_TIME / 60)
     const [longBreakMin, setLongBreakMin] = useState(settings.LONG_BREAK_TIME / 60)
     const [cycles, setCycles] = useState(settings.CYCLES_BEFORE_LONG_BREAK)
     const [autoStart, setAutoStart] = useState(settings.AUTO_START || false)
 
-    const openPanel = () => {
+    useEffect(() => {
         setFocusMin(settings.FOCUS_TIME / 60)
         setBreakMin(settings.BREAK_TIME / 60)
         setLongBreakMin(settings.LONG_BREAK_TIME / 60)
         setCycles(settings.CYCLES_BEFORE_LONG_BREAK)
         setAutoStart(settings.AUTO_START || false)
-        setIsOpen(true)
-    }
+    }, [settings])
 
     const handleSave = () => {
         onSave({
@@ -27,24 +25,12 @@ function SettingsPanel({ settings, onSave }) {
             CYCLES_BEFORE_LONG_BREAK: cycles,
             AUTO_START: autoStart,
         })
-        setIsOpen(false)
-    }
-
-    if (!isOpen) {
-        return (
-            <button onClick={openPanel} className="settings-toggle" title="Settings">
-                <GearIcon />
-            </button>
-        )
     }
 
     return (
-        <div className="settings-panel">
+        <div className="settings-sidebar">
             <div className="settings-header">
                 <h3><GearIcon /> Settings</h3>
-                <button onClick={() => setIsOpen(false)} className="settings-close">
-                    <CloseIcon />
-                </button>
             </div>
 
             <div className="settings-row">

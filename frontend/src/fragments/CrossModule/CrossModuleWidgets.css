@@ -1,0 +1,71 @@
+.cross-widget-bar {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.cross-widget {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #4389FA;
+    background-color: #1c2167;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    font-size: 1.1rem;
+    user-select: none;
+    width: 40%;
+    min-width: 250px;
+    max-width: 400px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cross-widget:hover {
+    background-color: #00bbff25;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(67, 137, 250, 0.25);
+}
+
+.cross-widget-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.cross-widget-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cross-widget-label {
+    color: #a0b4d6;
+    font-size: 1rem;
+}
+
+.cross-widget-value {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #fff;
+}
+
+.cross-widget-divider {
+    width: 1px;
+    height: 2rem;
+    background-color: #4389FA55;
+}
+
+@media (max-width: 768px) {
+    .cross-widget-bar {
+        flex-direction: column;
+        align-items: center;
+    }
+    .cross-widget {
+        width: 80%;
+    }
+}

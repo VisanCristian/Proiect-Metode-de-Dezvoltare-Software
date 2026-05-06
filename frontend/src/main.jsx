@@ -8,6 +8,7 @@ import ModulePlaceholder from './pages/Home/ModulePlaceholder.jsx'
 import PrivateRoute from './routes/PrivateRoute.jsx'
 import FlashCardApp from './pages/FlashCard/FlashCardApp.jsx'
 import FileTree from './pages/FileTree/FileTree.jsx'
+import PomodoroPage from './pages/Pomodoro/PomodoroPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -27,10 +28,7 @@ createRoot(document.getElementById('root')).render(
           path="/pomodoro"
           element={
             <PrivateRoute>
-              <ModulePlaceholder
-                title="Pomodoro module"
-                description="This route is prepared from the authenticated dashboard. The final Pomodoro screen can be connected here once the feature branch is merged."
-              />
+              <PomodoroPage />
             </PrivateRoute>
           }
         />
