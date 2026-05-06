@@ -15,6 +15,8 @@ import TaskList from "../../fragments/Pomodoro/Components/Task/TaskList"
 import SessionStats from "../../fragments/Pomodoro/Components/Session/SessionStats"
 import SessionSummary from "../../fragments/Pomodoro/Components/Modals/SessionSummary"
 import SessionHistory from "../../fragments/Pomodoro/Components/Session/SessionHistory"
+import FlashCardWidget from "../../fragments/CrossModule/FlashCardWidget"
+import FileTreeWidget from "../../fragments/CrossModule/FileTreeWidget"
 import '../../fragments/Pomodoro/index.css'
 import './PomodoroPage.css'
 
@@ -288,50 +290,64 @@ export default function PomodoroPage() {
 
     if (sessionState === 'idle') {
         return (
-            <div className="pomodoro-page">
-                <SettingsPanel settings={settings} onSave={handleSaveSettings} />
-                {errorBanner}
-                <div className="idle-icon"><TimerClockIcon /></div>
-                <h1 className="idle-title">Pomodoro</h1>
-                <p className="idle-desc">Prepare your tasks and start a study session.</p>
+            <div className="pomodoro-page pomodoro-layout">
+                <div className="pomodoro-main">
+                    {errorBanner}
+                    <div className="cross-widget-bar">
+                        <FlashCardWidget />
+                        <FileTreeWidget />
+                    </div>
+                    <div className="idle-icon"><TimerClockIcon /></div>
+                    <h1 className="idle-title">Pomodoro</h1>
+                    <p className="idle-desc">Prepare your tasks and start a study session.</p>
 
-                <TaskList tasks={tasks} activeTaskId={activeTaskId}
-                    onTasksChange={handleTasksChange} onSelectTask={setActiveTaskId} />
-                <SessionHistory sessions={pastSessions} onClearAll={clearHistory} />
+                    <TaskList tasks={tasks} activeTaskId={activeTaskId}
+                        onTasksChange={handleTasksChange} onSelectTask={setActiveTaskId} />
+                    <SessionHistory sessions={pastSessions} onClearAll={clearHistory} />
 
-                <button onClick={() => void startSession()} className="start-btn">
-                    <PlayIcon size={16} /> Start Session
-                </button>
+                    <button onClick={() => void startSession()} className="start-btn">
+                        <PlayIcon size={16} /> Start Session
+                    </button>
+                </div>
+                <aside className="pomodoro-sidebar">
+                    <SettingsPanel settings={settings} onSave={handleSaveSettings} />
+                </aside>
             </div>
         )
     }
 
     return (
         <div className="pomodoro-page">
-            <SettingsPanel settings={settings} onSave={handleSaveSettings} />
-            {errorBanner}
-            <PhaseIndicator phase={timer.phase} />
-            <Timer timeLeft={timer.timeLeft} totalPhaseTime={timer.totalPhaseTime} phase={timer.phase} />
-            <CycleIndicator completedCycle={timer.completedCycle} total={settings.CYCLES_BEFORE_LONG_BREAK} />
-            <TimerControls isRunning={timer.isRunning}
-                onStart={timer.start} onPause={timer.pause}
-                onReset={timer.reset} onSkip={timer.skip} />
+            <div className="pomodoro-main">
+                {errorBanner}
+                <div className="cross-widget-bar">
+                    <FlashCardWidget />
+                    <FileTreeWidget />
+                </div>
+                <PhaseIndicator phase={timer.phase} />
+                <Timer timeLeft={timer.timeLeft} totalPhaseTime={timer.totalPhaseTime} phase={timer.phase} />
+                <CycleIndicator completedCycle={timer.completedCycle} total={settings.CYCLES_BEFORE_LONG_BREAK} />
+                <TimerControls isRunning={timer.isRunning}
+                    onStart={timer.start} onPause={timer.pause}
+                    onReset={timer.reset} onSkip={timer.skip} />
 
-            <SessionStats totalFocusTime={totalFocusTime} completedPomodoros={timer.completedCycle}
-                tasks={tasks} phase={timer.phase} />
-            <TaskList tasks={tasks} activeTaskId={activeTaskId}
-                onTasksChange={handleTasksChange} onSelectTask={setActiveTaskId} />
+                <SessionStats totalFocusTime={totalFocusTime} completedPomodoros={timer.completedCycle}
+                    tasks={tasks} phase={timer.phase} />
+                <TaskList tasks={tasks} activeTaskId={activeTaskId}
+                    onTasksChange={handleTasksChange} onSelectTask={setActiveTaskId} />
 
-            <div className="session-actions">
-                <button onClick={() => void endSession()} className="end-btn">
-                    <CheckIcon size={14} stroke="#fff" /> Finish
-                </button>
-                <button onClick={() => void abandonSession()} className="abandon-btn">
-                    <CloseIcon size={14} /> Abandon
-                </button>
+                <div className="session-actions">
+                    <button onClick={() => void endSession()} className="end-btn">
+                        <CheckIcon size={14} stroke="#fff" /> Finish
+                    </button>
+                    <button onClick={() => void abandonSession()} className="abandon-btn">
+                        <CloseIcon size={14} /> Abandon
+                    </button>
+                </div>
+
+                {sessionSummary && <SessionSummary session={sessionSummary} onClose={closeSummary} />}
             </div>
-
-            {sessionSummary && <SessionSummary session={sessionSummary} onClose={closeSummary} />}
         </div>
     )
 }
+

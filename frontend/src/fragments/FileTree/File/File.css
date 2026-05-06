@@ -20,9 +20,11 @@
 }
 
 .file-icon {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     flex-shrink: 0;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .file-options {

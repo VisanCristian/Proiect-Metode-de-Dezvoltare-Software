@@ -13,6 +13,8 @@ import EditFileScreen from "../../fragments/FileTree/Components/EditFileScreen/E
 import { useState, useEffect } from "react";
 import "./FileTree.css";
 import { getUserFolders, getFolderFiles, deleteFile, createFolder, deleteFolder, exportFile, saveFileChanges, addFile, convertMarkdownFileToPdf } from "../../services/filetree_api.js";
+import PomodoroWidget from "../../fragments/CrossModule/PomodoroWidget.jsx";
+import FlashCardWidget from "../../fragments/CrossModule/FlashCardWidget.jsx";
 
 
 export default function FileTree() {
@@ -146,7 +148,7 @@ export default function FileTree() {
             setModalResponseLoading(true);
 
             await addFile({ file: selectedFile, folderId: selectedFolder.id });
-            
+
             const data = await getFolderFiles(selectedFolder.id);
             setFiles(data);
             wasSuccessful = true;
@@ -321,6 +323,10 @@ export default function FileTree() {
                 <div className="file-tree-body">
                     <h1>Your personal File Storage System</h1>
                     <p className="file-tree-cite"></p>
+                    <div className="cross-widget-bar">
+                        <PomodoroWidget />
+                        <FlashCardWidget />
+                    </div>
                     {pageMode.type === "view-file" ? (
                         < ViewFileScreen
                             file={pageMode.file}
