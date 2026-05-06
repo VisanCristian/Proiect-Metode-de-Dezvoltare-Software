@@ -95,3 +95,25 @@ button:active:not(:disabled) {
   border-color: var(--accent);
   background: rgba(142, 200, 255, 0.1);
 }
+
+/* home – top-left navigation */
+.btn-home {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 1000;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #081432;
+  border: none;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+.btn-home:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}

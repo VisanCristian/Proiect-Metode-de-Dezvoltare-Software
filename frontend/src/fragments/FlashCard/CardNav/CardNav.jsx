@@ -1,4 +1,4 @@
-export default function CardNav({ index, cards, prev, next, shuffleCards }) {
+export default function CardNav({ index, cards, prev, next, shuffleCards, fetchRecommendations }) {
   return (
     <>
       <div className="card-counter">
@@ -10,6 +10,7 @@ export default function CardNav({ index, cards, prev, next, shuffleCards }) {
       </div>
       <div className="actions">
         <button className="btn-shuffle" onClick={shuffleCards}>⇄ Shuffle cards</button>
+        <button className="btn-shuffle" onClick={fetchRecommendations}>★ Recommendations</button>
       </div>
     </>
   );

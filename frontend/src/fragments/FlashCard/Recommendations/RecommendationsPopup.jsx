@@ -33,10 +33,10 @@ export default function RecommendationsPopup({ open, onClose, recommendedDecks, 
                   textAlign: 'left',
                   transition: 'background-color 0.2s',
                 }}
-                onMouseOver={(e) => e.target.style.backgroundColor = 'var(--border)'}
-                onMouseOut={(e) => e.target.style.backgroundColor = 'var(--panel-2)'}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--border)'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--panel-2)'}
               >
-                <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{deck.title}</div>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1rem', pointerEvents: 'none' }}>{deck.title}</div>
               </button>
             ))
           )}

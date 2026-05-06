@@ -10,7 +10,7 @@ function TimerControls({ isRunning, onStart, onPause, onReset, onSkip }) {
     return (
         <div className="controls">
             <button onClick={onReset} className="ctrl-btn" title="Stop" aria-label="Stop">
-                <StopIcon />
+                <StopIcon size={26} />
             </button>
             <button
                 onClick={isRunning ? onPause : onStart}
@@ -19,10 +19,10 @@ function TimerControls({ isRunning, onStart, onPause, onReset, onSkip }) {
                 title={isRunning ? 'Pause' : 'Start'}
                 aria-label={isRunning ? 'Pause' : 'Start'}
             >
-                {isRunning ? <PauseIcon /> : <PlayIcon />}
+                {isRunning ? <PauseIcon size={32} /> : <PlayIcon size={32} />}
             </button>
             <button onClick={onSkip} className="ctrl-btn" title="Skip" aria-label="Skip">
-                <SkipIcon />
+                <SkipIcon size={28} />
             </button>
         </div>
     )
