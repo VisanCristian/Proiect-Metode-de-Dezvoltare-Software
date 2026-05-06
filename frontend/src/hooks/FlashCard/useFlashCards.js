@@ -218,7 +218,7 @@ export function useFlashCards() {
   }
 
   return {
-    sets, setId, cards, card, index, flipped, setFlipped,
+    sets, setSets, setId, setSetId, cards, card, index, flipped, setFlipped,
     status, flashStatus, known, unknown, unanswered, percent, finished,
     showForm, setShowForm, q, setQ, a, setA,
     showUploadModal, setShowUploadModal,

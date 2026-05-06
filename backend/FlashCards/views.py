@@ -57,7 +57,7 @@ class RecommendationsView(APIView):
             recommended_ids = cache.get(cache_key)
             
             if recommended_ids is None:
-                recommended_ids = get_recommendations_list()
+                recommended_ids = get_recommendations_list(request.user)
                 cache.set(cache_key, recommended_ids, 86400)
 
             decks = Deck.objects.filter(id__in=recommended_ids)

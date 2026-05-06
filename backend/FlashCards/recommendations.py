@@ -29,8 +29,8 @@ SIGMA_MIN_RATIO_FOR_OVERRIDE = 0.10
 def difficulty_score(greseli, raspunsuri):
     return (greseli + LAPLACE_ALPHA) / max(raspunsuri + LAPLACE_BETA, 1)
 
-def get_db_interactions():
-    qs = DeckSession.objects.all().order_by('-date')
+def get_db_interactions(user):
+    qs = DeckSession.objects.filter(user=user).order_by('-date')
     grupe = defaultdict(list)
     for entry in qs:
         grupe[entry.date].append({
@@ -40,7 +40,7 @@ def get_db_interactions():
         })
     return grupe
 
-def build_daily_difficulty_matrix(data, nr_zile=DEFAULT_NR_ZILE):
+def build_daily_difficulty_matrix(data, user, nr_zile=DEFAULT_NR_ZILE):
     tmp = {}
     for zi, pachete_zi in data.items():
         agg = defaultdict(lambda: {"greseli": 0, "raspunsuri": 0})
@@ -53,7 +53,7 @@ def build_daily_difficulty_matrix(data, nr_zile=DEFAULT_NR_ZILE):
             for p, v in sorted(agg.items())
         ]
 
-    pachete_qs = Deck.objects.all()
+    pachete_qs = Deck.objects.filter(user=user)
     pachete_list = sorted([p.id for p in pachete_qs])
     pachet_to_col = {p: idx for idx, p in enumerate(pachete_list)}
     today = date.today()
@@ -231,9 +231,9 @@ def classify_packages(fit, pachete_list, zile_de_la_ultima, A_raw):
 
     return rows
 
-def get_recommendations_list():
-    data = get_db_interactions()
-    A_raw, X, pachete_list, days, zile_de_la_ultima = build_daily_difficulty_matrix(data)
+def get_recommendations_list(user):
+    data = get_db_interactions(user)
+    A_raw, X, pachete_list, days, zile_de_la_ultima = build_daily_difficulty_matrix(data, user)
     fit = fit_svd_pattern_model(X, days)
     if fit is None:
         return []

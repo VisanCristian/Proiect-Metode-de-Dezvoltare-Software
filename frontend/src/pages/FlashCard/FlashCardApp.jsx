@@ -1,4 +1,5 @@
 import "./main.css";
+import { useNavigate } from "react-router-dom";
 import CreateDeckModal from "../../fragments/FlashCard/Form/CreateDeckModal";
 import RecommendationsPopup from "../../fragments/FlashCard/Recommendations/RecommendationsPopup";
 import { useFlashCards } from "../../hooks/FlashCard/useFlashCards";
@@ -14,6 +15,7 @@ import FileTreeWidget from "../../fragments/CrossModule/FileTreeWidget";
 
 export default function FlashCardApp() {
   const fc = useFlashCards();
+  const navigate = useNavigate();
 
   if (fc.loading) {
     return (
@@ -26,6 +28,12 @@ export default function FlashCardApp() {
 
   return (
     <div className="flash-page">
+      <button
+        className="btn-home"
+        onClick={() => navigate('/home')}
+      >
+        ← Home
+      </button>
       <div className="cross-widget-bar">
         <PomodoroWidget />
         <FileTreeWidget />
@@ -50,7 +58,6 @@ export default function FlashCardApp() {
         onSelectDeck={(id) => {
           fc.setSetId(id);
           fc.setShowRecommendations(false);
-          // Actualizăm listă eliminând pachetul ales (dacă dorim din UI imediat)
           fc.setRecommendedDecks(old => old.filter(d => d.id !== id));
         }}
       />
@@ -82,35 +89,12 @@ export default function FlashCardApp() {
           <CardNav
             index={fc.index} cards={fc.cards}
             prev={fc.prev} next={fc.next} shuffleCards={fc.shuffleCards}
+            fetchRecommendations={fc.fetchRecommendations}
           />
         </>
       )}
 
-      {/* Buton fix jos pentru Recomandari */}
-      <button 
-        onClick={fc.fetchRecommendations}
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          padding: '12px 24px',
-          borderRadius: '50px',
-          backgroundColor: 'var(--accent)',
-          color: 'var(--bg)',
-          fontWeight: 'bold',
-          border: 'none',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-          cursor: 'pointer',
-          zIndex: 1000,
-          fontSize: '1rem',
-          transition: 'transform 0.2s',
-        }}
-        onMouseOver={(e) => e.target.style.transform = 'translateX(-50%) scale(1.05)'}
-        onMouseOut={(e) => e.target.style.transform = 'translateX(-50%) scale(1)'}
-      >
-        Recommendations
-      </button>
+
 
 
     </div>

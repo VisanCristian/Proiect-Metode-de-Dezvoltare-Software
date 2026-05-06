@@ -7,9 +7,9 @@
 }
 
 .ctrl-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
     border: 1px solid var(--border);
     background: var(--surface-card);
     color: var(--text-h);
@@ -18,6 +18,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+.ctrl-btn svg {
+    width: 26px;
+    height: 26px;
 }
 
 .ctrl-primary {

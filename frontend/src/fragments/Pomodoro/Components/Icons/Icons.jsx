@@ -9,25 +9,23 @@ export function PlayIcon({ size = 20, ...props }) {
 export function PauseIcon({ size = 20, ...props }) {
     return (
         <svg width={size} height={size} viewBox="0 0 20 20" fill="currentColor" {...props}>
-            <rect x="4" y="3" width="4" height="14" rx="1" />
-            <rect x="12" y="3" width="4" height="14" rx="1" />
+            <path d="M5 3.5H8.5V16.5H5Z M11.5 3.5H15V16.5H11.5Z" />
         </svg>
     )
 }
 
-export function StopIcon({ size = 16, ...props }) {
+export function StopIcon({ size = 20, ...props }) {
     return (
-        <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" {...props}>
-            <rect x="2" y="2" width="12" height="12" rx="2" />
+        <svg width={size} height={size} viewBox="0 0 20 20" fill="currentColor" {...props}>
+            <path d="M4.5 4.5H15.5V15.5H4.5Z" />
         </svg>
     )
 }
 
-export function SkipIcon({ size = 18, ...props }) {
+export function SkipIcon({ size = 20, ...props }) {
     return (
-        <svg width={size} height={size} viewBox="0 0 18 18" fill="currentColor" {...props}>
-            <path d="M3 3L11 9L3 15V3Z" />
-            <rect x="13" y="3" width="2.5" height="12" rx="1" />
+        <svg width={size} height={size} viewBox="0 0 20 20" fill="currentColor" {...props}>
+            <path d="M4 3.5L12 10L4 16.5V3.5Z M13 3.5H16V16.5H13Z" />
         </svg>
     )
 }
