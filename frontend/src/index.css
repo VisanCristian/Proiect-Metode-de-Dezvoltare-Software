@@ -1,0 +1,104 @@
+:root {
+  --primary: #2c3e50;
+  --primary-light: #34495e;
+  --primary-dark: #1a252f;
+  --surface: #f0f4f8;
+  --surface-card: #ffffff;
+  --surface-card-solid: #ffffff;
+  --text: #5a6d7e;
+  --text-h: #1e2d3d;
+  --border: #d5dde5;
+  --code-bg: #e8eef3;
+  --accent: #5b8fb9;
+  --accent-bg: rgba(91, 143, 185, 0.1);
+  --accent-border: rgba(91, 143, 185, 0.4);
+  --social-bg: rgba(240, 244, 248, 0.8);
+  --shadow: 0 4px 20px rgba(26, 37, 47, 0.08), 0 1px 4px rgba(26, 37, 47, 0.04);
+  --shadow-lg: 0 8px 30px rgba(26, 37, 47, 0.12), 0 2px 8px rgba(26, 37, 47, 0.06);
+  --bg: #1C2167;
+
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  font: 16px/155% var(--sans);
+  letter-spacing: -0.01em;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 768px) {
+    font-size: 15px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #8fa8c0;
+    --primary-light: #a3bbd0;
+    --primary-dark: #6b8eaa;
+    --surface: #141c24;
+    --surface-card: #00bbff30;
+    --surface-card-solid: #2f5f8a;
+    --text: #8a9bb0;
+    --text-h: #d5dfe8;
+    --border: #2a3a4a;
+    --code-bg: #1a2530;
+    --accent: #6ba3cc;
+    --accent-bg: rgba(107, 163, 204, 0.12);
+    --accent-border: rgba(107, 163, 204, 0.4);
+    --social-bg: rgba(28, 40, 51, 0.8);
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+    --bg: #1C2167;
+  }
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--heading);
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: 32px;
+  margin: 0 0 4px;
+
+  @media (max-width: 768px) {
+    font-size: 26px;
+  }
+}
+
+h2 {
+  font-size: 22px;
+  margin: 0 0 8px;
+}
+
+h3 {
+  font-size: 16px;
+  margin: 0 0 8px;
+}
+
+p {
+  margin: 0;
+}
