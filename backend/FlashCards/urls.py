@@ -4,10 +4,10 @@ from .views import DeckViewSet, FlashcardViewSet, SourceDocumentViewSet, UserCar
 
 router = DefaultRouter()
 router.register(r'decks', DeckViewSet, basename='deck')
-router.register(r'cards', FlashcardViewSet)
-router.register(r'progress', UserCardProgressViewSet, basename='usercardprogress')
-router.register(r'documents', SourceDocumentViewSet)
-router.register(r'sessions', DeckSessionViewSet, basename='decksession')
+router.register(r'cards', FlashcardViewSet, basename='card')
+router.register(r'progress', UserCardProgressViewSet, basename='progress')
+router.register(r'documents', SourceDocumentViewSet, basename='document')
+router.register(r'sessions', DeckSessionViewSet, basename='session')
 
 urlpatterns = [
     path('recommendations/', RecommendationsView.as_view(), name='recommendations'),
