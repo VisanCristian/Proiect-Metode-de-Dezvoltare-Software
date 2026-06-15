@@ -2,6 +2,14 @@ import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/re
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import PomodoroPage from './PomodoroPage'
 
+vi.mock('../../fragments/CrossModule/FlashCardWidget', () => ({
+  default: () => null,
+}))
+
+vi.mock('../../fragments/CrossModule/FileTreeWidget', () => ({
+  default: () => null,
+}))
+
 vi.mock('../../hooks/useSound', () => ({
   default: () => ({ playForPhase: vi.fn() }),
 }))
@@ -198,8 +206,7 @@ describe('PomodoroPage', () => {
 
     render(<PomodoroPage />)
 
-    fireEvent.click(await screen.findByTitle('Settings'))
-    fireEvent.change(screen.getByLabelText('Focus (min)'), { target: { value: '30' } })
+    fireEvent.change(await screen.findByLabelText('Focus (min)'), { target: { value: '30' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     fireEvent.click(await screen.findByRole('button', { name: /Start Session/i }))
 
@@ -211,8 +218,7 @@ describe('PomodoroPage', () => {
 
     render(<PomodoroPage />)
 
-    fireEvent.click(await screen.findByTitle('Settings'))
-    fireEvent.click(screen.getByLabelText('Auto-start'))
+    fireEvent.click(await screen.findByLabelText('Auto-start'))
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     fireEvent.click(await screen.findByRole('button', { name: /Start Session/i }))
 
