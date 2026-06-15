@@ -114,3 +114,8 @@ class FileConvertToPdfSerializer(serializers.Serializer):
             raise serializers.ValidationError("Only markdown files can be converted to PDF.")
 
         return attrs
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = '__all__'

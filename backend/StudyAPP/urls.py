@@ -24,5 +24,6 @@ urlpatterns = [
     path('api/auth/', include('djoser.urls.authtoken')),
     path('api/flashcards/', include('FlashCards.urls')),
     path('api/filesystem/', include('FileTree.urls')),
+    path('api/groups/', include('UserGroups.urls')),
     path('api/groups/', include('Group.urls')),
 ]
