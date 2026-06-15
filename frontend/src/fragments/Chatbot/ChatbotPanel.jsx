@@ -3,6 +3,8 @@ import './ChatbotPanel.css';
 import { buildMessageObject, buildContextObject, buildSettingsObject, buildChatPayload } from './format';
 import { sendChatMessage } from '../../services/chatbot_api';
 
+const MAX_MESSAGE_LENGTH = 1000;
+
 const ChatbotPanel = ({ model = 'Haiku', tokensLeft = 100, scope = 'personal', groupId = null, availableFiles = [], availableDecks = [] }) => {
     const [isOpen, setIsOpen] = useState(true);
     const [messages, setMessages] = useState([]);
@@ -14,9 +16,11 @@ const ChatbotPanel = ({ model = 'Haiku', tokensLeft = 100, scope = 'personal', g
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
+    const isTooLong = input.length > MAX_MESSAGE_LENGTH;
+
     const handleSend = async () => {
         const text = input.trim();
-        if (!text || isLoading) return;
+        if (!text || isLoading || isTooLong) return;
 
         const userMessage = buildMessageObject(text, 'user');
         setMessages((prev) => [...prev, { role: 'user', text }]);
@@ -82,6 +86,12 @@ const ChatbotPanel = ({ model = 'Haiku', tokensLeft = 100, scope = 'personal', g
                         <div ref={bottomRef} />
                     </div>
 
+                    {isTooLong && (
+                        <p className="chatbot-panel__char-warning">
+                            Message too long ({input.length}/{MAX_MESSAGE_LENGTH} characters).
+                        </p>
+                    )}
+
                     <div className="chatbot-panel__input-row">
                         <textarea
                             className="chatbot-panel__input"
@@ -96,7 +106,7 @@ const ChatbotPanel = ({ model = 'Haiku', tokensLeft = 100, scope = 'personal', g
                             className="chatbot-panel__send"
                             onClick={handleSend}
                             aria-label="Send message"
-                            disabled={isLoading}
+                            disabled={isLoading || isTooLong}
                         >
                             ↑
                         </button>

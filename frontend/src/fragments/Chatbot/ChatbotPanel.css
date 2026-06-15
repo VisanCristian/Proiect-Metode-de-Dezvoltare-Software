@@ -172,3 +172,9 @@
     opacity: 0.6;
     font-style: italic;
 }
+
+.chatbot-panel__char-warning {
+    font-size: 0.78rem;
+    padding: 0 12px 6px;
+    color: rgba(224, 100, 105, 0.9);
+}
