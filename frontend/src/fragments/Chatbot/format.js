@@ -15,3 +15,18 @@ export function buildContextObject({ scope, userId, groupId = null, availableFil
         available_decks: availableDecks,
     };
 }
+
+export function buildSettingsObject({ model, isGroup = false }) {
+    return {
+        model,
+        type: isGroup ? 'group' : 'personal',
+    };
+}
+
+export function buildChatPayload(message, context, settings) {
+    return {
+        message,
+        context,
+        settings,
+    };
+}
