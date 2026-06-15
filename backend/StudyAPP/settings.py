@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'FlashCards',
     'FileTree',
     'UserGroups'
+    'Group',
 ]
 
 REST_FRAMEWORK = {

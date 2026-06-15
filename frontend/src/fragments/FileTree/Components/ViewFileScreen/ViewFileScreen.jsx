@@ -1,6 +1,7 @@
 import "./ViewFileScreen.css";
 import { useEffect, useMemo, useState } from "react";
 import { getFileContent } from "../../../../services/filetree_api";
+import MarkdownRenderer from "../../../MarkdownRenderer/MarkdownRenderer";
 
 function buildPdfUrl(base64Content) {
     return `data:application/pdf;base64,${base64Content}`;
@@ -75,7 +76,9 @@ export default function ViewFileScreen({ file, onBack, onExport, onConvertToPdf 
                             {fileData.type === "pdf" ? (
                                 <iframe className="pdf-frame" src={pdfUrl} title={fileData.name} />
                             ) : (
-                                <pre className="content">{fileData.content}</pre>
+                                <div className="rendered-content">
+                                    <MarkdownRenderer content={fileData.content} />
+                                </div>
                             )}
                         </div>
                     </div>

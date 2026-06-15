@@ -1,12 +1,6 @@
 import FileList from "../../fragments/FileTree/File/FileList.jsx";
 import FolderList from "../../fragments/FileTree/Folder/FolderList.jsx";
-import DeleteFileModal from "../../fragments/FileTree/Modals/DeleteFileModal.jsx";
-import CreateFolderModal from "../../fragments/FileTree/Modals/CreateFolderModal.jsx";
-import DeleteFolderModal from "../../fragments/FileTree/Modals/DeleteFolderModal.jsx";
-import AddFileModal from "../../fragments/FileTree/Modals/AddFileModal.jsx";
-import ExportFileModal from "../../fragments/FileTree/Modals/ExportFileModal.jsx";
-import SaveChangesModal from "../../fragments/FileTree/Modals/SaveChangesModal.jsx";
-import SuccessSaveModal from "../../fragments/FileTree/Modals/SuccessSaveModal.jsx";
+import Modal from "../../fragments/Modal.jsx";
 import ErrorModal from "../../fragments/FileTree/Modals/ErrorModal.jsx";
 import ViewFileScreen from "../../fragments/FileTree/Components/ViewFileScreen/ViewFileScreen.jsx";
 import EditFileScreen from "../../fragments/FileTree/Components/EditFileScreen/EditFileScreen.jsx";
@@ -34,6 +28,8 @@ export default function FileTree() {
     const [errorMessage, setErrorMessage] = useState("");
 
     const [searchFilter, setSearchFilter] = useState("");
+
+    const [exportFormat, setExportFormat] = useState("text");
 
     function showError(message) {
         if (!message) return;
@@ -387,83 +383,131 @@ export default function FileTree() {
                 </div>
             </div >
 
-            {
-                modalState.type === "delete-file" && (
-                    <DeleteFileModal
-                        file={modalState.file}
-                        isLoading={modalResponseLoading}
-                        onConfirm={handleConfirmDeleteFile}
-                        onCancel={handleCancel}
-                    />
-                )
-            }
+            {modalState.type === "delete-file" && modalState.file && (
+                <Modal
+                    message={`Are you sure you want to delete ${modalState.file.name}?`}
+                    loadingMessage="Removing File...."
+                    isLoading={modalResponseLoading}
+                    buttons={[
+                        { label: "Confirm", onClick: handleConfirmDeleteFile },
+                        { label: "Cancel", onClick: handleCancel, variant: "cancel" },
+                    ]}
+                />
+            )}
 
-            {
-                modalState.type === "create-folder" && (
-                    <CreateFolderModal
-                        folderName={newFolderName}
-                        isLoading={modalResponseLoading}
-                        onFolderNameChange={setNewFolderName}
-                        onConfirm={handleCreateFolder}
-                        onCancel={handleCancel}
+            {modalState.type === "create-folder" && (
+                <Modal
+                    title="Add a new Folder"
+                    loadingMessage="Creating the new folder...."
+                    isLoading={modalResponseLoading}
+                    buttons={[
+                        { label: "Confirm", onClick: handleCreateFolder, disabled: !newFolderName.trim() },
+                        { label: "Cancel", onClick: handleCancel, variant: "cancel" },
+                    ]}
+                >
+                    <input
+                        className="text-input"
+                        type="text"
+                        value={newFolderName}
+                        onChange={(event) => setNewFolderName(event.target.value)}
+                        placeholder="New Folder Name"
                     />
-                )
-            }
+                </Modal>
+            )}
 
-            {
-                modalState.type === "add-file" && (
-                    <AddFileModal
-                        file={selectedFile}
-                        isLoading={modalResponseLoading}
-                        onFileChange={setSelectedFile}
-                        onConfirm={handleConfirmAddFile}
-                        onCancel={handleCancel}
-                    />
-                )
-            }
+            {modalState.type === "add-file" && (
+                <Modal
+                    title="Add a new File"
+                    loadingMessage="Adding the new file...."
+                    isLoading={modalResponseLoading}
+                    buttons={[
+                        { label: "Confirm", onClick: handleConfirmAddFile, disabled: !selectedFile },
+                        { label: "Cancel", onClick: handleCancel, variant: "cancel" },
+                    ]}
+                >
+                    <div className="file-upload-area">
+                        <label className="file-upload-button" htmlFor="add-file-input">
+                            Choose File
+                        </label>
+                        <input
+                            id="add-file-input"
+                            className="file-upload-input"
+                            type="file"
+                            onChange={(event) => setSelectedFile(event.target.files[0])}
+                        />
+                        <p className="selected-file-name">
+                            {selectedFile ? `Selected file: ${selectedFile.name}` : "No file selected"}
+                        </p>
+                    </div>
+                </Modal>
+            )}
 
-            {
-                modalState.type === "delete-folder" && (
-                    <DeleteFolderModal
-                        folder={modalState.folder}
-                        isLoading={modalResponseLoading}
-                        files={files}
-                        onConfirm={handleConfirmDeleteFolder}
-                        onCancel={handleCancel}
-                    />
-                )
-            }
+            {modalState.type === "delete-folder" && (
+                <Modal
+                    message={`Are you sure you want to delete ${modalState.folder?.name ?? "this folder"}? The following files will also be deleted:`}
+                    loadingMessage="Deleting current folder..."
+                    isLoading={modalResponseLoading}
+                    buttons={[
+                        { label: "Confirm", onClick: handleConfirmDeleteFolder },
+                        { label: "Cancel", onClick: handleCancel, variant: "cancel" },
+                    ]}
+                >
+                    {files.map((file) => (
+                        <p key={file.id}> {file.name} </p>
+                    ))}
+                </Modal>
+            )}
 
-            {
-                modalState.type === "export-file" && (
-                    <ExportFileModal
-                        file={modalState.file}
-                        isLoading={modalResponseLoading}
-                        onConfirm={handleConfirmExportFile}
-                        onCancel={handleCancel}
-                    />
-                )
-            }
+            {modalState.type === "export-file" && (
+                <Modal
+                    title="Export File"
+                    loadingMessage="Exporting file...."
+                    isLoading={modalResponseLoading}
+                    buttons={[
+                        { label: "Cancel", onClick: handleCancel, variant: "cancel" },
+                        { label: "Confirm", onClick: () => handleConfirmExportFile(exportFormat) },
+                    ]}
+                >
+                    <div className="export-select-group">
+                        <label className="export-select-label" htmlFor="export-type">Export type</label>
+                        <select
+                            id="export-type"
+                            className="select-export-type"
+                            value={exportFormat}
+                            onChange={(e) => setExportFormat(e.target.value)}
+                        >
+                            {modalState.file?.type === "pdf" ? (
+                                <option value="pdf">PDF</option>
+                            ) : (
+                                <option value="text">Text</option>
+                            )}
+                        </select>
+                    </div>
+                </Modal>
+            )}
 
-            {
-                modalState.type === "save-changes" && (
-                    <SaveChangesModal
-                        file={modalState.file}
-                        isLoading={modalResponseLoading}
-                        onConfirm={handleConfirmSaveFile}
-                        onCancel={handleCancel}
-                    />
-                )
-            }
+            {modalState.type === "save-changes" && (
+                <Modal
+                    message="There are unsaved changes. Do you want to save them?"
+                    loadingMessage={`Writing changes to file ${modalState.file?.name}...`}
+                    isLoading={modalResponseLoading}
+                    buttons={[
+                        { label: "Don't Save", onClick: handleCancel, variant: "cancel" },
+                        { label: "Save", onClick: handleConfirmSaveFile },
+                    ]}
+                />
+            )}
 
-            {
-                modalState.type === "success-save" && (
-                    <SuccessSaveModal
-                        isLoading={modalResponseLoading}
-                        onConfirm={() => setModalState({ type: null })}
-                    />
-                )
-            }
+            {modalState.type === "success-save" && (
+                <Modal
+                    message="File has been saved successfully"
+                    loadingMessage="Saving file...."
+                    isLoading={modalResponseLoading}
+                    buttons={[
+                        { label: "Ok", onClick: () => setModalState({ type: null }) },
+                    ]}
+                />
+            )}
         </>
     );
 }
