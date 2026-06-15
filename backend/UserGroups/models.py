@@ -7,7 +7,7 @@ class UserGroup (models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_groups')
-    members = models.ManyToManyField(User, related_name ="user_groups")
+    members = models.ManyToManyField(User, related_name="user_groups", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

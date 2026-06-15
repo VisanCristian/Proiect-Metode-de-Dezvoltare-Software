@@ -17,14 +17,20 @@ class UserGroupViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return UserGroup.objects.filter(Q(owner=self.request.user) | Q(members=self.request.user)).distinct()
 
-    # perform_create is a method predefined in the ModelViewSet which has the principal task to apply serializer.save() 
     def perform_create(self, serializer):
-        members_data = serializer.validated_data.pop('members', [])
-        group = serializer.save(owner=self.request.user)
-        group.members.add(self.request.user)
+        serializer.save(owner=self.request.user)
 
-        for user in members_data:
-            group.members.add(user)
+    def update(self, request, *args, **kwargs):
+        group = self.get_object()
+        if group.owner != request.user:
+            return Response({"detail": "Only the owner can edit the group."}, status=status.HTTP_403_FORBIDDEN)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        group = self.get_object()
+        if group.owner != request.user:
+            return Response({"detail": "Only the owner can delete the group."}, status=status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)
 
     @action(detail=True, methods=['post'])
     def add_member(self, request, pk=None):
@@ -35,9 +41,8 @@ class UserGroupViewSet(viewsets.ModelViewSet):
         user_id = request.data.get('user_id')
         if not user_id:
             return Response({"detail": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            user = get_object_or_404(User, id=user_id)
-            group.members.add(user)
+        user = get_object_or_404(User, id=user_id)
+        group.members.add(user)
         return Response({"detail": f"User {user.username} added to the group."}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
