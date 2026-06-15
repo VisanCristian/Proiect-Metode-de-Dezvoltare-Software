@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ChatbotPanel.css';
 
-const ChatbotPanel = () => {
+const ChatbotPanel = ({ model = 'Haiku', tokensLeft = 100 }) => {
     const [isOpen, setIsOpen] = useState(true);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
@@ -37,6 +37,10 @@ const ChatbotPanel = () => {
 
             {isOpen && (
                 <div className="chatbot-panel__content">
+                    <div className="chatbot-panel__header">
+                        <span className="chatbot-panel__model">{model}</span>
+                        <span className="chatbot-panel__tokens">{tokensLeft} tokens</span>
+                    </div>
                     <div className="chatbot-panel__messages">
                         {messages.length === 0 && (
                             <p className="chatbot-panel__empty">Ask me anything about your study materials.</p>
