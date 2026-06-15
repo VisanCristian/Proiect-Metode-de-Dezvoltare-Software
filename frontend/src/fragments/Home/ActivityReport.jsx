@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { getUserActivity } from '../../services/activity_api';
 
-const ActivityReport = () => {
+const TITLES = {
+    personal: 'My Activity',
+    grup: 'Group Activity',
+};
+
+const ActivityReport = ({ mode = 'personal', groupId = null }) => {
     const [months, setMonths] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -22,8 +27,8 @@ const ActivityReport = () => {
     }
 
     return (
-        <div className="activity-report">
-            <h3 className="activity-report__title">Activity</h3>
+        <div className={`activity-report activity-report--${mode}`}>
+            <h3 className="activity-report__title">{TITLES[mode]}</h3>
 
             {months.length === 0 ? (
                 <p className="activity-report__empty">No activity recorded yet.</p>
