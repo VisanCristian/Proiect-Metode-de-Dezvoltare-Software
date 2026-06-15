@@ -9,6 +9,7 @@ import "./FileTree.css";
 import { getUserFolders, getFolderFiles, deleteFile, createFolder, deleteFolder, exportFile, saveFileChanges, addFile, convertMarkdownFileToPdf } from "../../services/filetree_api.js";
 import PomodoroWidget from "../../fragments/CrossModule/PomodoroWidget.jsx";
 import FlashCardWidget from "../../fragments/CrossModule/FlashCardWidget.jsx";
+import ChatbotPanel from "../../fragments/Chatbot/ChatbotPanel.jsx";
 
 
 export default function FileTree() {
@@ -315,6 +316,7 @@ export default function FileTree() {
 
         <>
             <ErrorModal message={errorMessage} onClose={() => setErrorMessage("")} />
+            <ChatbotPanel scope="personal" />
             <div className="file-tree-main">
                 <div className="file-tree-body">
                     <h1>Your personal File Storage System</h1>
