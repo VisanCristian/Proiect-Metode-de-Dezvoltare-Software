@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import usePomodoro from "../../hooks/usePomodoro"
+import { usePomodoroContext } from '../../context/PomodoroContext'
 import useSound from "../../hooks/useSound"
 import useBrowserNotification from "../../hooks/useBrowserNotification"
 import useBeforeUnload from "../../hooks/useBeforeUnload"
@@ -21,7 +21,6 @@ import '../../fragments/Pomodoro/index.css'
 import './PomodoroPage.css'
 
 export default function PomodoroPage() {
-    const [settings, setSettings] = useState(DEFAULTS)
     const [tasks, setTasks] = useState([])
     const [activeTaskId, setActiveTaskId] = useState(null)
     const [currentSessionId, setCurrentSessionId] = useState(null)
@@ -35,7 +34,7 @@ export default function PomodoroPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState('')
 
-    const timer = usePomodoro(settings)
+    const { timer, settings, setSettings } = usePomodoroContext()
     const { playForPhase } = useSound()
     const { notify } = useBrowserNotification()
     useBeforeUnload(sessionState === 'active')
