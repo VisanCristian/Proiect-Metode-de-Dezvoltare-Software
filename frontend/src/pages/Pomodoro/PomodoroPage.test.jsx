@@ -206,8 +206,7 @@ describe('PomodoroPage', () => {
 
     render(<PomodoroPage />)
 
-    fireEvent.click(await screen.findByTitle('Settings'))
-    fireEvent.change(screen.getByLabelText('Focus (min)'), { target: { value: '30' } })
+    fireEvent.change(await screen.findByLabelText('Focus (min)'), { target: { value: '30' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     fireEvent.click(await screen.findByRole('button', { name: /Start Session/i }))
 
@@ -219,8 +218,7 @@ describe('PomodoroPage', () => {
 
     render(<PomodoroPage />)
 
-    fireEvent.click(await screen.findByTitle('Settings'))
-    fireEvent.click(screen.getByLabelText('Auto-start'))
+    fireEvent.click(await screen.findByLabelText('Auto-start'))
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     fireEvent.click(await screen.findByRole('button', { name: /Start Session/i }))
 
