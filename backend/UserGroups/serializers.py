@@ -72,16 +72,20 @@ class UserGroupSerializer(serializers.ModelSerializer):
         member_ids = validated_data.pop('member_ids', [])
         deck_ids = validated_data.pop('deck_ids', [])
         file_ids = validated_data.pop('file_ids', [])
+        
+        # Pop owner if it exists in validated_data (e.g. from perform_create)
+        # to avoid "multiple values for keyword argument 'owner'"
+        owner = validated_data.pop('owner', request.user)
 
         if any(deck.user_id != request.user.id for deck in deck_ids):
             raise serializers.ValidationError({'deck_ids': 'You can only share your own decks.'})
 
-        if any(shared_file.folder.user_id != request.user.id for shared_file in file_ids):
+        if any(shared_file.folder.user != request.user.id for shared_file in file_ids):
             raise serializers.ValidationError({'file_ids': 'You can only share your own files.'})
     
         # transition.atomic() => if any error occurs during the creation of the group, all changes will be rolled back and no partial data will be saved to the database
         with transaction.atomic():
-            group = UserGroup.objects.create(owner=request.user, **validated_data)
+            group = UserGroup.objects.create(owner=owner, **validated_data)
             group.members.add(request.user)
 
             if member_ids   :

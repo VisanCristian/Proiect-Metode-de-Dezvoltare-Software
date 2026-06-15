@@ -31,7 +31,7 @@ class UserGroupApiTests(TestCase):
             {
                 "name": "Study team",
                 "description": "Group for exam prep",
-                "member_identifiers": [str(self.member.id)],
+                "member_ids": [self.member.id],
                 "deck_ids": [self.deck.id],
                 "file_ids": [self.file.id],
             },
@@ -50,7 +50,7 @@ class UserGroupApiTests(TestCase):
             "/api/groups/",
             {
                 "name": "Username team",
-                "member_identifiers": [self.member.username],
+                "member_ids": [self.member.id],
             },
             format="json",
         )
