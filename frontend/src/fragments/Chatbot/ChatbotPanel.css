@@ -161,3 +161,14 @@
 .chatbot-panel__send:hover {
     transform: translateY(-1px);
 }
+
+.chatbot-panel__send:disabled,
+.chatbot-panel__input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.chatbot-panel__thinking {
+    opacity: 0.6;
+    font-style: italic;
+}
