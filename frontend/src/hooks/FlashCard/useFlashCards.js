@@ -95,6 +95,7 @@ export function useFlashCards() {
 
   useEffect(() => {
     function onKeyDown(e) {
+      if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") return;
       if (!cards.length || showForm || showUploadModal) return;
       if (e.code === "ArrowLeft") { setIndex((i) => Math.max(i - 1, 0)); setFlipped(false); }
       if (e.code === "ArrowRight") { setIndex((i) => Math.min(i + 1, cards.length - 1)); setFlipped(false); }
