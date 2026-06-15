@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getUserActivity } from '../../services/activity_api';
+import './ActivityReport.css';
 
 const TITLES = {
     personal: 'My Activity',
