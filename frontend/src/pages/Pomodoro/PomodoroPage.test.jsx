@@ -2,6 +2,14 @@ import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/re
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import PomodoroPage from './PomodoroPage'
 
+vi.mock('../../fragments/CrossModule/FlashCardWidget', () => ({
+  default: () => null,
+}))
+
+vi.mock('../../fragments/CrossModule/FileTreeWidget', () => ({
+  default: () => null,
+}))
+
 vi.mock('../../hooks/useSound', () => ({
   default: () => ({ playForPhase: vi.fn() }),
 }))
