@@ -10,7 +10,7 @@ export default function File({ file, onRemove, onView, onEdit }) {
                 <div className="file-options">
                     <button className="button-view" onClick={() => onView(file)}>View</button>
                     <button className="button-edit" onClick={() => onEdit(file)}>Edit</button>
-                    <button className="button-remove" onClick={() => onRemove(file)}>Remove</button>
+                    {onRemove && <button className="button-remove" onClick={() => onRemove(file)}>Remove</button>}
                 </div>
             </div >
         </>
