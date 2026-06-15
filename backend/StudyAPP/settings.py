@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'LoginSystem',
     'FlashCards',
     'FileTree',
+    'Group',
 ]
 
 REST_FRAMEWORK = {
