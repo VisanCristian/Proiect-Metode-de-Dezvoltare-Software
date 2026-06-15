@@ -57,3 +57,67 @@ class UserGroupApiTests(TestCase):
         self.assertEqual(response.status_code, 201)
         group = UserGroup.objects.get(name="Username team")
         self.assertIn(self.member, group.members.all())
+
+    def test_cannot_share_others_deck(self):
+        other_user = User.objects.create_user(username="other", password="pass12345")
+        other_deck = Deck.objects.create(user=other_user, title="Other Deck")
+        
+        response = self.client.post(
+            "/api/groups/",
+            {
+                "name": "Evil team",
+                "deck_ids": [other_deck.id],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("deck_ids", response.data)
+
+    def test_cannot_share_others_file(self):
+        other_user = User.objects.create_user(username="other", password="pass12345")
+        other_folder = Folder.objects.create(user=other_user.id, name="Other Folder")
+        other_file = File.objects.create(
+            name="Secret.txt",
+            location="/docs/secret.txt",
+            added_at=date.today(),
+            updated_at=date.today(),
+            folder=other_folder,
+        )
+        
+        response = self.client.post(
+            "/api/groups/",
+            {
+                "name": "Evil team",
+                "file_ids": [other_file.id],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("file_ids", response.data)
+
+    def test_unshare_file_success(self):
+        group = UserGroup.objects.create(owner=self.owner, name="Test Group")
+        GroupFile.objects.create(group=group, file=self.file)
+        
+        response = self.client.post(
+            f"/api/groups/{group.id}/unshare_file/",
+            {"file_id": self.file.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(GroupFile.objects.filter(group=group, file=self.file).exists())
+
+    def test_unshare_unauthorized(self):
+        # User is a member but NOT the owner and NOT the file provider
+        group = UserGroup.objects.create(owner=self.owner, name="Test Group")
+        group.members.add(self.member)
+        GroupFile.objects.create(group=group, file=self.file)
+        
+        self.client.force_authenticate(user=self.member)
+        response = self.client.post(
+            f"/api/groups/{group.id}/unshare_file/",
+            {"file_id": self.file.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(GroupFile.objects.filter(group=group, file=self.file).exists())

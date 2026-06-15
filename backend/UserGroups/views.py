@@ -62,6 +62,59 @@ class UserGroupViewSet(viewsets.ModelViewSet):
         group.members.remove(user)
         return Response({"detail": f"User {user.username} removed from the group."}, status=status.HTTP_200_OK)
 
+    # Helper function to unshare a resource (deck or file) from the group
+    def _unshare_resource(self, request, pk, model, resource_field, resource_name):
+        group = self.get_object()
+        resource_id = request.data.get(f"{resource_field}_id")
+        
+        if not resource_id:
+            return Response(
+                {"detail": f"{resource_field}_id is required."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        lookup = {"group": group, f"{resource_field}_id": resource_id}
+        instance = model.objects.filter(**lookup).first()
+
+        if not instance:
+            return Response(
+                {"detail": f"{resource_name} not found in this group."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        resource_obj = getattr(instance, resource_field)
+        resource_owner = getattr(resource_obj, 'user', None) or getattr(resource_obj.folder, 'user', None)
+        owner_id = resource_owner.id if hasattr(resource_owner, 'id') else resource_owner
+
+        if request.user == group.owner or request.user.id == owner_id:
+            instance.delete()
+            return Response(
+                {"detail": f"{resource_name} unshared successfully."},
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            {"detail": "You don't have permission to unshare this resource."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    @action(detail=True, methods=['post'])
+    def unshare_deck(self, request, pk=None):
+        return self._unshare_resource(
+            request, pk,
+            model=GroupDeck,
+            resource_field='deck',
+            resource_name='Deck'
+        )
+
+    @action(detail=True, methods=['post'])
+    def unshare_file(self, request, pk=None):
+        return self._unshare_resource(
+            request, pk,
+            model=GroupFile,
+            resource_field='file',
+            resource_name='File'
+        )
+
     @action(detail=True, methods=['post'])
     def share_deck(self, request, pk=None):
         group = self.get_object()
@@ -81,6 +134,6 @@ class UserGroupViewSet(viewsets.ModelViewSet):
         if not file_id:
             return Response({"detail": "file_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        file = get_object_or_404(File, id=file_id, folder__user=request.user)
+        file = get_object_or_404(File, id=file_id, folder__user=request.user.id)
         GroupFile.objects.get_or_create(group=group, file=file)
         return Response({"detail": "File shared with group successfully."}, status=status.HTTP_201_CREATED)

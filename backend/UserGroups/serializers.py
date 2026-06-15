@@ -30,6 +30,11 @@ class UserGroupSerializer(serializers.ModelSerializer):
     shared_decks_detail = GroupDeckSerializer(source='shared_decks', many=True, read_only=True)
     shared_files_detail = GroupFileSerializer(source='shared_files', many=True, read_only=True)
     
+    decks = serializers.SerializerMethodField()
+    files = serializers.SerializerMethodField()
+
+    is_owner = serializers.SerializerMethodField()
+    
     #PrimaryKeyRelatedField => an arrayjust with the ids of the related ojects
     
     member_ids = serializers.PrimaryKeyRelatedField(
@@ -56,12 +61,25 @@ class UserGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserGroup
         fields = ['id', 'name', 'description', 
-                  'owner', 'owner_detail', 
+                  'owner', 'owner_detail', 'is_owner',
                   'members', 'members_detail', 
                   'member_ids', 'deck_ids', 'file_ids',
+                  'decks', 'files',
                   'shared_decks_detail', 'shared_files_detail',
                   'created_at', 'updated_at']
         read_only_fields = ['id', 'owner', 'members', 'created_at', 'updated_at']
+
+    def get_is_owner(self, obj):
+        request = self.context.get('request')
+        return obj.owner == request.user if request else False
+
+    def get_decks(self, obj):
+        # Returnăm lista de pachete (vectorul plat)
+        return DeckSerializer([sd.deck for sd in obj.shared_decks.all()], many=True).data
+
+    def get_files(self, obj):
+        # Returnăm lista de fișiere (vectorul plat)
+        return FileSerializer([sf.file for sf in obj.shared_files.all()], many=True).data
 
     def create(self, validated_data):
     
