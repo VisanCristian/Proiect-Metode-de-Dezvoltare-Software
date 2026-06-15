@@ -3,8 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from django.contrib.auth.models import User
-from .models import UserGroup, GroupDeck, GroupFile
+from django.contrib.auth.models import User, Group # Adaugat Group
+from .models import GroupDeck, GroupFile # Scoatere UserGroup (e comentat in models)
 from .serializers import UserGroupSerializer
 from FlashCards.models import Deck
 from FileTree.models import File
@@ -13,53 +13,29 @@ class UserGroupViewSet(viewsets.ModelViewSet):
     serializer_class = UserGroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    # if we do not filter the queryset, any user could see all the groups in the data base
     def get_queryset(self):
-        return UserGroup.objects.filter(Q(owner=self.request.user) | Q(members=self.request.user)).distinct()
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-    def update(self, request, *args, **kwargs):
-        group = self.get_object()
-        if group.owner != request.user:
-            return Response({"detail": "Only the owner can edit the group."}, status=status.HTTP_403_FORBIDDEN)
-        return super().update(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        group = self.get_object()
-        if group.owner != request.user:
-            return Response({"detail": "Only the owner can delete the group."}, status=status.HTTP_403_FORBIDDEN)
-        return super().destroy(request, *args, **kwargs)
+        return self.request.user.groups.all() 
 
     @action(detail=True, methods=['post'])
     def add_member(self, request, pk=None):
         group = self.get_object()
-        if group.owner != request.user:
-            return Response({"detail": "Only the owner can add members."}, status=status.HTTP_403_FORBIDDEN)
-        
         user_id = request.data.get('user_id')
         if not user_id:
             return Response({"detail": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST)
         user = get_object_or_404(User, id=user_id)
-        group.members.add(user)
+        group.user_set.add(user) 
         return Response({"detail": f"User {user.username} added to the group."}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
     def remove_member(self, request, pk=None):
         group = self.get_object()
-        if group.owner != request.user:
-            return Response({"detail": "Only the owner can remove members."}, status=status.HTTP_403_FORBIDDEN)
-        
         user_id = request.data.get('user_id')
         if not user_id:
             return Response({"detail": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         user = get_object_or_404(User, id=user_id)
-        if user == group.owner:
-            return Response({"detail": "Owner cannot be removed from the group."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        group.members.remove(user)
+
+        group.user_set.remove(user)
         return Response({"detail": f"User {user.username} removed from the group."}, status=status.HTTP_200_OK)
 
     # Helper function to unshare a resource (deck or file) from the group
@@ -81,20 +57,10 @@ class UserGroupViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        resource_obj = getattr(instance, resource_field)
-        resource_owner = getattr(resource_obj, 'user', None) or getattr(resource_obj.folder, 'user', None)
-        owner_id = resource_owner.id if hasattr(resource_owner, 'id') else resource_owner
-
-        if request.user == group.owner or request.user.id == owner_id:
-            instance.delete()
-            return Response(
-                {"detail": f"{resource_name} unshared successfully."},
-                status=status.HTTP_200_OK
-            )
-
+        instance.delete()
         return Response(
-            {"detail": "You don't have permission to unshare this resource."},
-            status=status.HTTP_403_FORBIDDEN
+            {"detail": f"{resource_name} unshared successfully."},
+            status=status.HTTP_200_OK
         )
 
     @action(detail=True, methods=['post'])

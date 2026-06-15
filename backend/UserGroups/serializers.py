@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from .models import UserGroup, GroupDeck, GroupFile
+from django.contrib.auth.models import User, Group # Adaugat Group
+from .models import GroupDeck, GroupFile # Scoatere UserGroup (e comentat in models)
 from FlashCards.serializers import DeckSerializer
 from FlashCards.models import Deck
 from FileTree.models import File
@@ -25,24 +25,22 @@ class GroupFileSerializer(serializers.ModelSerializer):
         fields = ['id', 'file', 'file_details', 'added_at', 'updated_at']
         
 class UserGroupSerializer(serializers.ModelSerializer):
-    owner_detail = UserSerializer(source='owner', read_only=True)
-    members_detail = UserSerializer(source='members', many=True, read_only=True)
+    # owner_detail = UserSerializer(source='owner', read_only=True)
+    # members_detail = UserSerializer(source='members', many=True, read_only=True)
     shared_decks_detail = GroupDeckSerializer(source='shared_decks', many=True, read_only=True)
     shared_files_detail = GroupFileSerializer(source='shared_files', many=True, read_only=True)
     
     decks = serializers.SerializerMethodField()
     files = serializers.SerializerMethodField()
 
-    is_owner = serializers.SerializerMethodField()
+    # is_owner = serializers.SerializerMethodField()
     
-    #PrimaryKeyRelatedField => an arrayjust with the ids of the related ojects
-    
-    member_ids = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), # is for validation, to ensure that we are looking for valid users
-        many=True, #we want an array of user_ids not just one (Default = False)
-        required=False,
-        write_only=True 
-    )
+    # member_ids = serializers.PrimaryKeyRelatedField(
+    #     queryset=User.objects.all(),
+    #     many=True,
+    #     required=False,
+    #     write_only=True 
+    # )
     
     deck_ids = serializers.PrimaryKeyRelatedField(
         queryset=Deck.objects.all(),
@@ -59,19 +57,18 @@ class UserGroupSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = UserGroup
-        fields = ['id', 'name', 'description', 
-                  'owner', 'owner_detail', 'is_owner',
-                  'members', 'members_detail', 
-                  'member_ids', 'deck_ids', 'file_ids',
+        model = Group # Schimbat din UserGroup in Group
+        fields = ['id', 'name', 
+                  # 'description', 'owner', 'owner_detail', 'is_owner',
+                  # 'members', 'members_detail', 'member_ids', 
+                  'deck_ids', 'file_ids',
                   'decks', 'files',
-                  'shared_decks_detail', 'shared_files_detail',
-                  'created_at', 'updated_at']
-        read_only_fields = ['id', 'owner', 'members', 'created_at', 'updated_at']
+                  'shared_decks_detail', 'shared_files_detail']
+        read_only_fields = ['id']
 
-    def get_is_owner(self, obj):
-        request = self.context.get('request')
-        return obj.owner == request.user if request else False
+    # def get_is_owner(self, obj):
+    #     request = self.context.get('request')
+    #     return obj.owner == request.user if request else False
 
     def get_decks(self, obj):
         # Returnăm lista de pachete (vectorul plat)
@@ -87,13 +84,12 @@ class UserGroupSerializer(serializers.ModelSerializer):
         if request is None or not getattr(request, 'user', None) or not request.user.is_authenticated:
             raise serializers.ValidationError({'detail': 'Authentication is required.'})
 
-        member_ids = validated_data.pop('member_ids', [])
+        # member_ids = validated_data.pop('member_ids', [])
         deck_ids = validated_data.pop('deck_ids', [])
         file_ids = validated_data.pop('file_ids', [])
         
-        # Pop owner if it exists in validated_data (e.g. from perform_create)
-        # to avoid "multiple values for keyword argument 'owner'"
-        owner = validated_data.pop('owner', request.user)
+        # Pop owner if it exists in validated_data
+        # owner = validated_data.pop('owner', request.user)
 
         if any(deck.user_id != request.user.id for deck in deck_ids):
             raise serializers.ValidationError({'deck_ids': 'You can only share your own decks.'})
@@ -101,13 +97,12 @@ class UserGroupSerializer(serializers.ModelSerializer):
         if any(shared_file.folder.user != request.user.id for shared_file in file_ids):
             raise serializers.ValidationError({'file_ids': 'You can only share your own files.'})
     
-        # transition.atomic() => if any error occurs during the creation of the group, all changes will be rolled back and no partial data will be saved to the database
         with transaction.atomic():
-            group = UserGroup.objects.create(owner=owner, **validated_data)
-            group.members.add(request.user)
+            group = Group.objects.create(**validated_data)
+            group.user_set.add(request.user) # Adaugam userul in grupul standard
 
-            if member_ids   :
-                group.members.add(*member_ids) #we add the owner as a memeber by defauult + the other member that we want to add
+            # if member_ids   :
+            #     group.members.add(*member_ids)
 
             for deck in deck_ids:
                 GroupDeck.objects.get_or_create(group=group, deck=deck) 
@@ -115,8 +110,8 @@ class UserGroupSerializer(serializers.ModelSerializer):
             for shared_file in file_ids:
                 GroupFile.objects.get_or_create(group=group, file=shared_file)
 
-        return UserGroup.objects.prefetch_related(
-            'members', 'shared_decks', 'shared_files', 'owner',
+        return Group.objects.prefetch_related(
+            'user_set', 'shared_decks', 'shared_files',
             'shared_decks__deck', 'shared_files__file'
         ).get(pk=group.pk)
 
