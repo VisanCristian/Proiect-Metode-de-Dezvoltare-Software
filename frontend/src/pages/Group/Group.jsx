@@ -12,14 +12,14 @@ import FileList from "../../fragments/FileTree/File/FileList.jsx";
 import ViewFileScreen from "../../fragments/FileTree/Components/ViewFileScreen/ViewFileScreen.jsx";
 import EditFileScreen from "../../fragments/FileTree/Components/EditFileScreen/EditFileScreen.jsx";
 import { convertMarkdownFileToPdf, saveFileChanges, exportFile, getUserFolders, getFolderFiles } from "../../services/filetree_api.js";
-import { getUserGroups } from "../../utils/Group/group_api";
+import { getUserGroups, getGroupDetails, shareDeckToGroup, shareFileToGroup, unshareDeckFromGroup, unshareFileFromGroup } from "../../utils/Group/group_api";
 
 
 import "./Group.css";
 export default function Group(group) {
     const { id: name } = useParams();
     const [currentGroup, setCurrentGroup] = useState(null);
-    const [tab, setTab] = useState("Nume");
+    const [tab, setTab] = useState("Study");
     const [modalState, setModalState] = useState(null);
     const [playingDeck, setPlayingDeck] = useState(false);
     const [pageMode, setPageMode] = useState({ type: "browser" });
@@ -32,10 +32,15 @@ export default function Group(group) {
     const [deckSearch, setDeckSearch] = useState("");
     const [fileSearch, setFileSearch] = useState("");
 
-    useEffect(() => {
-        // setGroupDecks(get_group_decks(group));
-        // setGroupFiles(get_group_files(group));
+    async function fetchGroupDetails(groupId) {
+        const response = await getGroupDetails(groupId);
+        if (response.status === 200) {
+            setGroupDecks(response.group.shared_decks_detail || []);
+            setGroupFiles(response.group.shared_files_detail || []);
+        }
+    }
 
+    useEffect(() => {
         async function fetchGroupInfo() {
             const decodedName = decodeURIComponent(name);
             let storedGroups = JSON.parse(localStorage.getItem("groups") || "[]");
@@ -48,6 +53,9 @@ export default function Group(group) {
             }
 
             setCurrentGroup(foundGroup || { name: decodedName, token: "Not Found" });
+            if (foundGroup) {
+                fetchGroupDetails(foundGroup.id);
+            }
         }
         fetchGroupInfo();
     }, [name]);
@@ -145,13 +153,13 @@ export default function Group(group) {
             <div className="group-page">
                 <nav>
                     <ul>
-                        <li><button onClick={() => { setTab("Nume") }}>Nume</button></li>
+                        <li><button onClick={() => { setTab("Study") }}>Study</button></li>
                         <li><button onClick={() => { setTab("Chatbot") }}>Chatbot</button></li>
                         <li><button onClick={() => { setTab("Stats") }}></button></li>
                     </ul>
                 </nav>
                 <div className={"tab-" + tab}>
-                    {tab === "Nume" && (
+                    {tab === "Study" && (
                         <>
 
                             <div className="Flashcards">
@@ -173,23 +181,24 @@ export default function Group(group) {
                                 ) : (
                                     <div className="deck-list">
                                         {groupDecks
-                                            .filter(item => item.deck.title.toLowerCase().includes(deckSearch.toLowerCase()))
+                                            .filter(item => item.deck_details?.title?.toLowerCase().includes(deckSearch.toLowerCase()))
                                             .map(item => (
                                                 <div
-                                                    key={item.deck.id}
+                                                    key={item.deck}
                                                     className="group-deck-item"
                                                     onClick={() => {
-                                                        fc.setSetId(item.deck.id);
+                                                        fc.setSetId(item.deck);
                                                         setPlayingDeck(true);
                                                     }}
                                                 >
-                                                    <h4>{item.deck.title} {item.owner && <span className="owner-badge">(Owner)</span>}</h4>
-                                                    <p className="card-count">{item.deck.cards?.length || 0} cards</p>
+                                                    <h4>{item.deck_details?.title} {item.owner && <span className="owner-badge">(Owner)</span>}</h4>
+                                                    <p className="card-count">{item.deck_details?.cards?.length || 0} cards</p>
                                                     {item.owner && (
                                                         <button className="button-remove-deck" onClick={(e) => {
                                                             e.stopPropagation();
-                                                            /* TODO: implement remove deck from group */
-                                                            console.log("Remove deck:", item.deck.id);
+                                                            unshareDeckFromGroup(currentGroup.id, item.deck).then(() => {
+                                                                fetchGroupDetails(currentGroup.id);
+                                                            });
                                                         }}>Remove</button>
                                                     )}
                                                 </div>
@@ -234,14 +243,15 @@ export default function Group(group) {
                                                     />
                                                     <div className="file-list-container">
                                                         <FileList
-                                                            files={groupFiles.map(item => ({ ...item.file, isOwner: item.owner }))}
+                                                            files={groupFiles.map(item => ({ ...item.file_details, isOwner: item.owner }))}
                                                             selectedFolder={true} /* bypass selectedFolder check */
                                                             filesLoading={false}
                                                             onView={(file) => setPageMode({ type: "view-file", file })}
                                                             onEdit={(file) => setPageMode({ type: "edit-file", file })}
                                                             onRemove={(file) => {
-                                                                /* TODO: implement remove file from group */
-                                                                console.log("Remove file:", file.id);
+                                                                unshareFileFromGroup(currentGroup.id, file.id).then(() => {
+                                                                    fetchGroupDetails(currentGroup.id);
+                                                                });
                                                             }}
                                                             searchFilter={fileSearch}
                                                         />
@@ -319,8 +329,9 @@ export default function Group(group) {
                                         key={deck.id}
                                         style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                                         onClick={() => {
-                                            // TODO: Call API to add deck to group
-                                            // addDeckToGroupAPI(deck.id, group.id);
+                                            shareDeckToGroup(currentGroup.id, deck.id).then(() => {
+                                                fetchGroupDetails(currentGroup.id);
+                                            });
                                             setModalState(null);
                                         }}
                                     >
@@ -350,8 +361,9 @@ export default function Group(group) {
                                         key={file.id}
                                         style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                                         onClick={() => {
-                                            // TODO: Call API to add file to group
-                                            // addFileToGroupAPI(file.id, group.id);
+                                            shareFileToGroup(currentGroup.id, file.id).then(() => {
+                                                fetchGroupDetails(currentGroup.id);
+                                            });
                                             setModalState(null);
                                         }}
                                     >

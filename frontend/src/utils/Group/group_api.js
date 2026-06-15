@@ -94,3 +94,63 @@ export async function leave_group(groupId) {
         return { status: err.status || 500, message: err.message || "Error leaving group" };
     }
 }
+
+export async function getGroupDetails(groupId) {
+    try {
+        const response = await fetchWithAuth(`${BASE_URL}/detail/${groupId}`);
+        return { status: 200, group: response.data };
+    } catch (err) {
+        console.error("Failed to fetch group details", err);
+        return { status: err.status || 500, message: err.message || "Error fetching group details" };
+    }
+}
+
+export async function shareDeckToGroup(groupId, deckId) {
+    try {
+        const response = await fetchWithAuth(`${BASE_URL}/${groupId}/share_deck`, {
+            method: "POST",
+            body: JSON.stringify({ deck_id: deckId }),
+        });
+        return { status: 201, message: "Deck shared successfully" };
+    } catch (err) {
+        console.error("Failed to share deck", err);
+        return { status: err.status || 500, message: err.message || "Error sharing deck" };
+    }
+}
+
+export async function shareFileToGroup(groupId, fileId) {
+    try {
+        const response = await fetchWithAuth(`${BASE_URL}/${groupId}/share_file`, {
+            method: "POST",
+            body: JSON.stringify({ file_id: fileId }),
+        });
+        return { status: 201, message: "File shared successfully" };
+    } catch (err) {
+        console.error("Failed to share file", err);
+        return { status: err.status || 500, message: err.message || "Error sharing file" };
+    }
+}
+
+export async function unshareDeckFromGroup(groupId, deckId) {
+    try {
+        const response = await fetchWithAuth(`${BASE_URL}/${groupId}/unshare_deck?deck_id=${deckId}`, {
+            method: "DELETE",
+        });
+        return { status: 200, message: "Deck unshared successfully" };
+    } catch (err) {
+        console.error("Failed to unshare deck", err);
+        return { status: err.status || 500, message: err.message || "Error unsharing deck" };
+    }
+}
+
+export async function unshareFileFromGroup(groupId, fileId) {
+    try {
+        const response = await fetchWithAuth(`${BASE_URL}/${groupId}/unshare_file?file_id=${fileId}`, {
+            method: "DELETE",
+        });
+        return { status: 200, message: "File unshared successfully" };
+    } catch (err) {
+        console.error("Failed to unshare file", err);
+        return { status: err.status || 500, message: err.message || "Error unsharing file" };
+    }
+}

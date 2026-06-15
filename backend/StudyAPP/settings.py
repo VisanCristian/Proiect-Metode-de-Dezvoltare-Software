@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'LoginSystem',
     'FlashCards',
     'FileTree',
-    'UserGroups'
     'Group',
 ]
 
