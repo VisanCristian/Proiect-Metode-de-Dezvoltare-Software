@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'apps.pomodoro',
+    'apps.activity',
     'rest_framework.authtoken',
     'djoser',
     'LoginSystem',
