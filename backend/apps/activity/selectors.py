@@ -58,9 +58,19 @@ def get_monthly_activity(user):
             'total_focus_time': focus_by_month.get(month, 0),
             'total_solved_cards': cards_by_month.get(month, 0),
             'flashcard_points': points_by_month.get(month, 0),
-            'tokens': points_by_month.get(month, 0) * focus_by_month.get(month, 0),
+            'tokens': points_by_month.get(month, 0) + (focus_by_month.get(month, 0) // 60),
         }
         for month in all_months
     ]
 
-    return {'months': months}
+    from Agents.models import AgentMemory
+    memory, _ = AgentMemory.objects.get_or_create(user=user)
+    earned_tokens = sum(m['tokens'] for m in months)
+    available_tokens = 2500 + earned_tokens - memory.consumed_tokens
+
+    return {
+        'months': months,
+        'available_tokens': available_tokens,
+        'earned_tokens': earned_tokens,
+        'consumed_tokens': memory.consumed_tokens
+    }

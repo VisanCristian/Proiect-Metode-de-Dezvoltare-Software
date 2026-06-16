@@ -12,9 +12,14 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const [activityData, setActivityData] = useState(null);
+
     useEffect(() => {
         getUserActivity()
-            .then((data) => setMonths(data.months || []))
+            .then((data) => {
+                setMonths(data.months || []);
+                setActivityData(data);
+            })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
     }, []);
@@ -29,7 +34,21 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
 
     return (
         <div className={`activity-report activity-report--${mode}`}>
-            <h3 className="activity-report__title">{TITLES[mode]}</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 className="activity-report__title">{TITLES[mode]}</h3>
+                {activityData && (
+                    <div style={{ 
+                        background: 'var(--accent)', 
+                        color: 'white', 
+                        padding: '6px 12px', 
+                        borderRadius: '20px',
+                        fontWeight: 'bold',
+                        fontSize: '0.9rem'
+                    }}>
+                        {activityData.available_tokens} Available Tokens
+                    </div>
+                )}
+            </div>
 
             {months.length === 0 ? (
                 <p className="activity-report__empty">No activity recorded yet.</p>
