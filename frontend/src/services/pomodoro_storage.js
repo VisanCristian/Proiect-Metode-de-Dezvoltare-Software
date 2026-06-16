@@ -15,10 +15,16 @@ function extractErrorMessage(payload) {
     .join(', ')
 }
 
+function getAuthHeaders() {
+  const token = localStorage.getItem('token')
+  return token ? { 'Authorization': `Token ${token}` } : {}
+}
+
 async function request(path, options = {}) {
   const response = await fetch(buildUrl(path), {
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
       ...(options.headers ?? {}),
     },
     ...options,
@@ -183,6 +189,17 @@ const pomodoroStorage = {
     })
 
     return normalizeSession(payload)
+  },
+
+  async saveProgress(sessionId, { totalFocusTime, totalBreakTime, completedPomodoros }) {
+    await request(`/sessions/${sessionId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        total_focus_time: totalFocusTime,
+        total_break_time: totalBreakTime,
+        completed_pomodoros: completedPomodoros,
+      }),
+    })
   },
 
   async saveSession(sessionId, summary) {
