@@ -26,7 +26,7 @@ class UserActivityReportTests(TestCase):
         self._auth()
         response = self.client.get('/api/activity/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), [])
+        self.assertEqual(response.json()['months'], [])
 
     def test_authenticated_returns_monthly_report(self):
         self._auth()
@@ -46,7 +46,7 @@ class UserActivityReportTests(TestCase):
         response = self.client.get('/api/activity/')
 
         self.assertEqual(response.status_code, 200)
-        data = response.json()
+        data = response.json()['months']
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['month'], '2026-03')
         self.assertEqual(data[0]['total_focus_time'], 1500)
@@ -79,7 +79,7 @@ class UserActivityReportTests(TestCase):
         response = self.client.get('/api/activity/')
 
         self.assertEqual(response.status_code, 200)
-        data = response.json()
+        data = response.json()['months']
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]['month'], '2026-02')
         self.assertEqual(data[0]['total_focus_time'], 900)
@@ -98,7 +98,7 @@ class UserActivityReportTests(TestCase):
 
         response = self.client.get('/api/activity/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), [])
+        self.assertEqual(response.json()['months'], [])
 
     def test_draft_pomodoro_sessions_not_counted(self):
         self._auth()
@@ -111,4 +111,4 @@ class UserActivityReportTests(TestCase):
 
         response = self.client.get('/api/activity/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), [])
+        self.assertEqual(response.json()['months'], [])
