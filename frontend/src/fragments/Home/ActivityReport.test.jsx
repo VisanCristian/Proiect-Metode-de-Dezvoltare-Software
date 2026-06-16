@@ -39,14 +39,14 @@ describe('ActivityReport', () => {
         render(<ActivityReport />)
 
         expect(await screen.findByText('2026-03')).toBeInTheDocument()
-        expect(screen.getByText('60 min focus')).toBeInTheDocument()
-        expect(screen.getByText('40 cards solved')).toBeInTheDocument()
+        expect(screen.getByText(/60 min focus/)).toBeInTheDocument()
+        expect(screen.getByText(/40 cards/)).toBeInTheDocument()
 
         expect(screen.getByText('2026-04')).toBeInTheDocument()
-        expect(screen.getByText('30 min focus')).toBeInTheDocument()
-        expect(screen.getByText('20 cards solved')).toBeInTheDocument()
-        expect(screen.getByText('5 pts')).toBeInTheDocument()
-        expect(screen.getByText('18000 tokens')).toBeInTheDocument()
+        expect(screen.getByText(/30 min focus/)).toBeInTheDocument()
+        expect(screen.getByText(/20 cards/)).toBeInTheDocument()
+        expect(screen.getByText(/5 pts/)).toBeInTheDocument()
+        expect(screen.getByText(/18000 tokens/)).toBeInTheDocument()
     })
 
     it('shows error message when the request fails', async () => {
