@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import NavBar from '../fragments/Navigation/NavBar';
+import ChatbotPanel from '../fragments/Chatbot/ChatbotPanel.jsx';
+import { getTotalTokens } from '../services/agents_api.js';
 
 const PrivateRoute = () => {
   const token = localStorage.getItem('token');
+  const [totalTokens, setTotalTokens] = useState(0);
+
+  useEffect(() => {
+    getTotalTokens().then(setTotalTokens).catch(() => {});
+  }, []);
+
   if (!token) {
     return <Navigate to="/" />;
   }
@@ -13,6 +21,7 @@ const PrivateRoute = () => {
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <Outlet />
       </div>
+      <ChatbotPanel scope="personal" tokensLeft={totalTokens} />
     </div>
   );
 };

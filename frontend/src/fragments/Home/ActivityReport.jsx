@@ -12,9 +12,14 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const [activityData, setActivityData] = useState(null);
+
     useEffect(() => {
         getUserActivity()
-            .then(setMonths)
+            .then((data) => {
+                setMonths(data.months || []);
+                setActivityData(data);
+            })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
     }, []);
@@ -29,7 +34,21 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
 
     return (
         <div className={`activity-report activity-report--${mode}`}>
-            <h3 className="activity-report__title">{TITLES[mode]}</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 className="activity-report__title">{TITLES[mode]}</h3>
+                {activityData && (
+                    <div style={{ 
+                        background: 'var(--accent)', 
+                        color: 'white', 
+                        padding: '6px 12px', 
+                        borderRadius: '20px',
+                        fontWeight: 'bold',
+                        fontSize: '0.9rem'
+                    }}>
+                        {activityData.available_tokens} Available Tokens
+                    </div>
+                )}
+            </div>
 
             {months.length === 0 ? (
                 <p className="activity-report__empty">No activity recorded yet.</p>
@@ -38,11 +57,17 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
                     {months.map((item) => (
                         <li key={item.month} className="activity-report__item">
                             <span className="activity-report__month">{item.month}</span>
-                            <span className="activity-report__stat">
-                                {Math.round(item.total_focus_time / 60)} min focus
+                            <span className="activity-report__stat activity-report__stat--focus">
+                                ⏱ {Math.round(item.total_focus_time / 60)} min focus
                             </span>
-                            <span className="activity-report__stat">
-                                {item.total_solved_cards} cards solved
+                            <span className="activity-report__stat activity-report__stat--cards">
+                                🃏 {item.total_solved_cards} cards
+                            </span>
+                            <span className="activity-report__stat activity-report__stat--pts">
+                                ★ {item.points ?? item.flashcard_points ?? 0} pts
+                            </span>
+                            <span className="activity-report__stat activity-report__stat--tokens">
+                                ◈ {item.tokens} tokens
                             </span>
                         </li>
                     ))}

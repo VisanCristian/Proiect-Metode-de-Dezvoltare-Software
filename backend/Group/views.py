@@ -109,6 +109,19 @@ class GroupShareFileApi(APIView):
         
         return Response({"message": "File shared with group successfully."}, status=status.HTTP_201_CREATED)
 
+class GroupMembersStatsApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, group_id):
+        try:
+            if not models.UserGroup.objects.filter(group_id=group_id, user_id=request.user.id).exists():
+                return Response({'message': 'You are not a member of this group.'}, status=status.HTTP_403_FORBIDDEN)
+            data = selectors.get_group_members_activity(group_id=group_id)
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class GroupUnshareDeckApi(APIView):
     permission_classes = [IsAuthenticated]
 

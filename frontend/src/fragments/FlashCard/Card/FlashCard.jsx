@@ -11,6 +11,7 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
   const backBodyRef = useRef(null);
   const [userInput, setUserInput] = useState("");
   const [evaluating, setEvaluating] = useState(false);
+  const [aiFeedback, setAiFeedback] = useState("");
 
   useLayoutEffect(() => {
     const measureHeights = () => {
@@ -41,34 +42,42 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
   // Reset userInput when card changes
   useEffect(() => {
       setUserInput("");
+      setAiFeedback("");
   }, [card?.id]);
 
   const handleSubmit = async (e) => {
       e.stopPropagation();
       e.preventDefault();
-      if (!userInput.trim() || evaluating) return;
+      console.log("Submit clicked, userInput:", userInput, "evaluating:", evaluating, "flipped:", flipped);
+      if (!userInput.trim() || evaluating || flipped) return;
 
       setEvaluating(true);
       let isCorrect = false;
 
       try {
+          console.log("Calling evaluateFlashcardAnswer...");
           // Attempt to evaluate with AI
           const userDataStr = localStorage.getItem("userData");
           const userData = userDataStr ? JSON.parse(userDataStr) : null;
-          const result = await evaluateFlashcardAnswer(card.question, card.answer, userInput, userData);
+          const result = await evaluateFlashcardAnswer(card.question, card.answer, userInput, userData, card.id);
+          console.log("Evaluation result:", result);
           isCorrect = result.correct;
+          setAiFeedback(result.message || "");
       } catch (error) {
+          console.error("Evaluation error:", error);
           // Fallback to strict string check
-          isCorrect = userInput.trim().toLowerCase() === card.answer.trim().toLowerCase();
+          const safeAnswer = card?.answer || "";
+          isCorrect = userInput.trim().toLowerCase() === safeAnswer.trim().toLowerCase();
       }
 
+      console.log("Final isCorrect:", isCorrect);
       setEvaluating(false);
       
       // Auto mark and flip
       if (isCorrect) {
-          mark("known");
+          mark("known", true, false);
       } else {
-          mark("unknown");
+          mark("unknown", true, false);
       }
       setFlipped(true);
   };
@@ -93,6 +102,14 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
                     onChange={(e) => setUserInput(e.target.value)}
                     placeholder="Type your answer here..."
                     disabled={evaluating || flipped}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            if (!evaluating && userInput.trim() && !flipped) {
+                                handleSubmit(e);
+                            }
+                        }
+                    }}
                 />
                 <button 
                     className="flashcard-submit-btn" 
@@ -117,6 +134,11 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
               {status === "unknown" && <div style={{ color: "var(--red)", fontWeight: 600, fontSize: "1.1rem" }}>✗ Incorrect</div>}
               {status === "unanswered" && <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>No answer submitted</div>}
             </div>
+            {aiFeedback && (
+              <div style={{ marginTop: "12px", padding: "10px", background: "rgba(255,255,255,0.05)", borderRadius: "8px", fontSize: "0.95rem" }}>
+                <MarkdownRenderer content={aiFeedback} />
+              </div>
+            )}
           </div>
         </div>
       </div>

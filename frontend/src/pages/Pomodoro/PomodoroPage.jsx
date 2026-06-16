@@ -15,38 +15,50 @@ import TaskList from "../../fragments/Pomodoro/Components/Task/TaskList"
 import SessionStats from "../../fragments/Pomodoro/Components/Session/SessionStats"
 import SessionSummary from "../../fragments/Pomodoro/Components/Modals/SessionSummary"
 import SessionHistory from "../../fragments/Pomodoro/Components/Session/SessionHistory"
+import Modal from '../../fragments/Modal'
 import '../../fragments/Pomodoro/index.css'
 import './PomodoroPage.css'
 
 export default function PomodoroPage() {
     const [tasks, setTasks] = useState([])
     const [activeTaskId, setActiveTaskId] = useState(null)
-    const [currentSessionId, setCurrentSessionId] = useState(null)
-
-    const [sessionState, setSessionState] = useState('idle')
-    const [sessionStartTime, setSessionStartTime] = useState(null)
-    const [totalFocusTime, setTotalFocusTime] = useState(0)
-    const [totalBreakTime, setTotalBreakTime] = useState(0)
     const [sessionSummary, setSessionSummary] = useState(null)
     const [pastSessions, setPastSessions] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState('')
 
-    const { timer, settings, setSettings } = usePomodoroContext()
+    const [confirmModal, setConfirmModal] = useState(null)
+
+    const {
+        timer, settings, setSettings,
+        totalFocusTime, setTotalFocusTime,
+        totalBreakTime, setTotalBreakTime,
+        sessionState, setSessionState,
+        sessionStartTime, setSessionStartTime,
+        currentSessionId, setCurrentSessionId,
+    } = usePomodoroContext()
     const { playForPhase } = useSound()
     const { notify } = useBrowserNotification()
     useBeforeUnload(sessionState === 'active')
     const prevPhaseRef = useRef(timer.phase)
     const prevCompletedCycleRef = useRef(timer.completedCycle)
     const taskSyncVersionRef = useRef(0)
+    const sessionStateRef = useRef(sessionState)
+    sessionStateRef.current = sessionState
 
-    const applyCurrentSession = useCallback((session) => {
-        setCurrentSessionId(session.id)
+    const applyCurrentSession = useCallback((session, { forceCounters = false } = {}) => {
+        setCurrentSessionId((prevId) => {
+            const isResume = prevId === session.id && sessionStateRef.current === 'active'
+            // Only reset counters when loading a new session or forced (not when navigating back)
+            if (!isResume || forceCounters) {
+                setTotalFocusTime(session.totalFocusTime ?? 0)
+                setTotalBreakTime(session.totalBreakTime ?? 0)
+                setSessionStartTime(session.startTime)
+            }
+            return session.id
+        })
         setSettings(session.settings ?? DEFAULTS)
         setTasks(session.tasks ?? [])
-        setSessionStartTime(session.startTime)
-        setTotalFocusTime(session.totalFocusTime ?? 0)
-        setTotalBreakTime(session.totalBreakTime ?? 0)
         setActiveTaskId((prev) => (session.tasks ?? []).some((task) => task.id === prev) ? prev : null)
     }, [])
 
@@ -179,7 +191,7 @@ export default function PomodoroPage() {
             totalBreakTime,
             completedPomodoros: timer.completedCycle,
             tasks: [...tasks],
-            points: timer.completedCycle * 10,
+            points: timer.completedCycle,
         }
 
         await runWithErrorHandling(() => pomodoroStorage.saveSession(currentSessionId, summary))
@@ -205,25 +217,29 @@ export default function PomodoroPage() {
         totalFocusTime,
     ])
 
-    const abandonSession = useCallback(async () => {
-        if (!currentSessionId) {
-            return
-        }
-
-        if (window.confirm('Are you sure? The session data will not be saved.')) {
-            await runWithErrorHandling(() => pomodoroStorage.abandonSession(currentSessionId))
-            const [currentSession, sessions] = await runWithErrorHandling(() => Promise.all([
-                pomodoroStorage.getCurrentSession(),
-                pomodoroStorage.getSessions(),
-            ]))
-
-            applyCurrentSession(currentSession)
-            setPastSessions(sessions)
-            setSessionState('idle')
-            setSessionStartTime(null)
-            timer.reset()
-        }
+    const doAbandonSession = useCallback(async () => {
+        setConfirmModal(null)
+        await runWithErrorHandling(() => pomodoroStorage.abandonSession(currentSessionId))
+        const [currentSession, sessions] = await runWithErrorHandling(() => Promise.all([
+            pomodoroStorage.getCurrentSession(),
+            pomodoroStorage.getSessions(),
+        ]))
+        applyCurrentSession(currentSession)
+        setPastSessions(sessions)
+        setSessionState('idle')
+        setSessionStartTime(null)
+        timer.reset()
     }, [applyCurrentSession, currentSessionId, runWithErrorHandling, timer])
+
+    const abandonSession = useCallback(() => {
+        if (!currentSessionId) return
+        setConfirmModal({
+            title: 'Abandon session?',
+            message: 'The session data will not be saved.',
+            confirmLabel: 'Abandon',
+            onConfirm: doAbandonSession,
+        })
+    }, [currentSessionId, doAbandonSession])
 
     const closeSummary = () => {
         setSessionSummary(null)
@@ -231,21 +247,20 @@ export default function PomodoroPage() {
         setSessionStartTime(null)
     }
 
-    const clearHistory = useCallback(async () => {
-        if (window.confirm('Are you sure? The session history will be permanently deleted.')) {
-            await runWithErrorHandling(() => pomodoroStorage.clearSessions())
-            setPastSessions([])
-        }
+    const doClearHistory = useCallback(async () => {
+        setConfirmModal(null)
+        await runWithErrorHandling(() => pomodoroStorage.clearSessions())
+        setPastSessions([])
     }, [runWithErrorHandling])
 
-    useEffect(() => {
-        if (sessionState !== 'active' || !timer.isRunning) return
-        const interval = setInterval(() => {
-            if (timer.phase === 'focus') setTotalFocusTime((previous) => previous + 1)
-            else setTotalBreakTime((previous) => previous + 1)
-        }, 1000)
-        return () => clearInterval(interval)
-    }, [sessionState, timer.isRunning, timer.phase])
+    const clearHistory = useCallback(() => {
+        setConfirmModal({
+            title: 'Clear history?',
+            message: 'All session history will be permanently deleted.',
+            confirmLabel: 'Delete',
+            onConfirm: doClearHistory,
+        })
+    }, [doClearHistory])
 
     useEffect(() => {
         if (prevPhaseRef.current !== timer.phase) {
@@ -256,9 +271,17 @@ export default function PomodoroPage() {
                     ? 'Focus time has started!'
                     : 'Time for a break!'
             )
+            // Persist focus/break time to backend on every phase change
+            if (currentSessionId && sessionState === 'active') {
+                pomodoroStorage.saveProgress(currentSessionId, {
+                    totalFocusTime,
+                    totalBreakTime,
+                    completedPomodoros: timer.completedCycle,
+                }).catch(() => {})
+            }
             prevPhaseRef.current = timer.phase
         }
-    }, [timer.phase, playForPhase, notify])
+    }, [timer.phase, playForPhase, notify, currentSessionId, sessionState, sessionStartTime, totalFocusTime, totalBreakTime, timer.completedCycle])
 
     useEffect(() => {
         if (timer.completedCycle > prevCompletedCycleRef.current && activeTaskId) {
@@ -287,25 +310,38 @@ export default function PomodoroPage() {
 
     if (sessionState === 'idle') {
         return (
-            <div className="pomodoro-page pomodoro-layout">
-                <div className="pomodoro-main">
-                    {errorBanner}
-                    <div className="idle-icon"><TimerClockIcon /></div>
-                    <h1 className="idle-title">Pomodoro</h1>
-                    <p className="idle-desc">Prepare your tasks and start a study session.</p>
+            <>
+                <div className="pomodoro-page pomodoro-layout">
+                    <div className="pomodoro-main">
+                        {errorBanner}
+                        <div className="idle-icon"><TimerClockIcon /></div>
+                        <h1 className="idle-title">Pomodoro</h1>
+                        <p className="idle-desc">Prepare your tasks and start a study session.</p>
 
-                    <TaskList tasks={tasks} activeTaskId={activeTaskId}
-                        onTasksChange={handleTasksChange} onSelectTask={setActiveTaskId} />
-                    <SessionHistory sessions={pastSessions} onClearAll={clearHistory} />
+                        <TaskList tasks={tasks} activeTaskId={activeTaskId}
+                            onTasksChange={handleTasksChange} onSelectTask={setActiveTaskId} />
+                        <SessionHistory sessions={pastSessions} onClearAll={clearHistory} />
 
-                    <button onClick={() => void startSession()} className="start-btn">
-                        <PlayIcon size={16} /> Start Session
-                    </button>
+                        <button onClick={() => void startSession()} className="start-btn">
+                            <PlayIcon size={16} /> Start Session
+                        </button>
+                    </div>
+                    <aside className="pomodoro-sidebar">
+                        <SettingsPanel settings={settings} onSave={handleSaveSettings} />
+                    </aside>
                 </div>
-                <aside className="pomodoro-sidebar">
-                    <SettingsPanel settings={settings} onSave={handleSaveSettings} />
-                </aside>
-            </div>
+
+                {confirmModal && (
+                    <Modal
+                        title={confirmModal.title}
+                        message={confirmModal.message}
+                        buttons={[
+                            { label: 'Cancel', onClick: () => setConfirmModal(null), variant: 'cancel' },
+                            { label: confirmModal.confirmLabel, onClick: confirmModal.onConfirm },
+                        ]}
+                    />
+                )}
+            </>
         )
     }
 
@@ -335,6 +371,17 @@ export default function PomodoroPage() {
                 </div>
 
                 {sessionSummary && <SessionSummary session={sessionSummary} onClose={closeSummary} />}
+
+                {confirmModal && (
+                    <Modal
+                        title={confirmModal.title}
+                        message={confirmModal.message}
+                        buttons={[
+                            { label: 'Cancel', onClick: () => setConfirmModal(null), variant: 'cancel' },
+                            { label: confirmModal.confirmLabel, onClick: confirmModal.onConfirm },
+                        ]}
+                    />
+                )}
             </div>
         </div>
     )

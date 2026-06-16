@@ -191,6 +191,17 @@ const pomodoroStorage = {
     return normalizeSession(payload)
   },
 
+  async saveProgress(sessionId, { totalFocusTime, totalBreakTime, completedPomodoros }) {
+    await request(`/sessions/${sessionId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        total_focus_time: totalFocusTime,
+        total_break_time: totalBreakTime,
+        completed_pomodoros: completedPomodoros,
+      }),
+    })
+  },
+
   async saveSession(sessionId, summary) {
     const payload = await request(`/sessions/${sessionId}/`, {
       method: 'PATCH',

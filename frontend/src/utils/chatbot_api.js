@@ -1,7 +1,7 @@
 const WEBHOOK_URL = "http://localhost:5678/webhook-test/chatbot";
 const API_URL = "http://127.0.0.1:8080";
 
-export async function sendMessageToChatbot(message) {
+export async function sendMessageToChatbot(message, { groupId = null, availableFiles = [], availableDecks = [] } = {}) {
     const token = localStorage.getItem("token");
     if (!token) {
         throw new Error("No authentication token found. Please log in.");
@@ -31,7 +31,11 @@ export async function sendMessageToChatbot(message) {
             body: JSON.stringify({
                 message: message,
                 user_id: userId,
-                sessionId: userId
+                sessionId: userId,
+                token: token,
+                group_id: groupId,
+                available_files: availableFiles,
+                available_decks: availableDecks
             })
         });
 
@@ -51,13 +55,17 @@ export async function sendMessageToChatbot(message) {
     }
 }
 
-export async function evaluateFlashcardAnswer(question, answer, userInput, userData) {
-    const EVALUATE_URL = "http://localhost:5678/webhook-test/evaluate-flashcard";
+export async function evaluateFlashcardAnswer(question, answer, userInput, userData, flashcardId) {
+    const EVALUATE_URL = "http://localhost:5678/webhook-test/chatbot";
+    const token = localStorage.getItem("token");
     const payload = {
+        message: `Please evaluate this flashcard answer. Question: "${question}". Correct Answer: "${answer}". User's Answer: "${userInput}". If the user's answer is correct, use the award_flashcard_points tool to award a minimum of 500 points (make sure to pass flashcard_id: ${flashcardId}). Reply with JSON containing "correct": true/false and "message": "your explanation, including whether they received points, or if the flashcard was already answered today".`,
         question,
         true_answer: answer,
         user_answer: userInput,
-        user: userData
+        user: userData,
+        token: token,
+        flashcard_id: flashcardId
     };
 
     try {
@@ -72,11 +80,39 @@ export async function evaluateFlashcardAnswer(question, answer, userInput, userD
         }
 
         const contentType = n8nResponse.headers.get("content-type");
+        let dataStr = "";
+        let isRawJson = false;
+
         if (contentType && contentType.includes("application/json")) {
-            return await n8nResponse.json();
+            const rawJson = await n8nResponse.json();
+            
+            // Check if it's ALREADY the exact format we asked for
+            if (rawJson.correct !== undefined) {
+                return { 
+                    correct: rawJson.correct === true || String(rawJson.correct).toLowerCase() === "true",
+                    message: rawJson.message || JSON.stringify(rawJson)
+                };
+            }
+            
+            // Otherwise, n8n often nests the AI response string in 'output' or 'text'
+            dataStr = rawJson.output || rawJson.text || rawJson.response || rawJson.message || JSON.stringify(rawJson);
         } else {
-            const text = await n8nResponse.text();
-            return { correct: text.toLowerCase().includes("true") };
+            dataStr = await n8nResponse.text();
+        }
+
+        // Attempt to parse dataStr as JSON if it's a string containing JSON
+        try {
+            // Strip markdown code fences if present
+            const cleanStr = dataStr.replace(/^```json/i, "").replace(/```$/i, "").trim();
+            const parsed = JSON.parse(cleanStr);
+            return {
+                correct: parsed.correct === true || String(parsed.correct).toLowerCase() === "true",
+                message: parsed.message || dataStr
+            };
+        } catch {
+            // Fallback: it's not valid JSON, so search for true/false in the string
+            const isCorrect = dataStr.toLowerCase().includes("true") || dataStr.toLowerCase().includes('"correct": true');
+            return { correct: isCorrect, message: dataStr };
         }
     } catch (error) {
         console.error("Flashcard Evaluation API Error:", error);

@@ -71,7 +71,7 @@ function SessionHistory({ sessions, onClearAll }) {
                                                 <div>
                                                     <div className="stat-label">Points</div>
                                                     <div className="stat-value" style={{ color: '#e0a84e' }}>
-                                                        {session.completedPomodoros * 10}
+                                                        {session.completedPomodoros}
                                                     </div>
                                                 </div>
                                             </div>

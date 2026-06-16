@@ -91,6 +91,9 @@ class PomodoroSessionSettingsSerializer(serializers.Serializer):
     long_break_time = serializers.IntegerField(required=False, min_value=1)
     cycles_before_long_break = serializers.IntegerField(required=False, min_value=1)
     auto_start = serializers.BooleanField(required=False)
+    total_focus_time = serializers.IntegerField(required=False, min_value=0)
+    total_break_time = serializers.IntegerField(required=False, min_value=0)
+    completed_pomodoros = serializers.IntegerField(required=False, min_value=0)
 
 
 class PomodoroSessionFinishSerializer(serializers.Serializer):

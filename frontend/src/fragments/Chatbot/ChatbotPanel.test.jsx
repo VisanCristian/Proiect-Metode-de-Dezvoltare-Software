@@ -17,9 +17,17 @@ afterEach(() => {
     vi.clearAllMocks()
 })
 
+function openPanel() {
+    fireEvent.click(screen.getByRole('button', { name: 'Open chatbot' }))
+}
+
 describe('ChatbotPanel', () => {
-    it('renders open by default with header info', () => {
+    it('renders closed by default then shows header info when opened', () => {
         render(<ChatbotPanel model="Haiku" tokensLeft={150} />)
+
+        expect(screen.queryByPlaceholderText('Type a message...')).not.toBeInTheDocument()
+
+        openPanel()
 
         expect(screen.getByText('Haiku')).toBeInTheDocument()
         expect(screen.getByText('150 tokens')).toBeInTheDocument()
@@ -29,17 +37,16 @@ describe('ChatbotPanel', () => {
     it('closes and opens on toggle button click', () => {
         render(<ChatbotPanel />)
 
-        const toggle = screen.getByRole('button', { name: 'Close chatbot' })
-        fireEvent.click(toggle)
-
-        expect(screen.queryByPlaceholderText('Type a message...')).not.toBeInTheDocument()
-
-        fireEvent.click(screen.getByRole('button', { name: 'Open chatbot' }))
+        openPanel()
         expect(screen.getByPlaceholderText('Type a message...')).toBeInTheDocument()
+
+        fireEvent.click(screen.getByRole('button', { name: 'Close chatbot' }))
+        expect(screen.queryByPlaceholderText('Type a message...')).not.toBeInTheDocument()
     })
 
     it('does not send empty message', async () => {
         render(<ChatbotPanel />)
+        openPanel()
 
         fireEvent.click(screen.getByRole('button', { name: 'Send message' }))
 
@@ -50,6 +57,7 @@ describe('ChatbotPanel', () => {
         sendChatMessage.mockResolvedValue({ message: 'Mock reply' })
 
         render(<ChatbotPanel />)
+        openPanel()
 
         fireEvent.change(screen.getByPlaceholderText('Type a message...'), {
             target: { value: 'What is entropy?' },
@@ -64,6 +72,7 @@ describe('ChatbotPanel', () => {
         sendChatMessage.mockResolvedValue({ message: 'ok' })
 
         render(<ChatbotPanel />)
+        openPanel()
 
         const input = screen.getByPlaceholderText('Type a message...')
         fireEvent.change(input, { target: { value: 'hello' } })
@@ -76,6 +85,7 @@ describe('ChatbotPanel', () => {
         sendChatMessage.mockRejectedValue(new Error('Network error'))
 
         render(<ChatbotPanel />)
+        openPanel()
 
         fireEvent.change(screen.getByPlaceholderText('Type a message...'), {
             target: { value: 'test' },
@@ -87,6 +97,7 @@ describe('ChatbotPanel', () => {
 
     it('disables send button and shows warning for long messages', () => {
         render(<ChatbotPanel />)
+        openPanel()
 
         const longText = 'a'.repeat(1001)
         fireEvent.change(screen.getByPlaceholderText('Type a message...'), {
@@ -101,6 +112,7 @@ describe('ChatbotPanel', () => {
         sendChatMessage.mockResolvedValue({ message: 'ok' })
 
         render(<ChatbotPanel scope="personal" />)
+        openPanel()
 
         fireEvent.change(screen.getByPlaceholderText('Type a message...'), {
             target: { value: 'hello' },
@@ -118,6 +130,7 @@ describe('ChatbotPanel', () => {
         sendChatMessage.mockResolvedValue({ message: 'ok' })
 
         render(<ChatbotPanel scope="group" groupId={3} />)
+        openPanel()
 
         fireEvent.change(screen.getByPlaceholderText('Type a message...'), {
             target: { value: 'hello' },

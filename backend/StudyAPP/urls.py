@@ -27,4 +27,5 @@ urlpatterns = [
     path('api/filesystem/', include('FileTree.urls')),
     path('api/activity/', include('apps.activity.urls')),
     path('api/groups/', include('Group.urls')),
+    path('api/agents/', include('Agents.urls')),
 ]

@@ -232,7 +232,159 @@
   box-shadow: 0 12px 24px rgba(91, 143, 185, 0.22);
 }
 
+/* Animated logo */
+.home-hero--animated {
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+}
+
+.home-logo-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.home-logo-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-logo-svg {
+  width: 130px;
+  height: 130px;
+  filter: drop-shadow(0 0 24px rgba(91, 143, 185, 0.5));
+  animation: logoFloat 4s ease-in-out infinite;
+}
+
+.home-logo-cap {
+  animation: capShimmer 3s ease-in-out infinite;
+  transform-origin: 60px 42px;
+}
+
+.home-logo-tassel {
+  animation: tasselSway 3s ease-in-out infinite;
+  transform-origin: 16px 42px;
+}
+
+.home-logo-string {
+  animation: stringPulse 3s ease-in-out infinite;
+}
+
+.home-logo-dot {
+  animation: dotBounce 3s ease-in-out infinite;
+}
+
+.home-logo-book {
+  animation: bookGlow 3s ease-in-out infinite;
+}
+
+.home-logo-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.home-logo-orbit--1 { animation: orbit 8s linear infinite; }
+.home-logo-orbit--2 { animation: orbit 10s linear infinite reverse; animation-delay: -3s; }
+.home-logo-orbit--3 { animation: orbit 12s linear infinite; animation-delay: -6s; }
+
+.home-logo-orb {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background: rgba(10, 17, 70, 0.85);
+  border: 1px solid var(--orb-color, #5b8fb9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transform: translate(-50%, -50%) translateX(96px);
+  box-shadow: 0 0 12px var(--orb-color, #5b8fb9);
+}
+
+.home-logo-tagline {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #7fb4dd, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  text-align: center;
+}
+
+.home-cta-btn {
+  align-self: flex-start;
+  background: linear-gradient(135deg, #5b8fb9, #7fb4dd);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 8px 24px rgba(91, 143, 185, 0.3);
+}
+
+.home-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(91, 143, 185, 0.45);
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes capShimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.82; }
+}
+
+@keyframes tasselSway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(6deg); }
+}
+
+@keyframes stringPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes dotBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+@keyframes bookGlow {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; filter: brightness(1.15); }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 960px) {
+  .home-hero--animated {
+    grid-template-columns: 1fr;
+  }
+
+  .home-logo-side {
+    order: -1;
+  }
+
   .home-hero,
   .feature-grid {
     grid-template-columns: 1fr;
@@ -271,4 +423,147 @@
   .logout-button {
     width: 100%;
   }
+}
+/* Animated logo */
+.home-hero--animated {
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+}
+
+.home-logo-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.home-logo-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-logo-svg {
+  width: 130px;
+  height: 130px;
+  filter: drop-shadow(0 0 24px rgba(91, 143, 185, 0.5));
+  animation: logoFloat 4s ease-in-out infinite;
+}
+
+.home-logo-cap {
+  animation: capShimmer 3s ease-in-out infinite;
+  transform-origin: 60px 42px;
+}
+
+.home-logo-tassel {
+  animation: tasselSway 3s ease-in-out infinite;
+  transform-origin: 16px 42px;
+}
+
+.home-logo-string {
+  animation: stringPulse 3s ease-in-out infinite;
+}
+
+.home-logo-dot {
+  animation: dotBounce 3s ease-in-out infinite;
+}
+
+.home-logo-book {
+  animation: bookGlow 3s ease-in-out infinite;
+}
+
+.home-logo-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.home-logo-orbit--1 { animation: orbit 8s linear infinite; }
+.home-logo-orbit--2 { animation: orbit 10s linear infinite reverse; animation-delay: -3s; }
+.home-logo-orbit--3 { animation: orbit 12s linear infinite; animation-delay: -6s; }
+
+.home-logo-orb {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background: rgba(10, 17, 70, 0.85);
+  border: 1px solid var(--orb-color, #5b8fb9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transform: translate(-50%, -50%) translateX(96px);
+  box-shadow: 0 0 12px var(--orb-color, #5b8fb9);
+}
+
+.home-logo-tagline {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #7fb4dd, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  text-align: center;
+}
+
+.home-cta-btn {
+  align-self: flex-start;
+  background: linear-gradient(135deg, #5b8fb9, #7fb4dd);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 8px 24px rgba(91, 143, 185, 0.3);
+}
+
+.home-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(91, 143, 185, 0.45);
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes capShimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.82; }
+}
+
+@keyframes tasselSway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(6deg); }
+}
+
+@keyframes stringPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes dotBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+@keyframes bookGlow {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; filter: brightness(1.15); }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

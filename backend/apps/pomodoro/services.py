@@ -42,11 +42,16 @@ def update_session_settings(session, data):
         'long_break_time',
         'cycles_before_long_break',
         'auto_start',
+        'total_focus_time',
+        'total_break_time',
+        'completed_pomodoros',
     )
+    updated = []
     for field in fields:
         if field in data:
             setattr(session, field, data[field])
-    session.save(update_fields=[*fields, 'updated_at'])
+            updated.append(field)
+    session.save(update_fields=[*updated, 'updated_at'])
     return session
 
 

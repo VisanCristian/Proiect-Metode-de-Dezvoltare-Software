@@ -287,3 +287,110 @@
 .flash-page-modal .card {
     width: 100%;
 }
+.group-chatbot-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--navbar-height, 52px) - 120px);
+    max-width: 760px;
+    margin: 0 auto;
+    background: rgba(10, 17, 70, 0.72);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.group-chatbot__messages {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.stats-tab-container {
+    padding: 8px 0;
+}
+
+.member-stats-block {
+    background: rgba(10, 17, 70, 0.38);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 20px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    backdrop-filter: blur(12px);
+}
+
+.member-stats-block h3 {
+    margin: 0 0 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.member-stats-block h3::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #5b8fb9, #7fb4dd);
+}
+
+.member-stats-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.member-stats-item {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    transition: background 0.2s ease;
+}
+
+.member-stats-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.stats-month {
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: #ffffff;
+    background: rgba(91, 143, 185, 0.22);
+    border: 1px solid rgba(91, 143, 185, 0.35);
+    border-radius: 7px;
+    padding: 3px 9px;
+    min-width: 68px;
+    text-align: center;
+    letter-spacing: 0.03em;
+}
+
+.stats-stat {
+    font-size: 0.83rem;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 7px;
+    color: rgba(213, 223, 232, 0.8);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.group-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: rgba(213, 223, 232, 0.9);
+}

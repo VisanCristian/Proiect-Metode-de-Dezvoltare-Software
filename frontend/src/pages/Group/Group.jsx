@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import Modal from "../../fragments/Modal.jsx";
 import { useFlashCards } from "../../hooks/FlashCard/useFlashCards";
@@ -12,9 +12,10 @@ import FileList from "../../fragments/FileTree/File/FileList.jsx";
 import ViewFileScreen from "../../fragments/FileTree/Components/ViewFileScreen/ViewFileScreen.jsx";
 import EditFileScreen from "../../fragments/FileTree/Components/EditFileScreen/EditFileScreen.jsx";
 import { convertMarkdownFileToPdf, saveFileChanges, exportFile, getUserFolders, getFolderFiles } from "../../services/filetree_api.js";
-import { getUserGroups, getGroupDetails, shareDeckToGroup, shareFileToGroup, unshareDeckFromGroup, unshareFileFromGroup } from "../../utils/Group/group_api";
+import { getUserGroups, getGroupDetails, shareDeckToGroup, shareFileToGroup, unshareDeckFromGroup, unshareFileFromGroup, getGroupMembersStats } from "../../utils/Group/group_api";
 import MarkdownRenderer from "../../fragments/MarkdownRenderer/MarkdownRenderer";
 import { sendMessageToChatbot } from "../../utils/chatbot_api";
+import { getTotalTokens } from "../../services/agents_api";
 
 import "./Group.css";
 export default function Group(group) {
@@ -23,6 +24,7 @@ export default function Group(group) {
     const [tab, setTab] = useState("Study");
     const [modalState, setModalState] = useState(null);
     const [playingDeck, setPlayingDeck] = useState(false);
+    const [totalTokens, setTotalTokens] = useState(0);
     const [pageMode, setPageMode] = useState({ type: "browser" });
 
     const [groupDecks, setGroupDecks] = useState([]);
@@ -33,27 +35,40 @@ export default function Group(group) {
     const [deckSearch, setDeckSearch] = useState("");
     const [fileSearch, setFileSearch] = useState("");
 
+    const [chatMessages, setChatMessages] = useState([]);
     const [chatInput, setChatInput] = useState("");
-    const [chatResponse, setChatResponse] = useState("");
     const [isChatLoading, setIsChatLoading] = useState(false);
+    const chatBottomRef = useRef(null);
+
+    const [groupStats, setGroupStats] = useState([]);
+    const [statsLoading, setStatsLoading] = useState(false);
 
     const handleChatbotSubmit = async (e) => {
-        e.preventDefault();
-        if (!chatInput.trim() || isChatLoading) return;
+        e?.preventDefault();
+        const text = chatInput.trim();
+        if (!text || isChatLoading) return;
+        setChatMessages(prev => [...prev, { role: 'user', text }]);
+        setChatInput("");
         setIsChatLoading(true);
-        setChatResponse("");
         try {
-            const responseData = await sendMessageToChatbot(chatInput);
-            let textOutput = typeof responseData === 'string' ? responseData : 
+            const responseData = await sendMessageToChatbot(text, {
+                groupId: currentGroup?.id,
+                availableFiles: groupFiles.map(item => item.file_details).filter(Boolean),
+                availableDecks: groupDecks.map(item => item.deck_details).filter(Boolean),
+            });
+            const reply = typeof responseData === 'string' ? responseData :
                 (responseData.output || responseData.message || responseData.text || JSON.stringify(responseData));
-            setChatResponse(textOutput);
+            setChatMessages(prev => [...prev, { role: 'assistant', text: reply }]);
         } catch (err) {
-            setChatResponse(`**Error:** ${err.message}`);
+            setChatMessages(prev => [...prev, { role: 'assistant', text: `Error: ${err.message}` }]);
         } finally {
             setIsChatLoading(false);
-            setChatInput("");
         }
     };
+
+    useEffect(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [chatMessages]);
 
     async function fetchGroupDetails(groupId) {
         const response = await getGroupDetails(groupId);
@@ -81,6 +96,7 @@ export default function Group(group) {
             }
         }
         fetchGroupInfo();
+        getTotalTokens().then(setTotalTokens).catch(() => {});
     }, [name]);
 
     async function loadUserFiles() {
@@ -99,6 +115,15 @@ export default function Group(group) {
             setUserFilesLoading(false);
         }
     }
+
+    useEffect(() => {
+        if (tab === "Stats" && currentGroup?.id && groupStats.length === 0) {
+            setStatsLoading(true);
+            getGroupMembersStats(currentGroup.id)
+                .then(({ members }) => setGroupStats(members))
+                .finally(() => setStatsLoading(false));
+        }
+    }, [tab, currentGroup]);
 
     const fc = useFlashCards();
 
@@ -178,7 +203,7 @@ export default function Group(group) {
                     <ul>
                         <li><button onClick={() => { setTab("Study") }}>Study</button></li>
                         <li><button onClick={() => { setTab("Chatbot") }}>Chatbot</button></li>
-                        <li><button onClick={() => { setTab("Stats") }}></button></li>
+                        <li><button onClick={() => { setTab("Stats") }}>Stats</button></li>
                     </ul>
                 </nav>
                 <div className={"tab-" + tab}>
@@ -288,42 +313,88 @@ export default function Group(group) {
                         </>
                     )}
                     {tab === "Chatbot" && (
-                        <div className="chatbot-tab-container">
-                            <h2 style={{marginTop: 0, marginBottom: '1.5rem'}}>Group Chatbot</h2>
-                            <form onSubmit={handleChatbotSubmit} style={{display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem'}}>
-                                <input 
-                                    type="text" 
-                                    className="search-bar" 
-                                    placeholder="Ask the chatbot a question..." 
+                        <div className="group-chatbot-wrapper">
+                            <div className="chatbot-panel__header">
+                                <div className="chatbot-panel__header-left">
+                                    <span className="chatbot-panel__title">Group Assistant</span>
+                                    <span className="chatbot-panel__model">Auto</span>
+                                </div>
+                                <span className="chatbot-panel__tokens">{totalTokens} tokens</span>
+                            </div>
+
+                            <div className="chatbot-panel__messages group-chatbot__messages">
+                                {chatMessages.length === 0 && (
+                                    <div className="chatbot-panel__empty">
+                                        <div className="chatbot-panel__empty-icon">💬</div>
+                                        <p className="chatbot-panel__empty-title">Group Assistant</p>
+                                        <p className="chatbot-panel__empty-hint">Ask anything about this group's files or flashcard decks.</p>
+                                    </div>
+                                )}
+                                {chatMessages.map((msg, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`chatbot-panel__bubble chatbot-panel__bubble--${msg.role}`}
+                                    >
+                                        {msg.text}
+                                    </div>
+                                ))}
+                                {isChatLoading && (
+                                    <div className="chatbot-panel__bubble chatbot-panel__bubble--assistant chatbot-panel__thinking">
+                                        Thinking...
+                                    </div>
+                                )}
+                                <div ref={chatBottomRef} />
+                            </div>
+
+                            <div className="chatbot-panel__input-row">
+                                <textarea
+                                    className="chatbot-panel__input"
+                                    placeholder="Ask about group files or decks..."
                                     value={chatInput}
                                     onChange={(e) => setChatInput(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatbotSubmit(); } }}
+                                    rows={2}
                                     disabled={isChatLoading}
-                                    style={{marginBottom: '0'}}
                                 />
-                                <button type="submit" disabled={isChatLoading} style={{alignSelf: 'flex-start'}}>
-                                    {isChatLoading ? "Thinking..." : "Send Message"}
+                                <button
+                                    className="chatbot-panel__send"
+                                    onClick={handleChatbotSubmit}
+                                    aria-label="Send message"
+                                    disabled={isChatLoading || !chatInput.trim()}
+                                >
+                                    ↑
                                 </button>
-                            </form>
-                            
-                            {chatResponse && (
-                                <div className="chatbot-response-box" style={{
-                                    border: '1px solid #4389fa50', 
-                                    borderRadius: '8px', 
-                                    padding: '1.5rem',
-                                    backgroundColor: '#00bbff05',
-                                    color: 'white'
-                                }}>
-                                    <h3 style={{marginTop: 0, color: '#4389fa', borderBottom: '1px solid #4389fa50', paddingBottom: '0.5rem'}}>Response</h3>
-                                    <div className="card-text" style={{marginTop: '1rem'}}>
-                                        <MarkdownRenderer content={chatResponse} />
-                                    </div>
-                                </div>
-                            )}
+                            </div>
                         </div>
                     )}
-                    {tab === "Group Stats" && (
-                        <div>
-                            <p>Group Stats</p>
+                    {tab === "Stats" && (
+                        <div className="stats-tab-container">
+                            <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Member Activity</h2>
+                            {statsLoading ? (
+                                <p>Loading stats...</p>
+                            ) : groupStats.length === 0 ? (
+                                <p>No activity recorded yet.</p>
+                            ) : (
+                                groupStats.map(member => (
+                                    <div key={member.user_id} className="member-stats-block">
+                                        <h3 style={{ marginBottom: '0.75rem' }}>{member.username}</h3>
+                                        {member.monthly.length === 0 ? (
+                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No activity yet.</p>
+                                        ) : (
+                                            <ul className="member-stats-list">
+                                                {member.monthly.map(row => (
+                                                    <li key={row.month} className="member-stats-item">
+                                                        <span className="stats-month">{row.month}</span>
+                                                        <span className="stats-stat">{Math.round(row.total_focus_time / 60)} min focus</span>
+                                                        <span className="stats-stat">{row.total_solved_cards} cards solved</span>
+                                                        <span className="stats-stat">★ {row.flashcard_points} pts</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                ))
+                            )}
                         </div>
                     )}
                 </div>
