@@ -89,3 +89,139 @@
 .flashcard-stat .stat-icon { background: rgba(100, 149, 237, 0.1); }
 .chatbot-stat .stat-icon { background: rgba(60, 179, 113, 0.1); }
 .tokens-stat .stat-icon { background: rgba(255, 215, 0, 0.1); }
+
+.pomodoro-stat { border-color: rgba(255, 99, 71, 0.25); }
+.flashcard-stat { border-color: rgba(100, 149, 237, 0.25); }
+.chatbot-stat { border-color: rgba(60, 179, 113, 0.25); }
+.tokens-stat { border-color: rgba(255, 215, 0, 0.25); }
+
+.dashboard-subtext {
+    color: #718096;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+}
+
+.dashboard-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.shortcut-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.25rem 1rem;
+    background: rgba(28, 33, 103, 0.25);
+    border: 1px solid rgba(91, 143, 185, 0.2);
+    border-radius: 12px;
+    text-decoration: none;
+    color: #e2e8f0;
+    transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.shortcut-card:hover {
+    background: rgba(91, 143, 185, 0.2);
+    border-color: rgba(91, 143, 185, 0.5);
+    transform: translateY(-3px);
+}
+
+.shortcut-icon {
+    font-size: 1.75rem;
+}
+
+.shortcut-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.shortcut-desc {
+    font-size: 0.75rem;
+    color: #718096;
+    text-align: center;
+}
+
+.dashboard-content {
+    margin-top: 2rem;
+}
+
+.stat-sub {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 2px;
+}
+
+.trend-down .stat-value {
+    color: #fc8181;
+}
+
+/* Monthly Goals */
+.monthly-goals {
+    background: rgba(10, 17, 70, 0.35);
+    border: 1px solid rgba(91, 143, 185, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+}
+
+.monthly-goals__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #a0aec0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 1.25rem 0;
+}
+
+.monthly-goals__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.goal-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.goal-item__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.goal-item__label {
+    font-size: 0.85rem;
+    color: #cbd5e0;
+    font-weight: 500;
+}
+
+.goal-item__count {
+    font-size: 0.8rem;
+    color: #718096;
+}
+
+.goal-item__bar-bg {
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.goal-item__bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.6s ease;
+    min-width: 2px;
+}
+
+.goal-item__pct {
+    font-size: 0.75rem;
+    color: #718096;
+    align-self: flex-end;
+}

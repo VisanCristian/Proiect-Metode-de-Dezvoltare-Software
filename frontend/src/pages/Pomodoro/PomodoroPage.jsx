@@ -191,7 +191,7 @@ export default function PomodoroPage() {
             totalBreakTime,
             completedPomodoros: timer.completedCycle,
             tasks: [...tasks],
-            points: timer.completedCycle * 10,
+            points: timer.completedCycle,
         }
 
         await runWithErrorHandling(() => pomodoroStorage.saveSession(currentSessionId, summary))

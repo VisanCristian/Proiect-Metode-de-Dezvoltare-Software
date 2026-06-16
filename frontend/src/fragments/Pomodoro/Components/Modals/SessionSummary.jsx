@@ -9,7 +9,7 @@ function SessionSummary({ session, onClose }) {
     const formatTime = (d) => d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
     const formatDate = (d) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
-    const points = session.completedPomodoros * 10
+    const points = session.completedPomodoros
     const doneTasks = session.tasks.filter(t => t.completed).length
 
     const rows = [
