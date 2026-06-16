@@ -15,8 +15,6 @@ import TaskList from "../../fragments/Pomodoro/Components/Task/TaskList"
 import SessionStats from "../../fragments/Pomodoro/Components/Session/SessionStats"
 import SessionSummary from "../../fragments/Pomodoro/Components/Modals/SessionSummary"
 import SessionHistory from "../../fragments/Pomodoro/Components/Session/SessionHistory"
-import FlashCardWidget from "../../fragments/CrossModule/FlashCardWidget"
-import FileTreeWidget from "../../fragments/CrossModule/FileTreeWidget"
 import '../../fragments/Pomodoro/index.css'
 import './PomodoroPage.css'
 
@@ -292,10 +290,6 @@ export default function PomodoroPage() {
             <div className="pomodoro-page pomodoro-layout">
                 <div className="pomodoro-main">
                     {errorBanner}
-                    <div className="cross-widget-bar">
-                        <FlashCardWidget />
-                        <FileTreeWidget />
-                    </div>
                     <div className="idle-icon"><TimerClockIcon /></div>
                     <h1 className="idle-title">Pomodoro</h1>
                     <p className="idle-desc">Prepare your tasks and start a study session.</p>
@@ -319,10 +313,6 @@ export default function PomodoroPage() {
         <div className="pomodoro-page">
             <div className="pomodoro-main">
                 {errorBanner}
-                <div className="cross-widget-bar">
-                    <FlashCardWidget />
-                    <FileTreeWidget />
-                </div>
                 <PhaseIndicator phase={timer.phase} />
                 <Timer timeLeft={timer.timeLeft} totalPhaseTime={timer.totalPhaseTime} phase={timer.phase} />
                 <CycleIndicator completedCycle={timer.completedCycle} total={settings.CYCLES_BEFORE_LONG_BREAK} />

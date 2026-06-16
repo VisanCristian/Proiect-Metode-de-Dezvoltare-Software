@@ -14,7 +14,7 @@ export const useAuth = () => {
       });
       const token = response.data.auth_token;
       localStorage.setItem('token', token);
-      navigate('/home');
+      navigate('/dashboard');
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);

@@ -50,3 +50,36 @@ export async function sendMessageToChatbot(message) {
         throw error;
     }
 }
+
+export async function evaluateFlashcardAnswer(question, answer, userInput, userData) {
+    const EVALUATE_URL = "http://localhost:5678/webhook-test/evaluate-flashcard";
+    const payload = {
+        question,
+        true_answer: answer,
+        user_answer: userInput,
+        user: userData
+    };
+
+    try {
+        const n8nResponse = await fetch(EVALUATE_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!n8nResponse.ok) {
+            throw new Error("Failed to reach evaluate webhook.");
+        }
+
+        const contentType = n8nResponse.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await n8nResponse.json();
+        } else {
+            const text = await n8nResponse.text();
+            return { correct: text.toLowerCase().includes("true") };
+        }
+    } catch (error) {
+        console.error("Flashcard Evaluation API Error:", error);
+        throw error;
+    }
+}
