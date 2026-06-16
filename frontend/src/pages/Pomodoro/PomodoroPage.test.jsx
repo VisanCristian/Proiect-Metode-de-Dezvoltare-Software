@@ -19,6 +19,14 @@ vi.mock('../../fragments/CrossModule/FileTreeWidget', () => ({
   default: () => null,
 }))
 
+vi.mock('../../fragments/CrossModule/FlashCardWidget', () => ({
+  default: () => null,
+}))
+
+vi.mock('../../fragments/CrossModule/FileTreeWidget', () => ({
+  default: () => null,
+}))
+
 vi.mock('../../hooks/useSound', () => ({
   default: () => ({ playForPhase: vi.fn() }),
 }))
