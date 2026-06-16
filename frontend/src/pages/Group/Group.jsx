@@ -43,7 +43,11 @@ export default function Group(group) {
         setIsChatLoading(true);
         setChatResponse("");
         try {
-            const responseData = await sendMessageToChatbot(chatInput);
+            const responseData = await sendMessageToChatbot(chatInput, {
+                groupId: currentGroup?.id,
+                availableFiles: groupFiles.map(item => item.file_details).filter(Boolean),
+                availableDecks: groupDecks.map(item => item.deck_details).filter(Boolean),
+            });
             let textOutput = typeof responseData === 'string' ? responseData : 
                 (responseData.output || responseData.message || responseData.text || JSON.stringify(responseData));
             setChatResponse(textOutput);
