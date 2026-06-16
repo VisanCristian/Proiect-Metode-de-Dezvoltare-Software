@@ -23,8 +23,16 @@ pypdfium2
 python3-openid
 reportlab
 requests
-requests-oauthlib
+requests-oauthlibAS
 social-auth-app-django
 social-auth-core
 sqlparse
 urllib3
+
+#Server MCP 
+mcp[cli] 
+httpx 
+python-dotenv
+uvicorn 
+fastapi
+sse-starlette
