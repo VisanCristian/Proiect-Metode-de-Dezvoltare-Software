@@ -28,3 +28,7 @@ social-auth-app-django
 social-auth-core
 sqlparse
 urllib3
+
+mcp
+httpx
+python-dotenv
