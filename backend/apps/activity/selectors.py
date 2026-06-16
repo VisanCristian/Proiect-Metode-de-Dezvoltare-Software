@@ -3,6 +3,7 @@ from django.db.models.functions import TruncMonth
 
 from apps.pomodoro.models import PomodoroSession
 from FlashCards.models import DeckSession
+from Agents.models import AgentMemory
 
 
 def get_monthly_activity(user):
@@ -38,7 +39,7 @@ def get_monthly_activity(user):
 
     all_months = sorted(set(focus_by_month) | set(cards_by_month))
 
-    return [
+    months = [
         {
             'month': month,
             'total_focus_time': focus_by_month.get(month, 0),
@@ -46,3 +47,17 @@ def get_monthly_activity(user):
         }
         for month in all_months
     ]
+
+    try:
+        flashcard_points = AgentMemory.objects.get(user=user).flashcard_points
+    except AgentMemory.DoesNotExist:
+        flashcard_points = 0
+
+    total_focus_time = sum(focus_by_month.values())
+    tokens = flashcard_points * total_focus_time
+
+    return {
+        'months': months,
+        'flashcard_points': flashcard_points,
+        'tokens': tokens,
+    }
