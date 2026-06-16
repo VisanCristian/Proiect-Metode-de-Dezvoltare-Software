@@ -6,6 +6,7 @@ class AgentMemory(models.Model):
     excel_subjects = models.TextField(blank=True, null=True, help_text="Subjects the user excels at")
     poor_subjects = models.TextField(blank=True, null=True, help_text="Subjects the user does poorly at")
     notes = models.TextField(blank=True, null=True, help_text="Agent notes about the user")
+    flashcard_points = models.IntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
