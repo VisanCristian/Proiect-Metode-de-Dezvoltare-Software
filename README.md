@@ -1,160 +1,160 @@
 # StudyAPP
 
-**StudyAPP** este o platformă web pentru organizarea și eficientizarea studiului — un singur spațiu care reunește sesiuni de focus, recapitulare cu flashcarduri, organizarea materialelor, colaborare în grup și un asistent AI integrat.
+**StudyAPP** is a web platform for organising and improving the study experience — a single space that brings together focus sessions, flashcard-based revision, file management, group collaboration, and an integrated AI assistant.
 
-> Proiect realizat de **Vișan Cristian Andrei**, **Cărămidă Ioana Cătălina** și **Spătaru Georgiana Valentina**.
+> Project built by **Vișan Cristian Andrei**, **Cărămidă Ioana Cătălina** and **Spătaru Georgiana Valentina**.
 
 ---
 
-## Problema rezolvată
+## The problem we solve
 
-Înainte de StudyAPP, un student tipic folosea instrumente fragmentate: un timer separat, o platformă externă pentru flashcarduri, un cloud storage separat pentru notițe — fără nicio legătură între ele și fără progres unificat.
+Before StudyAPP, a typical student used fragmented tools: a separate timer app, an external flashcard platform, a separate cloud storage for notes — with no connection between them and no unified progress.
 
-StudyAPP aduce totul într-un singur loc, cu un cont, cu statistici centralizate și cu un asistent AI care știe ce ai studiat.
+StudyAPP brings everything into one place, with one account, centralised statistics, and an AI assistant that knows what you have been studying.
 
 ---
 
 ## Tech stack
 
-| Layer | Tehnologie |
+| Layer | Technology |
 |---|---|
 | Frontend | React 19, Vite, React Router |
 | Backend | Django 6, Django REST Framework |
-| Autentificare | Djoser + Token Auth |
+| Authentication | Djoser + Token Auth |
 | AI Agent | n8n (workflow), FastMCP (Model Context Protocol) |
-| Baza de date | SQLite (development) |
+| Database | SQLite (development) |
 | CI/CD | GitHub Actions |
 
 ---
 
-## Arhitectura aplicației
+## Architecture
 
-Arhitectura este de tip **client-server cu API REST**:
+The application follows a **client-server architecture with a REST API**:
 
 ```
 Browser (React + Vite)
         ↓ HTTP / JSON
 Django REST Framework (API)
         ↓ ORM
-Baza de date (SQLite / PostgreSQL)
+Database (SQLite / PostgreSQL)
         ↓ MCP tools
-Agent AI (n8n + FastMCP)
+AI Agent (n8n + FastMCP)
 ```
 
 ---
 
-## Echipa și contribuții
+## Team and contributions
 
 ### Vișan Cristian Andrei
 
-- **FileTree** — creare, editare și ștergere foldere și fișiere; editare Markdown live; conversie Markdown → PDF; criptarea conținutului fișierelor la stocare
-- **Algoritm de recomandare flashcarduri** — SVD (Singular Value Decomposition) aplicat pe rata de succes zilnică per deck
-- **Grupuri** — interfața UI, pool de flashcarduri comune și fișiere comune între membrii grupului
-- **Workflow n8n** — integrarea agentului AI prin webhook; promptul agentului, specializat pentru a ajuta utilizatorul să învețe
-- **Sistemul de tokeni** — mecanismul de consum al tokenilor la fiecare acțiune AI; fix-ul formulei de calcul
+- **FileTree** — create, edit and delete folders and files; live Markdown editing; Markdown → PDF conversion; file content encrypted at rest
+- **Flashcard recommendation algorithm** — SVD (Singular Value Decomposition) applied to the daily success rate per deck
+- **Groups** — UI, shared flashcard pool and shared file pool between group members
+- **n8n workflow** — AI agent integration via webhook; custom agent prompt specialised for helping users learn
+- **Token system** — token consumption mechanism on every AI action; token formula fix
 
 ### Cărămidă Ioana Cătălina
 
-- **Autentificare** — înregistrare și login cu token auth (Djoser), rute protejate, gestionarea erorilor
-- **Modulul Flashcards** — creare deck-uri și carduri, parcurgere cu flip, marcaj known/unknown, salvarea sesiunilor cu greșeli și răspunsuri
-- **Grupuri (backend)** — modelele `UserGroup`, `Deck-Group`, `Files-Group`; permisiuni și partajarea resurselor între membri
-- **Serverele MCP** — implementarea completă a `viewer_server.py` și `creator_server.py`: tool-uri pentru citirea fișierelor, listarea folderelor, vizualizarea deck-urilor, crearea de flashcarduri și fișiere
-- **Teste automate și CI/CD** — workflow GitHub Actions, suite de teste pytest (backend) și Vitest (frontend), linter Ruff și ESLint
+- **Authentication** — registration and login with token auth (Djoser), protected routes, error handling
+- **Flashcards module** — deck and card creation, flip-based review, known/unknown marking, session saving with mistakes and responses
+- **Groups (backend)** — `UserGroup`, `Deck-Group`, `Files-Group` models; permissions and resource sharing between members
+- **MCP servers** — full implementation of `viewer_server.py` and `creator_server.py`: tools for reading files, listing folders, viewing decks, creating flashcards and files
+- **Automated tests and CI/CD** — GitHub Actions workflow, pytest test suite (backend) and Vitest (frontend), Ruff and ESLint linting
 
 ### Spătaru Georgiana Valentina
 
-- **Modulul Pomodoro** — timer configurabil, task management, notificări browser, istoric sesiuni, persistența sesiunii la navigare între pagini, modele și API backend
-- **Dashboard** — salut personalizat, patru carduri de statistici (medie zilnică focus, trend față de ieri, focus cumulat, tokeni totali), shortcut-uri rapide, obiective lunare cu bare de progres
-- **Pagina Home** — logo SVG animat cu icoane orbitale, carduri de prezentare module
-- **Raport de activitate și tokeni** — agregare lunară (timp focus, carduri, puncte Pomodoro + flashcard, tokeni); formula `tokeni = puncte + (secunde_focus ÷ 60)`; tokeni disponibili: `2500 + câștigați − consumați`; trend zilnic (azi vs ieri)
-- **Chatbot UI global** — panoul de chatbot disponibil pe orice pagină, redimensionabil și minimizabil, cu afișarea bugetului de tokeni în timp real
-- **Statistici grup** — tab cu activitatea lunară per membru în cadrul grupului
-- **Tool `update_agent_memory`** — tool MCP în viewer server care salvează observațiile AI despre student fără a consuma tokeni
+- **Pomodoro module** — configurable timer, task management, browser notifications, session history, session persistence across page navigation, backend models and API
+- **Dashboard** — personalised greeting, four stat cards (avg daily focus, focus trend vs yesterday, all-time focus, all-time tokens), quick shortcuts, monthly goals with progress bars
+- **Home page** — animated SVG logo with orbiting icons, module summary cards
+- **Activity report and token system** — monthly aggregation (focus time, cards, Pomodoro + flashcard points, tokens); formula `tokens = points + (focus_seconds ÷ 60)`; available tokens: `2500 + earned − consumed`; daily trend (today vs yesterday)
+- **Global chatbot UI** — chatbot panel available on every page, resizable and collapsible, with real-time token budget display
+- **Group statistics** — tab showing each member's monthly activity within the group
+- **`update_agent_memory` tool** — MCP tool in the viewer server that saves the AI's observations about the student without consuming tokens
 
 ---
 
-## Funcționalități principale
+## Features
 
-### Autentificare
-- Înregistrare și login cu token-based auth
-- Rute protejate — utilizatorii neautentificați sunt redirecționați la `/auth`
+### Authentication
+- Registration and login with token-based auth
+- Protected routes — unauthenticated users are redirected to `/auth`
 - API: `/api/auth/`
 
 ### Pomodoro
-- Timer cu sesiuni de focus și pauze scurte/lungi configurabile
-- Task management cu estimări vs. realizat
-- Sesiunea continuă indiferent de pagina pe care se află utilizatorul
-- Modele: `PomodoroSession`, `PomodoroTask`
+- Configurable focus and short/long break intervals
+- Task management with estimated vs actual tracking
+- Session persists regardless of which page the user navigates to
+- Models: `PomodoroSession`, `PomodoroTask`
 - API: `/api/pomodoro/`
 
 ### Flashcards
-- Deck-uri cu carduri, sesiuni de parcurgere cu flip și marcaj known/unknown
-- Algoritm SVD de recomandare a deck-urilor pe baza activității
-- Răspunsurile corecte acordă puncte înregistrate per sesiune
-- Modele: `Deck`, `Flashcard`, `DeckSession`, `UserCardProgress`
+- Deck and card creation, flip-based review sessions, known/unknown marking
+- SVD-based deck recommendation algorithm based on user activity
+- Correct answers award flashcard points recorded per session
+- Models: `Deck`, `Flashcard`, `DeckSession`, `UserCardProgress`
 - API: `/api/flashcards/`
 
 ### FileTree
-- Creare, editare și ștergere foldere și fișiere
-- Editare Markdown live, conversie → PDF, preview integrat
-- Conținut criptat la stocare
+- Create, edit and delete folders and files
+- Live Markdown editing, conversion to PDF, integrated preview
+- Content encrypted at rest
 - API: `/api/filesystem/`
 
-### Grupuri
-- Pool de flashcarduri comune (adăugate din deck-urile proprii sau generate din fișiere)
-- Pool de fișiere comune partajate între membri
-- Tab statistici cu activitatea lunară per membru
-- Chatbot de grup cu acces strict la resursele adăugate în grup
+### Groups
+- Shared flashcard pool (added from members' own decks or generated from files)
+- Shared file pool between members
+- Statistics tab with each member's monthly activity
+- Group chatbot with strict access only to resources added to the group
 - API: `/api/groups/`
 
-### Asistentul AI (Chatbot)
-- Disponibil global pe orice pagină, redimensionabil
-- Workflow n8n cu agent AI și prompt custom specializat pentru studiu
-- Chatbot personal: acces la propriile fișiere și deck-uri
-- Chatbot de grup: acces strict la resursele grupului
-- Fiecare acțiune AI deduce tokeni din buget
+### AI Assistant (Chatbot)
+- Available globally on every page, resizable and collapsible
+- n8n workflow with a custom AI agent prompt specialised for studying
+- Personal chatbot: access to the user's own files and decks
+- Group chatbot: strict access to group resources only
+- Every AI action deducts tokens from the user's budget
 
-### Agenți MCP (Model Context Protocol)
+### MCP Agents (Model Context Protocol)
 
-**Viewer server** — tool-uri de citire:
-| Tool | Descriere |
+**Viewer server** — read-only tools:
+| Tool | Description |
 |---|---|
-| `list_folders` | Listează folderele utilizatorului |
-| `read_file` | Citește conținutul unui fișier |
-| `view_deck` | Listează cardurile dintr-un deck |
-| `update_agent_memory` | Salvează observațiile AI despre student fără a consuma tokeni |
+| `list_folders` | Lists the user's folders |
+| `read_file` | Reads a file's content |
+| `view_deck` | Lists cards in a flashcard deck |
+| `update_agent_memory` | Saves the AI's observations about the student without consuming tokens |
 
-**Creator server** — tool-uri de scriere:
-| Tool | Descriere |
+**Creator server** — write tools:
+| Tool | Description |
 |---|---|
-| `create_flashcard` | Creează un card nou într-un deck |
-| `create_folder` | Creează un folder nou |
-| `create_file` | Creează un fișier nou |
+| `create_flashcard` | Creates a new card in a deck |
+| `create_folder` | Creates a new folder |
+| `create_file` | Creates a new file |
 
-### Memoria agentului AI
-Modelul `AgentMemory` stochează observațiile AI despre fiecare student între sesiuni:
+### Agent memory
+The `AgentMemory` model stores the AI's observations about each student across sessions:
 
-| Câmp | Descriere |
+| Field | Description |
 |---|---|
-| `excel_subjects` | Materiile la care studentul excelează |
-| `poor_subjects` | Materiile la care studentul întâmpină dificultăți |
-| `notes` | Observații generale despre obiceiurile de studiu |
-| `consumed_tokens` | Total tokeni consumați pe acțiuni AI |
+| `excel_subjects` | Subjects the student excels at |
+| `poor_subjects` | Subjects the student struggles with |
+| `notes` | General observations about study habits |
+| `consumed_tokens` | Total tokens spent on AI actions |
 
-### Sistemul de puncte și tokeni
-- Puncte din flashcarduri (1 per răspuns corect) și din Pomodoro (1 per ciclu completat)
-- Formula: `tokeni = puncte + (secunde_focus ÷ 60)`
-- Tokeni disponibili: `2500 (bază) + tokeni_câștigați − tokeni_consumați`
+### Points and token system
+- Points from flashcards (1 per correct answer) and Pomodoro (1 per completed cycle)
+- Formula: `tokens = points + (focus_seconds ÷ 60)`
+- Available tokens: `2500 (base) + earned_tokens − consumed_tokens`
 - API: `/api/activity/`, `/api/agents/`
 
-### Teste automate
-- GitHub Actions rulează la fiecare push și pull request
+### Automated tests
+- GitHub Actions runs on every push and pull request
 - Backend: pytest + Ruff
 - Frontend: Vitest + ESLint
 
 ---
 
-## Structura bazei de date
+## Database structure
 
 ```
 User
@@ -165,15 +165,15 @@ User
  │    ├── DeckSession (mistakes, responses)
  │    └── UserCardProgress (status, last_reviewed)
  ├── Folder
- │    └── File (content criptat)
- ├── UserGroup (membri, permisiuni)
- ├── FlashcardPointLog (puncte per răspuns corect)
+ │    └── File (encrypted content)
+ ├── UserGroup (members, permissions)
+ ├── FlashcardPointLog (points per correct answer)
  └── AgentMemory (excel_subjects, poor_subjects, notes, consumed_tokens)
 ```
 
 ---
 
-## Pornirea proiectului
+## Running the project
 
 ### Backend
 
@@ -193,7 +193,7 @@ npm install
 npm run dev
 ```
 
-### Serverele MCP (opțional — necesare pentru tool-urile agentului AI)
+### MCP servers (optional — required for AI agent tools)
 
 ```bash
 cd backend/MCP_server
@@ -203,27 +203,27 @@ python creator_server.py
 
 ---
 
-## Rute principale
+## Routes
 
-| Rută | Descriere |
+| Route | Description |
 |---|---|
-| `/auth` | Login și înregistrare |
-| `/dashboard` | Dashboard personal cu statistici și shortcut-uri |
-| `/pomodoro` | Timer de focus |
-| `/flashcards` | Deck-uri și recapitulare |
-| `/filetree` | Sistem de fișiere |
-| `/group` | Spații collaborative de grup |
+| `/auth` | Login and registration |
+| `/dashboard` | Personal dashboard with stats and shortcuts |
+| `/pomodoro` | Focus timer |
+| `/flashcards` | Flashcard decks and revision |
+| `/filetree` | File system |
+| `/group` | Group study spaces |
 
 ---
 
-## Endpoints API
+## API endpoints
 
-| Endpoint | Descriere |
+| Endpoint | Description |
 |---|---|
-| `/api/auth/` | Autentificare (Djoser) |
-| `/api/pomodoro/` | Sesiuni și taskuri Pomodoro |
-| `/api/flashcards/` | Deck-uri și carduri |
-| `/api/filesystem/` | Foldere și fișiere |
-| `/api/groups/` | Grupuri și membri |
-| `/api/activity/` | Raport lunar de activitate și tokeni |
-| `/api/agents/` | Puncte flashcard, memoria agentului AI |
+| `/api/auth/` | Authentication (Djoser) |
+| `/api/pomodoro/` | Pomodoro sessions and tasks |
+| `/api/flashcards/` | Decks and cards |
+| `/api/filesystem/` | Folders and files |
+| `/api/groups/` | Groups and members |
+| `/api/activity/` | Monthly activity report and tokens |
+| `/api/agents/` | Flashcard points, agent memory |
