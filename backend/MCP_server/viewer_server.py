@@ -105,5 +105,46 @@ async def award_flashcard_points(token: str, points: float, flashcard_id: float)
         response = await client.post(f"{BACKEND_URL}/agents/points/", json=data, headers=headers)
         return response.json()
 
+
+@mcp.tool()
+async def update_agent_memory(
+    token: str,
+    excel_subjects: str | None = None,
+    poor_subjects: str | None = None,
+    notes: str | None = None,
+):
+    """
+    Save observations about the user's study performance into AgentMemory.
+    Use this when you notice patterns during the conversation, such as subjects
+    the user excels at, struggles with, or any relevant notes for future sessions.
+    This action does NOT consume tokens.
+
+    Parameters:
+    - excel_subjects: subjects or topics the user is doing well at
+    - poor_subjects: subjects or topics the user is struggling with
+    - notes: any other relevant observations about the user's study habits
+    """
+    headers = { "Authorization": f"Token {token}" }
+    data = {}
+    if excel_subjects is not None:
+        data["excel_subjects"] = excel_subjects
+    if poor_subjects is not None:
+        data["poor_subjects"] = poor_subjects
+    if notes is not None:
+        data["notes"] = notes
+
+    if not data:
+        return {"message": "Nothing to update."}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.patch(
+            f"{BACKEND_URL}/agents/memory/",
+            json=data,
+            headers=headers,
+        )
+        if response.status_code == 200:
+            return {"message": "Memory updated successfully."}
+        return {"error": f"Failed to update memory: {response.status_code}"}
+
 if __name__ == "__main__":
     mcp.run()
