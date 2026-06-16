@@ -53,6 +53,7 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
                         </li>
                     ))}
                 </ul>
+            )}
         </div>
     );
 };
