@@ -1,8 +1,6 @@
-from uuid import UUID
 
 from django.http import Http404
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -166,7 +164,7 @@ class PomodoroSessionStartView(APIView):
 
 
 class PomodoroSessionClearView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [PomodoroPermission]
 
     def delete(self, request):
         user = _request_user(request)
