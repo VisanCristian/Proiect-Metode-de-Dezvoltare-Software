@@ -1,3 +1,4 @@
+import { addFlashcardPoints } from '../../services/agents_api';
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { shuffleArray } from "../../utils/FlashCard/shuffle";
@@ -108,8 +109,9 @@ export function useFlashCards() {
   function prev() { setIndex((i) => Math.max(i - 1, 0)); setFlipped(false); }
   function next() { setIndex((i) => Math.min(i + 1, cards.length - 1)); setFlipped(false); }
 
-  function mark(value, force = false, autoAdvance = true) {
-    if (!card || (!flipped && !force)) return;
+  function mark(value) {
+    if (!card || !flipped) return;
+    if (value === 'known') addFlashcardPoints(1).catch(() => {});
     setStatusById((old) => ({ ...old, [card.id]: value }));
     setFlashStatus(value);
     

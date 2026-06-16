@@ -21,5 +21,6 @@ export async function getTotalTokens() {
     });
     if (!response.ok) return 0;
     const data = await response.json();
-    return data.available_tokens ?? 0;
+    const months = data.months ?? [];
+    return months.reduce((sum, m) => sum + (m.tokens ?? 0), 0);
 }

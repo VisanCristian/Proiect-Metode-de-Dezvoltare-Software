@@ -64,7 +64,7 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
                                 🃏 {item.total_solved_cards} cards
                             </span>
                             <span className="activity-report__stat activity-report__stat--pts">
-                                ★ {item.flashcard_points} pts
+                                ★ {item.points ?? item.flashcard_points ?? 0} pts
                             </span>
                             <span className="activity-report__stat activity-report__stat--tokens">
                                 ◈ {item.tokens} tokens
