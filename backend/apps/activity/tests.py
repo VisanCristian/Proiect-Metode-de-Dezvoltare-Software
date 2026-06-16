@@ -26,7 +26,11 @@ class UserActivityReportTests(TestCase):
         self._auth()
         response = self.client.get('/api/activity/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()['months'], [])
+        self.assertEqual(response.json(), {
+            'months': [],
+            'today_focus': 0,
+            'yesterday_focus': 0,
+        })
 
     def test_authenticated_returns_monthly_report(self):
         self._auth()

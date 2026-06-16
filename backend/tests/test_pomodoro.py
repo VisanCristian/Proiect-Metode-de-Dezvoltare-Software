@@ -58,4 +58,4 @@ class TestActivityReport:
         client, _ = auth_client
         response = client.get(self.url)
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data['months']) == 0
+        assert response.data['months'] == []
