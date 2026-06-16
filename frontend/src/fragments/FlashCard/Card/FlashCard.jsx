@@ -59,7 +59,7 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
           // Attempt to evaluate with AI
           const userDataStr = localStorage.getItem("userData");
           const userData = userDataStr ? JSON.parse(userDataStr) : null;
-          const result = await evaluateFlashcardAnswer(card.question, card.answer, userInput, userData);
+          const result = await evaluateFlashcardAnswer(card.question, card.answer, userInput, userData, card.id);
           console.log("Evaluation result:", result);
           isCorrect = result.correct;
           setAiFeedback(result.message || "");
@@ -75,9 +75,9 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
       
       // Auto mark and flip
       if (isCorrect) {
-          mark("known");
+          mark("known", true, false);
       } else {
-          mark("unknown");
+          mark("unknown", true, false);
       }
       setFlipped(true);
   };

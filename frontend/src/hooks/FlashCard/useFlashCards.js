@@ -108,15 +108,22 @@ export function useFlashCards() {
   function prev() { setIndex((i) => Math.max(i - 1, 0)); setFlipped(false); }
   function next() { setIndex((i) => Math.min(i + 1, cards.length - 1)); setFlipped(false); }
 
-  function mark(value) {
-    if (!card || !flipped) return;
+  function mark(value, force = false, autoAdvance = true) {
+    if (!card || (!flipped && !force)) return;
     setStatusById((old) => ({ ...old, [card.id]: value }));
     setFlashStatus(value);
-    setTimeout(() => {
-      setFlashStatus(null);
-      if (index < cards.length - 1) setIndex((i) => i + 1);
-      setFlipped(false);
-    }, 700);
+    
+    if (autoAdvance) {
+        setTimeout(() => {
+          setFlashStatus(null);
+          if (index < cards.length - 1) setIndex((i) => i + 1);
+          setFlipped(false);
+        }, 700);
+    } else {
+        setTimeout(() => {
+          setFlashStatus(null);
+        }, 700);
+    }
   }
 
   function resetSession() {
