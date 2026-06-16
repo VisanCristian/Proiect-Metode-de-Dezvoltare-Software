@@ -6,7 +6,7 @@ import ViewFileScreen from "../../fragments/FileTree/Components/ViewFileScreen/V
 import EditFileScreen from "../../fragments/FileTree/Components/EditFileScreen/EditFileScreen.jsx";
 import { useState, useEffect } from "react";
 import "./FileTree.css";
-import { getUserFolders, getFolderFiles, deleteFile, createFolder, deleteFolder, exportFile, saveFileChanges, addFile, convertMarkdownFileToPdf } from "../../services/filetree_api.js";
+import { getUserFolders, getFolderFiles, deleteFile, createFolder, deleteFolder, exportFile, saveFileChanges, addFile, convertMarkdownFileToPdf, createFile } from "../../services/filetree_api.js";
 import PomodoroWidget from "../../fragments/CrossModule/PomodoroWidget.jsx";
 import FlashCardWidget from "../../fragments/CrossModule/FlashCardWidget.jsx";
 
@@ -30,6 +30,10 @@ export default function FileTree() {
     const [searchFilter, setSearchFilter] = useState("");
 
     const [exportFormat, setExportFormat] = useState("text");
+
+    const [newFileName, setNewFileName] = useState("");
+    const [newFileContent, setNewFileContent] = useState("");
+    const [encryptFile, setEncryptFile] = useState(false);
 
     function showError(message) {
         if (!message) return;
@@ -143,7 +147,7 @@ export default function FileTree() {
         try {
             setModalResponseLoading(true);
 
-            await addFile({ file: selectedFile, folderId: selectedFolder.id });
+            await addFile({ file: selectedFile, folderId: selectedFolder.id, encrypt: encryptFile });
 
             const data = await getFolderFiles(selectedFolder.id);
             setFiles(data);
@@ -156,8 +160,42 @@ export default function FileTree() {
             if (wasSuccessful) {
                 setModalState({ type: null });
                 setSelectedFile(null);
+                setEncryptFile(false);
             }
         }
+    }
+
+
+    async function handleConfirmCreateFile() {
+        if (!newFileName.trim()) {
+            showError("Please enter a file name.");
+            return;
+        }
+
+        if (!selectedFolder) {
+            showError("Please select a folder first.");
+            return;
+        }
+
+        const draftFileName = newFileName.trim().endsWith('.md') ? newFileName.trim() : newFileName.trim() + '.md';
+
+        // Switch to edit mode with a draft file
+        setPageMode({
+            type: "edit-file",
+            file: {
+                id: "draft-" + Date.now(),
+                name: draftFileName,
+                isNew: true,
+                encrypt: encryptFile,
+                content: newFileContent
+            }
+        });
+
+        // Close the modal
+        setModalState({ type: null });
+        setNewFileName("");
+        setNewFileContent("");
+        setEncryptFile(false);
     }
 
 
@@ -272,7 +310,21 @@ export default function FileTree() {
 
         try {
             setModalResponseLoading(true);
-            await saveFileChanges(pageMode.file.id, newContent);
+
+            if (pageMode.file.isNew) {
+                const createdFile = await createFile({
+                    name: pageMode.file.name,
+                    content: newContent,
+                    folderId: selectedFolder.id,
+                    encrypt: pageMode.file.encrypt
+                });
+                const data = await getFolderFiles(selectedFolder.id);
+                setFiles(data);
+                setPageMode({ type: "view-file", file: createdFile });
+            } else {
+                await saveFileChanges(pageMode.file.id, newContent);
+            }
+            
             wasSuccessful = true;
         } catch (err) {
             console.error("Changes couldn't be written to file:", err);
@@ -295,7 +347,20 @@ export default function FileTree() {
 
         try {
             setModalResponseLoading(true);
-            await saveFileChanges(pageMode.file.id, modalState.changes);
+            
+            if (modalState.file.isNew) {
+                const createdFile = await createFile({
+                    name: modalState.file.name,
+                    content: modalState.changes,
+                    folderId: selectedFolder.id,
+                    encrypt: modalState.file.encrypt
+                });
+                const data = await getFolderFiles(selectedFolder.id);
+                setFiles(data);
+            } else {
+                await saveFileChanges(modalState.file.id, modalState.changes);
+            }
+            
             wasSuccessful = true;
         } catch (error) {
             console.error("Changes couldn't be written to file:", error);
@@ -355,10 +420,14 @@ export default function FileTree() {
                                 {selectedFolder && (
                                     <>
                                         <div className="file-tree-toolbar">
-                                            <h2> Files </h2>
-                                            <button className="button-add" onClick={() => setModalState({ type: "add-file" })}>
-                                                Add File
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button className="button-add" onClick={() => setModalState({ type: "add-file" })} style={{ flex: 1 }}>
+                                                    Add File
+                                                </button>
+                                                <button className="button-add" onClick={() => setModalState({ type: "create-file" })} style={{ flex: 1 }}>
+                                                    Create File
+                                                </button>
+                                            </div>
                                             <input
                                                 className="search-bar"
                                                 type="text"
@@ -438,7 +507,45 @@ export default function FileTree() {
                         <p className="selected-file-name">
                             {selectedFile ? `Selected file: ${selectedFile.name}` : "No file selected"}
                         </p>
+                        <label style={{display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', cursor: 'pointer', fontSize: '0.9rem', width: 'fit-content'}}>
+                            <input
+                                type="checkbox"
+                                checked={encryptFile}
+                                onChange={(e) => setEncryptFile(e.target.checked)}
+                                style={{width: '16px', height: '16px', margin: 0, minHeight: 'auto'}}
+                            />
+                            🔒 Encrypt this file
+                        </label>
                     </div>
+                </Modal>
+            )}
+
+            {modalState.type === "create-file" && (
+                <Modal
+                    title="Create a new Markdown File"
+                    loadingMessage="Creating the new file...."
+                    isLoading={modalResponseLoading}
+                    buttons={[
+                        { label: "Confirm", onClick: handleConfirmCreateFile, disabled: !newFileName.trim() },
+                        { label: "Cancel", onClick: handleCancel, variant: "cancel" },
+                    ]}
+                >
+                    <input
+                        className="text-input"
+                        type="text"
+                        value={newFileName}
+                        onChange={(event) => setNewFileName(event.target.value)}
+                        placeholder="File name (e.g. notes)"
+                    />
+                    <label style={{display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', cursor: 'pointer', fontSize: '0.9rem', width: 'fit-content'}}>
+                        <input
+                            type="checkbox"
+                            checked={encryptFile}
+                            onChange={(e) => setEncryptFile(e.target.checked)}
+                            style={{width: '16px', height: '16px', margin: 0, minHeight: 'auto'}}
+                        />
+                        🔒 Encrypt this file
+                    </label>
                 </Modal>
             )}
 
