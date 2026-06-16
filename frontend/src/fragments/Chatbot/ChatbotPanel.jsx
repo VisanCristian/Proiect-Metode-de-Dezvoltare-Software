@@ -55,20 +55,33 @@ const ChatbotPanel = ({ model = 'Haiku', tokensLeft = 100, scope = 'personal', g
                 className="chatbot-panel__toggle"
                 onClick={() => setIsOpen((prev) => !prev)}
                 aria-label={isOpen ? 'Close chatbot' : 'Open chatbot'}
+                title={isOpen ? 'Close AI Assistant' : 'Open AI Assistant'}
             >
-                {isOpen ? '›' : '‹'}
+                {isOpen ? '›' : (
+                    <span className="chatbot-panel__toggle-label">
+                        <span className="chatbot-panel__toggle-icon">AI</span>
+                        <span className="chatbot-panel__toggle-arrow">‹</span>
+                    </span>
+                )}
             </button>
 
             {isOpen && (
                 <div className="chatbot-panel__content">
                     <div className="chatbot-panel__header">
-                        <span className="chatbot-panel__model">{model}</span>
+                        <div className="chatbot-panel__header-left">
+                            <span className="chatbot-panel__title">Study Assistant</span>
+                            <span className="chatbot-panel__model">{model}</span>
+                        </div>
                         <span className="chatbot-panel__tokens">{tokensLeft} tokens</span>
                     </div>
 
                     <div className="chatbot-panel__messages">
                         {messages.length === 0 && (
-                            <p className="chatbot-panel__empty">Ask me anything about your study materials.</p>
+                            <div className="chatbot-panel__empty">
+                                <div className="chatbot-panel__empty-icon">💬</div>
+                                <p className="chatbot-panel__empty-title">Study Assistant</p>
+                                <p className="chatbot-panel__empty-hint">Ask me anything about your files or flashcard decks.</p>
+                            </div>
                         )}
                         {messages.map((msg, idx) => (
                             <div
