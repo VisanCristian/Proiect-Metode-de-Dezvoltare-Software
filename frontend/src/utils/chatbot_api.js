@@ -1,4 +1,4 @@
-const WEBHOOK_URL = "http://localhost:5678/webhook-test/chatbot";
+const WEBHOOK_URL = "http://localhost:5678/webhook/chatbot";
 const API_URL = "http://127.0.0.1:8080";
 
 export async function sendMessageToChatbot(message) {
