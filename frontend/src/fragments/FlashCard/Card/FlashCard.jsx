@@ -1,5 +1,6 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import MarkdownRenderer from "../../MarkdownRenderer/MarkdownRenderer";
+import { evaluateFlashcardAnswer } from "../../../utils/chatbot_api";
 
 const MIN_CARD_HEIGHT = 240;
 const CARD_CONTENT_BUFFER = 24;
@@ -8,6 +9,8 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
   const [cardHeight, setCardHeight] = useState(MIN_CARD_HEIGHT);
   const frontBodyRef = useRef(null);
   const backBodyRef = useRef(null);
+  const [userInput, setUserInput] = useState("");
+  const [evaluating, setEvaluating] = useState(false);
 
   useLayoutEffect(() => {
     const measureHeights = () => {
@@ -35,6 +38,41 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
     };
   }, [card?.question, card?.answer, status]);
 
+  // Reset userInput when card changes
+  useEffect(() => {
+      setUserInput("");
+  }, [card?.id]);
+
+  const handleSubmit = async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (!userInput.trim() || evaluating) return;
+
+      setEvaluating(true);
+      let isCorrect = false;
+
+      try {
+          // Attempt to evaluate with AI
+          const userDataStr = localStorage.getItem("userData");
+          const userData = userDataStr ? JSON.parse(userDataStr) : null;
+          const result = await evaluateFlashcardAnswer(card.question, card.answer, userInput, userData);
+          isCorrect = result.correct;
+      } catch (error) {
+          // Fallback to strict string check
+          isCorrect = userInput.trim().toLowerCase() === card.answer.trim().toLowerCase();
+      }
+
+      setEvaluating(false);
+      
+      // Auto mark and flip
+      if (isCorrect) {
+          mark("known");
+      } else {
+          mark("unknown");
+      }
+      setFlipped(true);
+  };
+
   return (
     <div
       className={`card ${flipped ? "flipped" : ""} ${status} ${flashStatus || ""}`}
@@ -47,7 +85,23 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
             {status !== "unanswered" && <span className={`badge ${status}`}>{status}</span>}
             <div className="card-face-label">Question</div>
             <div className="card-text"><MarkdownRenderer content={card?.question} /></div>
-            <span className="flip-hint">click to flip</span>
+            
+            <div className="flashcard-input-container" onClick={(e) => e.stopPropagation()}>
+                <textarea 
+                    className="flashcard-input" 
+                    value={userInput} 
+                    onChange={(e) => setUserInput(e.target.value)}
+                    placeholder="Type your answer here..."
+                    disabled={evaluating || flipped}
+                />
+                <button 
+                    className="flashcard-submit-btn" 
+                    onClick={handleSubmit} 
+                    disabled={evaluating || !userInput.trim() || flipped}
+                >
+                    {evaluating ? "Evaluating..." : "Submit Answer"}
+                </button>
+            </div>
           </div>
         </div>
 
@@ -58,13 +112,10 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
             <div className="card-face-label">Answer</div>
             <div className="card-text"><MarkdownRenderer content={card?.answer} /></div>
             <div className="card-divider" />
-            <div className="card-mark-row">
-              <button className="btn-know" onClick={(e) => { e.stopPropagation(); mark("known"); }} disabled={!flipped}>
-                ✓ I know this
-              </button>
-              <button className="btn-dontknow" onClick={(e) => { e.stopPropagation(); mark("unknown"); }} disabled={!flipped}>
-                ✗ I don't know
-              </button>
+            <div className="card-feedback-row">
+              {status === "known" && <div style={{ color: "var(--green)", fontWeight: 600, fontSize: "1.1rem" }}>✓ Correct!</div>}
+              {status === "unknown" && <div style={{ color: "var(--red)", fontWeight: 600, fontSize: "1.1rem" }}>✗ Incorrect</div>}
+              {status === "unanswered" && <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>No answer submitted</div>}
             </div>
           </div>
         </div>

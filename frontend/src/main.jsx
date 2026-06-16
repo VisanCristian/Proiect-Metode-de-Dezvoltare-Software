@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './App.css'
 import AuthApp from './pages/Auth/AuthApp.jsx'
 import HomePage from './pages/Home/HomePage.jsx'
+import DashboardPage from './pages/Dashboard/DashboardPage.jsx'
 import PrivateRoute from './routes/PrivateRoute.jsx'
 import FlashCardApp from './pages/FlashCard/FlashCardApp.jsx'
 import FileTree from './pages/FileTree/FileTree.jsx'
@@ -19,15 +20,15 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
+    element: <HomePage />,
+  },
+  {
+    path: "/",
     element: <PrivateRoute />,
     children: [
       {
-        index: true,
-        element: <Navigate to="/home" />,
-      },
-      {
-        path: "home",
-        element: <HomePage />,
+        path: "dashboard",
+        element: <DashboardPage />,
       },
       {
         path: "pomodoro",
