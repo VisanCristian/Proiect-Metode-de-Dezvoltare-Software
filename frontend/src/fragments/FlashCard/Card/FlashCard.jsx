@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import MarkdownRenderer from "../../MarkdownRenderer/MarkdownRenderer";
 import { evaluateFlashcardAnswer } from "../../../utils/chatbot_api";
+import { incrementFlashcardPoints } from "../../../services/agents_api";
 
 const MIN_CARD_HEIGHT = 240;
 const CARD_CONTENT_BUFFER = 24;
@@ -67,6 +68,7 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
       // Auto mark and flip
       if (isCorrect) {
           mark("known");
+          incrementFlashcardPoints().catch(() => {});
       } else {
           mark("unknown");
       }
