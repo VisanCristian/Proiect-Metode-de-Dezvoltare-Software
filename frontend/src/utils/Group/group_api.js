@@ -154,3 +154,13 @@ export async function unshareFileFromGroup(groupId, fileId) {
         return { status: err.status || 500, message: err.message || "Error unsharing file" };
     }
 }
+
+export async function getGroupMembersStats(groupId) {
+    try {
+        const response = await fetchWithAuth(`${BASE_URL}/${groupId}/stats`);
+        return { status: 200, members: response.data };
+    } catch (err) {
+        console.error("Failed to fetch group stats", err);
+        return { status: err.status || 500, members: [] };
+    }
+}

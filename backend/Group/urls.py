@@ -11,4 +11,5 @@ urlpatterns = [
     path('<int:group_id>/share_file', views.GroupShareFileApi.as_view(), name='share-file'),
     path('<int:group_id>/unshare_deck', views.GroupUnshareDeckApi.as_view(), name='unshare-deck'),
     path('<int:group_id>/unshare_file', views.GroupUnshareFileApi.as_view(), name='unshare-file'),
+    path('<int:group_id>/stats', views.GroupMembersStatsApi.as_view(), name='group-stats'),
 ]

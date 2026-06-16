@@ -1,7 +1,7 @@
-const WEBHOOK_URL = "http://localhost:5678/webhook-test/chatbot";
+const WEBHOOK_URL = "http://localhost:5678/webhook/chatbot";
 const API_URL = "http://127.0.0.1:8080";
 
-export async function sendMessageToChatbot(message) {
+export async function sendMessageToChatbot(message, { groupId = null, availableFiles = [], availableDecks = [] } = {}) {
     const token = localStorage.getItem("token");
     if (!token) {
         throw new Error("No authentication token found. Please log in.");
@@ -31,7 +31,10 @@ export async function sendMessageToChatbot(message) {
             body: JSON.stringify({
                 message: message,
                 user_id: userId,
-                sessionId: userId
+                sessionId: userId,
+                group_id: groupId,
+                available_files: availableFiles,
+                available_decks: availableDecks
             })
         });
 
