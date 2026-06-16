@@ -145,10 +145,11 @@ export async function createFolder({ name }) {
     return { id: data.id, name };
 }
 
-export async function addFile({ file, folderId }) {
+export async function addFile({ file, folderId, encrypt = false }) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("folderId", folderId);
+    formData.append("encrypt", encrypt);
 
     const response = await fetch("http://localhost:8080/api/filesystem/files/add", {
         method: "POST",
@@ -160,6 +161,23 @@ export async function addFile({ file, folderId }) {
 
     if (!response.ok) {
         await throwApiError(response, "Could not add the selected file.");
+    }
+
+    return await response.json();
+}
+
+export async function createFile({ name, content, folderId, encrypt = false }) {
+    const response = await fetch("http://localhost:8080/api/filesystem/files/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ name, content, folderId, encrypt }),
+    });
+
+    if (!response.ok) {
+        await throwApiError(response, "Could not create the file.");
     }
 
     return await response.json();

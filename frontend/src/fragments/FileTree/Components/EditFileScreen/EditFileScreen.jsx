@@ -23,8 +23,15 @@ export default function EditFileScreen({ file, onBack, onSave, onConvertToPdf })
     useEffect(() => {
         setDraftContent("");
         setOriginalContent("");
-        loadContent(file.id);
-    }, [file.id]);
+        
+        if (file.isNew) {
+            setDraftContent(file.content || "");
+            setOriginalContent("");
+            setFileData({ type: "text", content: file.content || "" });
+        } else {
+            loadContent(file.id);
+        }
+    }, [file.id, file.isNew, file.content]);
 
     const pdfUrl = useMemo(() => {
         if (!fileData || fileData.type !== "pdf") {

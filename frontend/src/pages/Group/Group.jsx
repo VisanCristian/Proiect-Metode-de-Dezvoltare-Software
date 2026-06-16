@@ -13,7 +13,8 @@ import ViewFileScreen from "../../fragments/FileTree/Components/ViewFileScreen/V
 import EditFileScreen from "../../fragments/FileTree/Components/EditFileScreen/EditFileScreen.jsx";
 import { convertMarkdownFileToPdf, saveFileChanges, exportFile, getUserFolders, getFolderFiles } from "../../services/filetree_api.js";
 import { getUserGroups, getGroupDetails, shareDeckToGroup, shareFileToGroup, unshareDeckFromGroup, unshareFileFromGroup } from "../../utils/Group/group_api";
-
+import MarkdownRenderer from "../../fragments/MarkdownRenderer/MarkdownRenderer";
+import { sendMessageToChatbot } from "../../utils/chatbot_api";
 
 import "./Group.css";
 export default function Group(group) {
@@ -31,6 +32,28 @@ export default function Group(group) {
 
     const [deckSearch, setDeckSearch] = useState("");
     const [fileSearch, setFileSearch] = useState("");
+
+    const [chatInput, setChatInput] = useState("");
+    const [chatResponse, setChatResponse] = useState("");
+    const [isChatLoading, setIsChatLoading] = useState(false);
+
+    const handleChatbotSubmit = async (e) => {
+        e.preventDefault();
+        if (!chatInput.trim() || isChatLoading) return;
+        setIsChatLoading(true);
+        setChatResponse("");
+        try {
+            const responseData = await sendMessageToChatbot(chatInput);
+            let textOutput = typeof responseData === 'string' ? responseData : 
+                (responseData.output || responseData.message || responseData.text || JSON.stringify(responseData));
+            setChatResponse(textOutput);
+        } catch (err) {
+            setChatResponse(`**Error:** ${err.message}`);
+        } finally {
+            setIsChatLoading(false);
+            setChatInput("");
+        }
+    };
 
     async function fetchGroupDetails(groupId) {
         const response = await getGroupDetails(groupId);
@@ -265,8 +288,37 @@ export default function Group(group) {
                         </>
                     )}
                     {tab === "Chatbot" && (
-                        <div>
-                            <p>Chatbot</p>
+                        <div className="chatbot-tab-container">
+                            <h2 style={{marginTop: 0, marginBottom: '1.5rem'}}>Group Chatbot</h2>
+                            <form onSubmit={handleChatbotSubmit} style={{display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem'}}>
+                                <input 
+                                    type="text" 
+                                    className="search-bar" 
+                                    placeholder="Ask the chatbot a question..." 
+                                    value={chatInput}
+                                    onChange={(e) => setChatInput(e.target.value)}
+                                    disabled={isChatLoading}
+                                    style={{marginBottom: '0'}}
+                                />
+                                <button type="submit" disabled={isChatLoading} style={{alignSelf: 'flex-start'}}>
+                                    {isChatLoading ? "Thinking..." : "Send Message"}
+                                </button>
+                            </form>
+                            
+                            {chatResponse && (
+                                <div className="chatbot-response-box" style={{
+                                    border: '1px solid #4389fa50', 
+                                    borderRadius: '8px', 
+                                    padding: '1.5rem',
+                                    backgroundColor: '#00bbff05',
+                                    color: 'white'
+                                }}>
+                                    <h3 style={{marginTop: 0, color: '#4389fa', borderBottom: '1px solid #4389fa50', paddingBottom: '0.5rem'}}>Response</h3>
+                                    <div className="card-text" style={{marginTop: '1rem'}}>
+                                        <MarkdownRenderer content={chatResponse} />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                     {tab === "Group Stats" && (
