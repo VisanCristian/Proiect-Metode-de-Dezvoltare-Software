@@ -15,6 +15,7 @@ import { convertMarkdownFileToPdf, saveFileChanges, exportFile, getUserFolders, 
 import { getUserGroups, getGroupDetails, shareDeckToGroup, shareFileToGroup, unshareDeckFromGroup, unshareFileFromGroup, getGroupMembersStats } from "../../utils/Group/group_api";
 import MarkdownRenderer from "../../fragments/MarkdownRenderer/MarkdownRenderer";
 import { sendMessageToChatbot } from "../../utils/chatbot_api";
+import { getTotalTokens } from "../../services/agents_api";
 
 import "./Group.css";
 export default function Group(group) {
@@ -23,6 +24,7 @@ export default function Group(group) {
     const [tab, setTab] = useState("Study");
     const [modalState, setModalState] = useState(null);
     const [playingDeck, setPlayingDeck] = useState(false);
+    const [totalTokens, setTotalTokens] = useState(0);
     const [pageMode, setPageMode] = useState({ type: "browser" });
 
     const [groupDecks, setGroupDecks] = useState([]);
@@ -94,6 +96,7 @@ export default function Group(group) {
             }
         }
         fetchGroupInfo();
+        getTotalTokens().then(setTotalTokens).catch(() => {});
     }, [name]);
 
     async function loadUserFiles() {
@@ -316,7 +319,7 @@ export default function Group(group) {
                                     <span className="chatbot-panel__title">Group Assistant</span>
                                     <span className="chatbot-panel__model">Auto</span>
                                 </div>
-                                <span className="chatbot-panel__tokens">Group context only</span>
+                                <span className="chatbot-panel__tokens">{totalTokens} tokens</span>
                             </div>
 
                             <div className="chatbot-panel__messages group-chatbot__messages">
@@ -384,6 +387,7 @@ export default function Group(group) {
                                                         <span className="stats-month">{row.month}</span>
                                                         <span className="stats-stat">{Math.round(row.total_focus_time / 60)} min focus</span>
                                                         <span className="stats-stat">{row.total_solved_cards} cards solved</span>
+                                                        <span className="stats-stat">★ {row.flashcard_points} pts</span>
                                                     </li>
                                                 ))}
                                             </ul>

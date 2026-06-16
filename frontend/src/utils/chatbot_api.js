@@ -55,16 +55,17 @@ export async function sendMessageToChatbot(message, { groupId = null, availableF
     }
 }
 
-export async function evaluateFlashcardAnswer(question, answer, userInput, userData) {
+export async function evaluateFlashcardAnswer(question, answer, userInput, userData, flashcardId) {
     const EVALUATE_URL = "http://localhost:5678/webhook-test/chatbot";
     const token = localStorage.getItem("token");
     const payload = {
-        message: `Please evaluate this flashcard answer. Question: "${question}". Correct Answer: "${answer}". User's Answer: "${userInput}". If the user's answer is correct, use the award_flashcard_points tool to award a minimum of 500 points. Reply with JSON containing "correct": true/false and "message": "your explanation, including whether they received points".`,
+        message: `Please evaluate this flashcard answer. Question: "${question}". Correct Answer: "${answer}". User's Answer: "${userInput}". If the user's answer is correct, use the award_flashcard_points tool to award a minimum of 500 points (make sure to pass flashcard_id: ${flashcardId}). Reply with JSON containing "correct": true/false and "message": "your explanation, including whether they received points, or if the flashcard was already answered today".`,
         question,
         true_answer: answer,
         user_answer: userInput,
         user: userData,
-        token: token
+        token: token,
+        flashcard_id: flashcardId
     };
 
     try {
