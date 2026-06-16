@@ -22,7 +22,13 @@ class AgentMemoryApi(APIView):
         memory, _ = AgentMemory.objects.get_or_create(user=request.user)
         for field in ('excel_subjects', 'poor_subjects', 'notes'):
             if field in request.data:
-                setattr(memory, field, request.data[field])
+                new_data = request.data[field]
+                current_data = getattr(memory, field)
+                if current_data:
+                    # Append new data on a new line
+                    setattr(memory, field, f"{current_data}\n- {new_data}")
+                else:
+                    setattr(memory, field, f"- {new_data}")
         memory.save()
         return Response(status=status.HTTP_200_OK)
 
