@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'rest_framework',
+    'rest_framework_simplejwt',
     'apps.pomodoro',
     'apps.activity',
     'rest_framework.authtoken',
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
@@ -63,14 +65,12 @@ REST_FRAMEWORK = {
     ],
 }
 
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT', 'Bearer'),
+}
+
 DJOSER = {
     'USER_ID_FIELD': 'username',
-    'LOGIN_FIELD': 'username',
-    'SERIALIZERS': {
-        'user_create': 'djoser.serializers.UserCreateSerializer',
-        'user': 'djoser.serializers.UserSerializer',
-    },
-    
     'LOGIN_FIELD': 'username',
     'USER_CREATE_PASSWORD_RETYPE': True,
     'SERIALIZERS': {
@@ -117,11 +117,13 @@ WSGI_APPLICATION = 'StudyAPP.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-if 'test' in sys.argv:
+IS_TESTING = 'test' in sys.argv or 'pytest' in sys.modules
+
+if IS_TESTING:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'test_db.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 else:

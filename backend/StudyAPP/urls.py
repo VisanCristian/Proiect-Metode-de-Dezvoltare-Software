@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/pomodoro/', include('apps.pomodoro.urls')),
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.authtoken')),
+    path('api/auth/', include('djoser.urls.jwt')),
     path('api/flashcards/', include('FlashCards.urls')),
     path('api/filesystem/', include('FileTree.urls')),
     path('api/activity/', include('apps.activity.urls')),

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from apps.pomodoro.models import PomodoroSession, PomodoroTask
+from apps.pomodoro.models import PomodoroSession
 
 
 class PomodoroApiTests(TestCase):
