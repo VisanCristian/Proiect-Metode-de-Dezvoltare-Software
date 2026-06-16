@@ -314,7 +314,7 @@ export default function Group(group) {
                             <div className="chatbot-panel__header">
                                 <div className="chatbot-panel__header-left">
                                     <span className="chatbot-panel__title">Group Assistant</span>
-                                    <span className="chatbot-panel__model">Haiku</span>
+                                    <span className="chatbot-panel__model">Auto</span>
                                 </div>
                                 <span className="chatbot-panel__tokens">Group context only</span>
                             </div>

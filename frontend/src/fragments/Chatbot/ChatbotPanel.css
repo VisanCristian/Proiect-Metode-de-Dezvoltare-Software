@@ -10,7 +10,9 @@
 }
 
 .chatbot-panel--open {
-    width: 320px;
+    width: 400px;
+    min-width: 240px;
+    max-width: 600px;
 }
 
 .chatbot-panel--closed {
@@ -232,4 +234,24 @@
     font-size: 0.78rem;
     padding: 0 12px 6px;
     color: rgba(224, 100, 105, 0.9);
+}
+
+.chatbot-panel__resize-handle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 10;
+}
+
+.chatbot-panel__resize-handle:hover,
+.chatbot-panel__resize-handle:active {
+    background: rgba(91, 143, 185, 0.4);
+}
+
+.chatbot-panel__toggle-emoji {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
 }
