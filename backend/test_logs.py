@@ -4,7 +4,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'StudyAPP.settings')
 django.setup()
 
-from Agents.models import FlashcardPointLog
+from Agents.models import FlashcardPointLog  # noqa: E402
 
 print("Total logs:", FlashcardPointLog.objects.count())
 for log in FlashcardPointLog.objects.all():

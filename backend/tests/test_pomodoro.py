@@ -51,11 +51,11 @@ class TestActivityReport:
         )
         response = client.get(self.url)
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) > 0
-        assert response.data[0]['total_focus_time'] == 1500
+        assert len(response.data['months']) > 0
+        assert response.data['months'][0]['total_focus_time'] == 1500
 
     def test_report_empty_for_new_user(self, auth_client):
         client, _ = auth_client
         response = client.get(self.url)
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 0
+        assert len(response.data['months']) == 0
