@@ -12,67 +12,61 @@ def auth_client():
     return client, user
 
 @pytest.mark.django_db
-def test_create_deck(auth_client):
-    """
-    Verifică dacă un utilizator poate crea un deck.
-    """
-    client, user = auth_client
+class TestDecks:
     url = '/api/flashcards/decks/'
-    data = {'title': 'Test Deck', 'description': 'A test deck'}
-    response = client.post(url, data)
-    assert response.status_code == status.HTTP_201_CREATED
-    assert Deck.objects.filter(title='Test Deck', user=user).exists()
+
+    def test_create_deck_success(self, auth_client):
+        client, user = auth_client
+        data = {'title': 'Test Deck', 'description': 'A test deck'}
+        response = client.post(self.url, data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert Deck.objects.filter(title='Test Deck', user=user).exists()
+
+    def test_list_decks_success(self, auth_client):
+        client, user = auth_client
+        Deck.objects.create(user=user, title='My Deck')
+        response = client.get(self.url)
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 1
+
+    def test_user_isolation(self, auth_client):
+        client, _ = auth_client
+        other_user = User.objects.create_user(username='other', password='password')
+        Deck.objects.create(user=other_user, title='Other Deck')
+        response = client.get(self.url)
+        assert len(response.data) == 0
 
 @pytest.mark.django_db
-def test_list_decks(auth_client):
-    """
-    Verifică dacă un utilizator își poate lista deck-urile.
-    """
-    client, user = auth_client
-    Deck.objects.create(user=user, title='My Deck')
-    url = '/api/flashcards/decks/'
-    response = client.get(url)
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['title'] == 'My Deck'
-
-@pytest.mark.django_db
-def test_user_cannot_see_others_decks(auth_client):
-    """
-    Verifică dacă un utilizator NU vede deck-urile altui utilizator.
-    """
-    client, user = auth_client
-    other_user = User.objects.create_user(username='other', password='password')
-    Deck.objects.create(user=other_user, title='Other Deck')
-    
-    url = '/api/flashcards/decks/'
-    response = client.get(url)
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 0
-
-@pytest.mark.django_db
-def test_crud_flashcard(auth_client):
-    """
-    Verifică operațiile CRUD pentru flashcards.
-    """
-    client, user = auth_client
-    deck = Deck.objects.create(user=user, title='Test Deck')
-    
-    # Create
+class TestFlashcards:
     url = '/api/flashcards/cards/'
-    data = {'deck': deck.id, 'question': 'What is 2+2?', 'answer': '4'}
-    response = client.post(url, data)
-    assert response.status_code == status.HTTP_201_CREATED
-    card_id = response.data['id']
 
-    # Update
-    update_url = f'/api/flashcards/cards/{card_id}/'
-    update_data = {'deck': deck.id, 'question': 'Updated?', 'answer': 'Yes'}
-    response = client.put(update_url, update_data)
-    assert response.status_code == status.HTTP_200_OK
-    assert Flashcard.objects.get(id=card_id).question == 'Updated?'
+    @pytest.fixture
+    def deck(self, auth_client):
+        _, user = auth_client
+        return Deck.objects.create(user=user, title='Test Deck')
 
-    # Delete
-    response = client.delete(update_url)
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert not Flashcard.objects.filter(id=card_id).exists()
+    def test_create_flashcard_success(self, auth_client, deck):
+        client, _ = auth_client
+        data = {'deck': deck.id, 'question': 'Q', 'answer': 'A'}
+        response = client.post(self.url, data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_update_flashcard_success(self, auth_client, deck):
+        client, _ = auth_client
+        card = Flashcard.objects.create(deck=deck, question='Old', answer='Old')
+        response = client.put(f'{self.url}{card.id}/', {'deck': deck.id, 'question': 'New', 'answer': 'New'})
+        assert response.status_code == status.HTTP_200_OK
+        card.refresh_from_db()
+        assert card.question == 'New'
+
+    def test_delete_flashcard_success(self, auth_client, deck):
+        client, _ = auth_client
+        card = Flashcard.objects.create(deck=deck, question='Q', answer='A')
+        response = client.delete(f'{self.url}{card.id}/')
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not Flashcard.objects.filter(id=card.id).exists()
+
+    def test_create_flashcard_invalid_deck(self, auth_client):
+        client, _ = auth_client
+        response = client.post(self.url, {'deck': 9999, 'question': 'Q', 'answer': 'A'})
+        assert response.status_code == status.HTTP_400_BAD_REQUEST

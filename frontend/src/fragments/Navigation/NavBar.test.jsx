@@ -5,7 +5,6 @@ import { BrowserRouter } from 'react-router-dom';
 
 const logoutMock = vi.fn();
 
-// Mock useAuth hook
 vi.mock('../../hooks/Auth/useAuth', () => ({
   useAuth: () => ({
     logout: logoutMock,
@@ -18,30 +17,41 @@ afterEach(() => {
 });
 
 describe('NavBar Component', () => {
-  it('randează toate link-urile de navigare', () => {
-    render(
-      <BrowserRouter>
-        <NavBar />
-      </BrowserRouter>
-    );
-    
+  const renderNavBar = () => render(
+    <BrowserRouter>
+      <NavBar />
+    </BrowserRouter>
+  );
+
+  it('randează link-ul Dashboard', () => {
+    renderNavBar();
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
+  });
+
+  it('randează link-ul Pomodoro', () => {
+    renderNavBar();
     expect(screen.getByText('Pomodoro')).toBeInTheDocument();
+  });
+
+  it('randează link-ul FlashCards', () => {
+    renderNavBar();
     expect(screen.getByText('FlashCards')).toBeInTheDocument();
+  });
+
+  it('randează link-ul FileTree', () => {
+    renderNavBar();
     expect(screen.getByText('FileTree')).toBeInTheDocument();
+  });
+
+  it('randează link-ul Groups', () => {
+    renderNavBar();
     expect(screen.getByText('Groups')).toBeInTheDocument();
   });
 
   it('apelează funcția de logout la click pe buton', () => {
-    render(
-      <BrowserRouter>
-        <NavBar />
-      </BrowserRouter>
-    );
-    
+    renderNavBar();
     const logoutButton = screen.getByText('Logout');
     fireEvent.click(logoutButton);
-    
     expect(logoutMock).toHaveBeenCalled();
   });
 });

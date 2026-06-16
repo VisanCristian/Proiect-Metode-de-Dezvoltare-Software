@@ -165,7 +165,7 @@ class PomodoroSessionStartView(APIView):
 
 
 class PomodoroSessionClearView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [PomodoroPermission]
 
     def delete(self, request):
         user = _request_user(request)

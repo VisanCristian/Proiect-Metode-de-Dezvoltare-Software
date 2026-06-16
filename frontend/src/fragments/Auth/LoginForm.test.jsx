@@ -3,7 +3,6 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import LoginForm from './LoginForm';
 import { BrowserRouter } from 'react-router-dom';
 
-// Mock useAuth hook
 vi.mock('../../hooks/Auth/useAuth', () => ({
   useAuth: () => ({
     loginUser: vi.fn().mockResolvedValue({ success: true }),
@@ -13,38 +12,41 @@ vi.mock('../../hooks/Auth/useAuth', () => ({
 afterEach(cleanup);
 
 describe('LoginForm', () => {
-  it('se randează corect', () => {
-    render(
-      <BrowserRouter>
-        <LoginForm />
-      </BrowserRouter>
-    );
+  const renderForm = () => render(
+    <BrowserRouter>
+      <LoginForm />
+    </BrowserRouter>
+  );
+
+  it('randează input-ul de username', () => {
+    renderForm();
     expect(screen.getByPlaceholderText('Username')).toBeInTheDocument();
+  });
+
+  it('randează input-ul de password', () => {
+    renderForm();
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
+  });
+
+  it('randează butonul de login', () => {
+    renderForm();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
   });
 
-  it('validează input-ul (required)', () => {
-    render(
-      <BrowserRouter>
-        <LoginForm />
-      </BrowserRouter>
-    );
-    const usernameInput = screen.getByPlaceholderText('Username');
-    const passwordInput = screen.getByPlaceholderText('Password');
-
-    expect(usernameInput).toBeRequired();
-    expect(passwordInput).toBeRequired();
+  it('username-ul este câmp obligatoriu', () => {
+    renderForm();
+    expect(screen.getByPlaceholderText('Username')).toBeRequired();
   });
 
-  it('permite introducerea textului în câmpuri', () => {
-    render(
-      <BrowserRouter>
-        <LoginForm />
-      </BrowserRouter>
-    );
-    const usernameInput = screen.getByPlaceholderText('Username');
-    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-    expect(usernameInput.value).toBe('testuser');
+  it('password-ul este câmp obligatoriu', () => {
+    renderForm();
+    expect(screen.getByPlaceholderText('Password')).toBeRequired();
+  });
+
+  it('permite scrierea în câmpul de username', () => {
+    renderForm();
+    const input = screen.getByPlaceholderText('Username');
+    fireEvent.change(input, { target: { value: 'myuser' } });
+    expect(input.value).toBe('myuser');
   });
 });

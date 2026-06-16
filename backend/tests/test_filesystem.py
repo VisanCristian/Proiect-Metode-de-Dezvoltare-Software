@@ -14,47 +14,42 @@ def auth_client():
     return client, user
 
 @pytest.mark.django_db
-def test_upload_file(auth_client):
-    """
-    Verifică dacă un fișier este încărcat corect în sistemul de fișiere.
-    """
-    client, user = auth_client
-    folder = Folder.objects.create(user=user.id, name='Test Folder')
-    
-    url = '/api/filesystem/files/add'
-    file_content = b"Content for testing upload"
-    test_file = SimpleUploadedFile("test.txt", file_content, content_type="text/plain")
-    
-    data = {
-        'file': test_file,
-        'folderId': folder.id,
-        'encrypt': 'false'
-    }
-    
-    response = client.post(url, data, format='multipart')
-    assert response.status_code == status.HTTP_201_CREATED
-    assert File.objects.filter(name='test.txt', folder_id=folder.id).exists()
+class TestVaultOperations:
+    url_upload = '/api/filesystem/files/add'
+
+    def test_upload_file_success(self, auth_client):
+        client, user = auth_client
+        folder = Folder.objects.create(user=user.id, name='Test Folder')
+        file_content = b"Content for testing upload"
+        test_file = SimpleUploadedFile("test.txt", file_content, content_type="text/plain")
+        
+        data = {'file': test_file, 'folderId': folder.id, 'encrypt': 'false'}
+        response = client.post(self.url_upload, data, format='multipart')
+        assert response.status_code == status.HTTP_201_CREATED
+        assert File.objects.filter(name='test.txt', folder_id=folder.id).exists()
+
+    def test_upload_missing_folder(self, auth_client):
+        client, _ = auth_client
+        test_file = SimpleUploadedFile("test.txt", b"content", content_type="text/plain")
+        response = client.post(self.url_upload, {'file': test_file, 'folderId': 999}, format='multipart')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 @pytest.mark.django_db
-def test_pdf_metadata_reading():
-    """
-    Verifică citirea metadata dintr-un PDF folosind pdfplumber.
-    (Simulează funcționalitatea cerută de utilizator)
-    """
-    import pdfplumber
-    from reportlab.pdfgen import canvas
-    
-    # Create a small PDF
-    packet = io.BytesIO()
-    can = canvas.Canvas(packet)
-    can.setAuthor("Test Author")
-    can.setTitle("Test PDF")
-    can.drawString(100, 100, "Hello PDF")
-    can.save()
-    packet.seek(0)
-    
-    with pdfplumber.open(packet) as pdf:
-        metadata = pdf.metadata
-        assert metadata['Author'] == "Test Author"
-        assert metadata['Title'] == "Test PDF"
-        assert "Hello PDF" in pdf.pages[0].extract_text()
+class TestMetadataAnalysis:
+    def test_pdf_metadata_simulation(self):
+        import pdfplumber
+        from reportlab.pdfgen import canvas
+        
+        packet = io.BytesIO()
+        can = canvas.Canvas(packet)
+        can.setAuthor("Test Author")
+        can.setTitle("Test PDF")
+        can.drawString(100, 100, "Hello PDF")
+        can.save()
+        packet.seek(0)
+        
+        with pdfplumber.open(packet) as pdf:
+            metadata = pdf.metadata
+            assert metadata['Author'] == "Test Author"
+            assert metadata['Title'] == "Test PDF"
+            assert "Hello PDF" in pdf.pages[0].extract_text()

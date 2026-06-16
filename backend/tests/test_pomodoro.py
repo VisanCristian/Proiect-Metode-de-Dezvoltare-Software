@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
 from apps.pomodoro.models import PomodoroSession
+from django.utils import timezone
+from datetime import timedelta
 
 @pytest.fixture
 def auth_client():
@@ -12,41 +14,48 @@ def auth_client():
     return client, user
 
 @pytest.mark.django_db
-def test_create_pomodoro_session(auth_client):
-    """
-    Verifică dacă un utilizator poate crea o sesiune Pomodoro cu durată validă.
-    """
-    client, user = auth_client
+class TestPomodoroSessions:
     url = '/api/pomodoro/sessions/'
-    data = {
-        'focus_time': 1500, # 25 min
-        'break_time': 300,  # 5 min
-    }
-    response = client.post(url, data)
-    assert response.status_code == status.HTTP_201_CREATED
-    assert PomodoroSession.objects.filter(user=user, focus_time=1500).exists()
+
+    def test_create_session_success(self, auth_client):
+        client, user = auth_client
+        data = {'focus_time': 1500, 'break_time': 300}
+        response = client.post(self.url, data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert PomodoroSession.objects.filter(user=user, focus_time=1500).exists()
+
+    def test_create_session_invalid_data(self, auth_client):
+        client, _ = auth_client
+        data = {'focus_time': -1}
+        response = client.post(self.url, data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_unauthenticated_create_denied(self):
+        client = APIClient()
+        response = client.post(self.url, {})
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 @pytest.mark.django_db
-def test_activity_report(auth_client):
-    """
-    Verifică dacă raportul de activitate lunară returnează date corecte.
-    """
-    client, user = auth_client
-    from django.utils import timezone
-    from datetime import timedelta
-    
-    # Create an ended session
-    now = timezone.now()
-    PomodoroSession.objects.create(
-        user=user,
-        start_time=now,
-        end_time=now + timedelta(minutes=25),
-        status=PomodoroSession.Status.ENDED,
-        total_focus_time=1500
-    )
-    
+class TestActivityReport:
     url = '/api/activity/'
-    response = client.get(url)
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) > 0
-    assert response.data[0]['total_focus_time'] == 1500
+
+    def test_report_success(self, auth_client):
+        client, user = auth_client
+        now = timezone.now()
+        PomodoroSession.objects.create(
+            user=user,
+            start_time=now,
+            end_time=now + timedelta(minutes=25),
+            status=PomodoroSession.Status.ENDED,
+            total_focus_time=1500
+        )
+        response = client.get(self.url)
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) > 0
+        assert response.data[0]['total_focus_time'] == 1500
+
+    def test_report_empty_for_new_user(self, auth_client):
+        client, _ = auth_client
+        response = client.get(self.url)
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 0

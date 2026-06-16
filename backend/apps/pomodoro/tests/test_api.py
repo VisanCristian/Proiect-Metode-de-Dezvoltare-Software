@@ -1,12 +1,14 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
-
+from django.contrib.auth.models import User
 from apps.pomodoro.models import PomodoroSession
 
 
 class PomodoroApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.user = User.objects.create_user(username='apiuser', password='password123')
+        self.client.force_authenticate(user=self.user)
 
     def test_get_current_session_creates_draft(self):
         response = self.client.get('/api/pomodoro/sessions/current/')

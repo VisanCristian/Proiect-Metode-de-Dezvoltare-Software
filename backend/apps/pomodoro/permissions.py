@@ -1,6 +1,6 @@
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 
-class PomodoroPermission(AllowAny):
-    """Placeholder permission until authentication is introduced."""
+class PomodoroPermission(IsAuthenticated):
+    """Require authentication for Pomodoro resources."""
 
