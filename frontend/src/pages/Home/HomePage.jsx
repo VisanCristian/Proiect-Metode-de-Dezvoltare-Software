@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../hooks/Auth/useAuth';
 import FeatureCard from '../../fragments/Home/FeatureCard';
+import ActivityReport from '../../fragments/Home/ActivityReport';
 import './home.css';
 
 const modules = [
@@ -89,6 +90,10 @@ const HomePage = () => {
               <FeatureCard key={module.route} {...module} />
             ))}
           </div>
+        </section>
+
+        <section className="home-activity">
+          <ActivityReport mode="personal" />
         </section>
       </main>
     </div>

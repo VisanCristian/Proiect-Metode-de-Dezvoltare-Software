@@ -7,6 +7,7 @@ At the moment, the project includes:
 - **Pomodoro** for focus sessions and breaks
 - **Flashcards** for card-based learning
 - **File System** for organizing study materials
+- **Activity Report** for tracking monthly focus time and solved flashcards, displayed on the homepage
 - authentication and a homepage for navigating between modules
 
 The application is still under development, and more improvements and features will be added in the future.
