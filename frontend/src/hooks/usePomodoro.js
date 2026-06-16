@@ -30,6 +30,13 @@ export default function usePomodoro(settings = DEFAULTS) {
         setTotalPhaseTime(getPhaseDuration('focus'));
     }, [getPhaseDuration])
 
+    useEffect(() => {
+        if (isRunning) return
+        const nextDuration = getPhaseDuration(phase)
+        setTimeLeft(nextDuration)
+        setTotalPhaseTime(nextDuration)
+    }, [getPhaseDuration, isRunning, phase])
+
     const skip = useCallback(() => {
         setIsRunning(true);
         setTimeLeft(0);

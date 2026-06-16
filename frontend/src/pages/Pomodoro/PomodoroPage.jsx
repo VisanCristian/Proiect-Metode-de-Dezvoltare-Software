@@ -44,7 +44,12 @@ export default function PomodoroPage() {
     const prevCompletedCycleRef = useRef(timer.completedCycle)
     const taskSyncVersionRef = useRef(0)
     const sessionStateRef = useRef(sessionState)
+    const latestSettingsRef = useRef(settings)
     sessionStateRef.current = sessionState
+
+    useEffect(() => {
+        latestSettingsRef.current = settings
+    }, [settings])
 
     const applyCurrentSession = useCallback((session, { forceCounters = false } = {}) => {
         setCurrentSessionId((prevId) => {
@@ -108,6 +113,7 @@ export default function PomodoroPage() {
     }, [applyCurrentSession])
 
     const handleSaveSettings = useCallback(async (nextSettings) => {
+        latestSettingsRef.current = nextSettings
         setSettings(nextSettings)
 
         if (!currentSessionId) {
@@ -168,9 +174,12 @@ export default function PomodoroPage() {
             pomodoroStorage.startSession(currentSessionId)
         ))
 
-        applyCurrentSession(startedSession)
+        applyCurrentSession({
+            ...startedSession,
+            settings: latestSettingsRef.current,
+        })
         timer.reset()
-        if (startedSession.settings?.AUTO_START) {
+        if (latestSettingsRef.current.AUTO_START) {
             timer.start()
         }
         setSessionState('active')
@@ -386,4 +395,3 @@ export default function PomodoroPage() {
         </div>
     )
 }
-
