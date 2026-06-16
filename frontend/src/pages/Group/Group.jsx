@@ -12,7 +12,7 @@ import FileList from "../../fragments/FileTree/File/FileList.jsx";
 import ViewFileScreen from "../../fragments/FileTree/Components/ViewFileScreen/ViewFileScreen.jsx";
 import EditFileScreen from "../../fragments/FileTree/Components/EditFileScreen/EditFileScreen.jsx";
 import { convertMarkdownFileToPdf, saveFileChanges, exportFile, getUserFolders, getFolderFiles } from "../../services/filetree_api.js";
-import { getUserGroups, getGroupDetails, shareDeckToGroup, shareFileToGroup, unshareDeckFromGroup, unshareFileFromGroup } from "../../utils/Group/group_api";
+import { getUserGroups, getGroupDetails, shareDeckToGroup, shareFileToGroup, unshareDeckFromGroup, unshareFileFromGroup, getGroupMembersStats } from "../../utils/Group/group_api";
 import MarkdownRenderer from "../../fragments/MarkdownRenderer/MarkdownRenderer";
 import { sendMessageToChatbot } from "../../utils/chatbot_api";
 
@@ -36,6 +36,9 @@ export default function Group(group) {
     const [chatInput, setChatInput] = useState("");
     const [chatResponse, setChatResponse] = useState("");
     const [isChatLoading, setIsChatLoading] = useState(false);
+
+    const [groupStats, setGroupStats] = useState([]);
+    const [statsLoading, setStatsLoading] = useState(false);
 
     const handleChatbotSubmit = async (e) => {
         e.preventDefault();
@@ -103,6 +106,15 @@ export default function Group(group) {
             setUserFilesLoading(false);
         }
     }
+
+    useEffect(() => {
+        if (tab === "Stats" && currentGroup?.id && groupStats.length === 0) {
+            setStatsLoading(true);
+            getGroupMembersStats(currentGroup.id)
+                .then(({ members }) => setGroupStats(members))
+                .finally(() => setStatsLoading(false));
+        }
+    }, [tab, currentGroup]);
 
     const fc = useFlashCards();
 
@@ -182,7 +194,7 @@ export default function Group(group) {
                     <ul>
                         <li><button onClick={() => { setTab("Study") }}>Study</button></li>
                         <li><button onClick={() => { setTab("Chatbot") }}>Chatbot</button></li>
-                        <li><button onClick={() => { setTab("Stats") }}></button></li>
+                        <li><button onClick={() => { setTab("Stats") }}>Stats</button></li>
                     </ul>
                 </nav>
                 <div className={"tab-" + tab}>
@@ -325,9 +337,33 @@ export default function Group(group) {
                             )}
                         </div>
                     )}
-                    {tab === "Group Stats" && (
-                        <div>
-                            <p>Group Stats</p>
+                    {tab === "Stats" && (
+                        <div className="stats-tab-container">
+                            <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Member Activity</h2>
+                            {statsLoading ? (
+                                <p>Loading stats...</p>
+                            ) : groupStats.length === 0 ? (
+                                <p>No activity recorded yet.</p>
+                            ) : (
+                                groupStats.map(member => (
+                                    <div key={member.user_id} className="member-stats-block">
+                                        <h3 style={{ marginBottom: '0.75rem' }}>{member.username}</h3>
+                                        {member.monthly.length === 0 ? (
+                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No activity yet.</p>
+                                        ) : (
+                                            <ul className="member-stats-list">
+                                                {member.monthly.map(row => (
+                                                    <li key={row.month} className="member-stats-item">
+                                                        <span className="stats-month">{row.month}</span>
+                                                        <span className="stats-stat">{Math.round(row.total_focus_time / 60)} min focus</span>
+                                                        <span className="stats-stat">{row.total_solved_cards} cards solved</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                ))
+                            )}
                         </div>
                     )}
                 </div>
