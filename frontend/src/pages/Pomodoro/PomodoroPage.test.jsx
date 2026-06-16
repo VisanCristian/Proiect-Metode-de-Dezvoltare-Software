@@ -1,6 +1,15 @@
 import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import PomodoroPage from './PomodoroPage'
+import { PomodoroProvider } from '../../context/PomodoroContext'
+
+vi.mock('../../fragments/CrossModule/FlashCardWidget', () => ({
+  default: () => null,
+}))
+
+vi.mock('../../fragments/CrossModule/FileTreeWidget', () => ({
+  default: () => null,
+}))
 
 vi.mock('../../fragments/CrossModule/FlashCardWidget', () => ({
   default: () => null,
@@ -204,7 +213,7 @@ describe('PomodoroPage', () => {
   it('starts a session with the most recently saved settings', async () => {
     createBackendMock()
 
-    render(<PomodoroPage />)
+    render(<PomodoroProvider><PomodoroPage /></PomodoroProvider>)
 
     fireEvent.change(await screen.findByLabelText('Focus (min)'), { target: { value: '30' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
@@ -216,7 +225,7 @@ describe('PomodoroPage', () => {
   it('starts the initial timer automatically when auto-start is enabled in settings', async () => {
     createBackendMock()
 
-    render(<PomodoroPage />)
+    render(<PomodoroProvider><PomodoroPage /></PomodoroProvider>)
 
     fireEvent.click(await screen.findByLabelText('Auto-start'))
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
@@ -228,7 +237,7 @@ describe('PomodoroPage', () => {
   it('advances the session and keeps the active task after starting', async () => {
     createBackendMock({ focusTime: 1 })
 
-    render(<PomodoroPage />)
+    render(<PomodoroProvider><PomodoroPage /></PomodoroProvider>)
 
     fireEvent.change(await screen.findByPlaceholderText('Add a task...'), { target: { value: 'Capitol 1' } })
     fireEvent.click(screen.getByRole('button', { name: 'Add task' }))
@@ -245,7 +254,7 @@ describe('PomodoroPage', () => {
   it('keeps progress separate from the task checkbox', async () => {
     createBackendMock()
 
-    render(<PomodoroPage />)
+    render(<PomodoroProvider><PomodoroPage /></PomodoroProvider>)
 
     fireEvent.change(await screen.findByPlaceholderText('Add a task...'), { target: { value: 'sa fac ceva' } })
     fireEvent.click(screen.getByRole('button', { name: 'Add task' }))
@@ -262,7 +271,7 @@ describe('PomodoroPage', () => {
   it('saves the session through the API when it ends', async () => {
     const backendState = createBackendMock()
 
-    render(<PomodoroPage />)
+    render(<PomodoroProvider><PomodoroPage /></PomodoroProvider>)
 
     fireEvent.click(await screen.findByRole('button', { name: /Start Session/i }))
     fireEvent.click(await screen.findByRole('button', { name: /Finish/i }))

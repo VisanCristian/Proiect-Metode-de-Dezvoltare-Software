@@ -10,6 +10,7 @@ import FileTree from './pages/FileTree/FileTree.jsx'
 import PomodoroPage from './pages/Pomodoro/PomodoroPage.jsx'
 import Groups from './pages/Group/GroupList.jsx'
 import Group from './pages/Group/Group.jsx'
+import { PomodoroProvider } from './context/PomodoroContext.jsx'
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <PomodoroProvider>
+      <RouterProvider router={router} />
+    </PomodoroProvider>
   </React.StrictMode>,
 )
