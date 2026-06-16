@@ -9,18 +9,12 @@ const TITLES = {
 
 const ActivityReport = ({ mode = 'personal', groupId = null }) => {
     const [months, setMonths] = useState([]);
-    const [flashcardPoints, setFlashcardPoints] = useState(0);
-    const [tokens, setTokens] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         getUserActivity()
-            .then((data) => {
-                setMonths(data.months || []);
-                setFlashcardPoints(data.flashcard_points || 0);
-                setTokens(data.tokens || 0);
-            })
+            .then((data) => setMonths(data.months || []))
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
     }, []);
@@ -50,15 +44,15 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
                             <span className="activity-report__stat">
                                 {item.total_solved_cards} cards solved
                             </span>
+                            <span className="activity-report__stat">
+                                {item.flashcard_points} pts
+                            </span>
+                            <span className="activity-report__stat">
+                                {item.tokens} tokens
+                            </span>
                         </li>
                     ))}
                 </ul>
-            )}
-
-            <div className="activity-report__tokens">
-                <span className="activity-report__tokens-label">Flashcard points: {flashcardPoints}</span>
-                <span className="activity-report__tokens-label">Tokens: {tokens}</span>
-            </div>
         </div>
     );
 };
