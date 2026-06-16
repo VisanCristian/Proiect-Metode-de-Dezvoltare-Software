@@ -258,7 +258,7 @@ export default function Group(group) {
                             <div className="Files" >
                                 <div className="group-section-header">
                                     <span>Group Files</span>
-                                    <button onClick={() => { setModalState({ type: "add-file-to-group" }) }}>Add File</button>
+                                    <button onClick={() => { setModalState({ type: "add-file-to-group" }); loadUserFiles(); }}>Add File</button>
                                 </div>
 
                                 {pageMode.type === "view-file" ? (
