@@ -1,16 +1,46 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import './ChatbotPanel.css';
 import { buildMessageObject, buildContextObject, buildSettingsObject, buildChatPayload } from './format';
 import { sendChatMessage } from '../../services/chatbot_api';
 
 const MAX_MESSAGE_LENGTH = 1000;
 
-const ChatbotPanel = ({ model = 'Haiku', tokensLeft = 100, scope = 'personal', groupId = null, availableFiles = [], availableDecks = [] }) => {
-    const [isOpen, setIsOpen] = useState(true);
+const ChatbotPanel = ({ model = 'Auto', tokensLeft = 0, scope = 'personal', groupId = null, availableFiles = [], availableDecks = [] }) => {
+    const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [panelWidth, setPanelWidth] = useState(400);
     const bottomRef = useRef(null);
+    const isDragging = useRef(false);
+    const dragStartX = useRef(0);
+    const dragStartWidth = useRef(0);
+
+    const onDragStart = useCallback((e) => {
+        isDragging.current = true;
+        dragStartX.current = e.clientX;
+        dragStartWidth.current = panelWidth;
+        document.body.style.userSelect = 'none';
+    }, [panelWidth]);
+
+    useEffect(() => {
+        const onMouseMove = (e) => {
+            if (!isDragging.current) return;
+            const delta = dragStartX.current - e.clientX;
+            const next = Math.min(600, Math.max(240, dragStartWidth.current + delta));
+            setPanelWidth(next);
+        };
+        const onMouseUp = () => {
+            isDragging.current = false;
+            document.body.style.userSelect = '';
+        };
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        return () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+    }, []);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -50,7 +80,13 @@ const ChatbotPanel = ({ model = 'Haiku', tokensLeft = 100, scope = 'personal', g
     };
 
     return (
-        <div className={`chatbot-panel ${isOpen ? 'chatbot-panel--open' : 'chatbot-panel--closed'}`}>
+        <div
+            className={`chatbot-panel ${isOpen ? 'chatbot-panel--open' : 'chatbot-panel--closed'}`}
+            style={isOpen ? { width: `${panelWidth}px` } : undefined}
+        >
+            {isOpen && (
+                <div className="chatbot-panel__resize-handle" onMouseDown={onDragStart} />
+            )}
             <button
                 className="chatbot-panel__toggle"
                 onClick={() => setIsOpen((prev) => !prev)}
@@ -59,7 +95,10 @@ const ChatbotPanel = ({ model = 'Haiku', tokensLeft = 100, scope = 'personal', g
             >
                 {isOpen ? '›' : (
                     <span className="chatbot-panel__toggle-label">
-                        <span className="chatbot-panel__toggle-icon">AI</span>
+                        <span className="chatbot-panel__toggle-emoji">🎓</span>
+                        <span className="chatbot-panel__toggle-icon">Assistant</span>
+                        <span className="chatbot-panel__toggle-icon">Study</span>
+                        <span className="chatbot-panel__toggle-icon">Personal</span>
                         <span className="chatbot-panel__toggle-arrow">‹</span>
                     </span>
                 )}
