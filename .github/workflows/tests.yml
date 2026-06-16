@@ -1,0 +1,122 @@
+name: Professional Test Suite
+
+on:
+  push:
+    branches: [ main, tests ]
+  pull_request:
+    branches: [ main, tests ]
+
+jobs:
+  quality-check:
+    name: 🛡️ Quality & Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Run Ruff (Python Linting)
+        run: |
+          pip install ruff
+          ruff check backend/
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Run ESLint (JS Linting)
+        run: |
+          cd frontend
+          npm install
+          npm run lint
+
+  backend-auth:
+    name: 🔑 Backend - Auth & Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install Deps
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-django
+      - name: Run Auth Tests
+        run: cd backend && pytest tests/test_auth.py
+        env: { DJANGO_SETTINGS_MODULE: StudyAPP.settings }
+
+  backend-learning:
+    name: 📚 Backend - Learning (Flashcards)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install Deps
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-django
+      - name: Run Flashcard Tests
+        run: cd backend && pytest tests/test_flashcards.py
+        env: { DJANGO_SETTINGS_MODULE: StudyAPP.settings }
+
+  backend-social:
+    name: 🤝 Backend - Social (Groups)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install Deps
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-django
+      - name: Run Group Tests
+        run: cd backend && pytest tests/test_groups.py
+        env: { DJANGO_SETTINGS_MODULE: StudyAPP.settings }
+
+  backend-vault:
+    name: 🔒 Backend - Vault (Filesystem)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install Deps
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-django pdfplumber reportlab
+      - name: Run Filesystem Tests
+        run: cd backend && pytest tests/test_filesystem.py
+        env: { DJANGO_SETTINGS_MODULE: StudyAPP.settings }
+
+  backend-productivity:
+    name: ⏱️ Backend - Productivity (Pomodoro)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install Deps
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-django
+      - name: Run Pomodoro Tests
+        run: cd backend && pytest tests/test_pomodoro.py apps/activity/tests.py apps/pomodoro/tests/
+        env: { DJANGO_SETTINGS_MODULE: StudyAPP.settings }
+
+  frontend-suite:
+    name: 💻 Frontend - UI & Logic
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with: { node-version: '22', cache: 'npm', cache-dependency-path: frontend/package-lock.json }
+      - name: Install Deps
+        run: cd frontend && npm install
+      - name: Run Vitest
+        run: cd frontend && npm test -- --run

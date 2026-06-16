@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -17,9 +18,11 @@ class DeckViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 class FlashcardViewSet(viewsets.ModelViewSet):
-    queryset = Flashcard.objects.all()
     serializer_class = FlashcardSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Flashcard.objects.filter(deck__user=self.request.user)
 
 class UserCardProgressViewSet(viewsets.ModelViewSet):
     serializer_class = UserCardProgressSerializer
@@ -46,7 +49,6 @@ class DeckSessionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-from django.core.cache import cache
 
 class RecommendationsView(APIView):
     permission_classes = [IsAuthenticated]

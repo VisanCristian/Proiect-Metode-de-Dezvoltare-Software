@@ -17,7 +17,7 @@ function extractErrorMessage(payload) {
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token')
-  return token ? { 'Authorization': `Token ${token}` } : {}
+  return token ? { Authorization: `Token ${token}` } : {}
 }
 
 async function request(path, options = {}) {
