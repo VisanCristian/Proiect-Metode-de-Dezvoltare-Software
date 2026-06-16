@@ -23,7 +23,7 @@ describe('ActivityReport', () => {
     })
 
     it('shows empty message when no activity returned', async () => {
-        getUserActivity.mockResolvedValue([])
+        getUserActivity.mockResolvedValue({ months: [] })
 
         render(<ActivityReport />)
 
@@ -31,10 +31,10 @@ describe('ActivityReport', () => {
     })
 
     it('renders monthly rows with focus time and solved cards', async () => {
-        getUserActivity.mockResolvedValue([
-            { month: '2026-03', total_focus_time: 3600, total_solved_cards: 40 },
-            { month: '2026-04', total_focus_time: 1800, total_solved_cards: 20 },
-        ])
+        getUserActivity.mockResolvedValue({ months: [
+            { month: '2026-03', total_focus_time: 3600, total_solved_cards: 40, flashcard_points: 5, tokens: 18000 },
+            { month: '2026-04', total_focus_time: 1800, total_solved_cards: 20, flashcard_points: 2, tokens: 3600 },
+        ] })
 
         render(<ActivityReport />)
 
@@ -45,6 +45,8 @@ describe('ActivityReport', () => {
         expect(screen.getByText('2026-04')).toBeInTheDocument()
         expect(screen.getByText('30 min focus')).toBeInTheDocument()
         expect(screen.getByText('20 cards solved')).toBeInTheDocument()
+        expect(screen.getByText('5 pts')).toBeInTheDocument()
+        expect(screen.getByText('18000 tokens')).toBeInTheDocument()
     })
 
     it('shows error message when the request fails', async () => {
@@ -58,7 +60,7 @@ describe('ActivityReport', () => {
     })
 
     it('renders title "My Activity" in personal mode', async () => {
-        getUserActivity.mockResolvedValue([])
+        getUserActivity.mockResolvedValue({ months: [] })
 
         render(<ActivityReport mode="personal" />)
 
@@ -66,7 +68,7 @@ describe('ActivityReport', () => {
     })
 
     it('renders title "Group Activity" in grup mode', async () => {
-        getUserActivity.mockResolvedValue([])
+        getUserActivity.mockResolvedValue({ months: [] })
 
         render(<ActivityReport mode="grup" />)
 
