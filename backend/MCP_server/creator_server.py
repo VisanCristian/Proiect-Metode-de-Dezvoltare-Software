@@ -44,6 +44,20 @@ async def add_flashcard_to_deck(token: str, deck_id: float, question: str, answe
     async with httpx.AsyncClient() as client: 
         response = await client.post(f"{BACKEND_URL}/flashcards/cards/", json=data, headers=headers)
         return response.json()
+
+@mcp.tool()
+async def award_flashcard_points(token: str, points: float):
+    """
+    Award points to the user for correctly answering a flashcard.
+    Requires the user token. Use this after verifying a correct answer.
+    """
+    headers = { "Authorization": f"Token {token}" }
+    data = {
+        "points": int(points)
+    }
+    async with httpx.AsyncClient() as client: 
+        response = await client.post(f"{BACKEND_URL}/agents/points/", json=data, headers=headers)
+        return response.json()
     
 if __name__ == "__main__":
     mcp.run()

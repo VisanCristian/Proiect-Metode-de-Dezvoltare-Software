@@ -1,4 +1,4 @@
-const WEBHOOK_URL = "http://localhost:5678/webhook/chatbot";
+const WEBHOOK_URL = "http://localhost:5678/webhook-test/chatbot";
 const API_URL = "http://127.0.0.1:8080";
 
 export async function sendMessageToChatbot(message, { groupId = null, availableFiles = [], availableDecks = [] } = {}) {
@@ -32,13 +32,10 @@ export async function sendMessageToChatbot(message, { groupId = null, availableF
                 message: message,
                 user_id: userId,
                 sessionId: userId,
-<<<<<<< HEAD
-                token: token
-=======
+                token: token,
                 group_id: groupId,
                 available_files: availableFiles,
                 available_decks: availableDecks
->>>>>>> 94c7515c210cfa448865d6e5cf64925ac0f5c341
             })
         });
 
@@ -59,9 +56,10 @@ export async function sendMessageToChatbot(message, { groupId = null, availableF
 }
 
 export async function evaluateFlashcardAnswer(question, answer, userInput, userData) {
-    const EVALUATE_URL = "http://localhost:5678/webhook-test/evaluate-flashcard";
+    const EVALUATE_URL = "http://localhost:5678/webhook-test/chatbot";
     const token = localStorage.getItem("token");
     const payload = {
+        message: `Please evaluate this flashcard answer. Question: "${question}". Correct Answer: "${answer}". User's Answer: "${userInput}". If the user's answer is correct, use the award_flashcard_points tool to award a minimum of 500 points. Reply with JSON containing "correct": true/false and "message": "your explanation, including whether they received points".`,
         question,
         true_answer: answer,
         user_answer: userInput,
@@ -81,11 +79,39 @@ export async function evaluateFlashcardAnswer(question, answer, userInput, userD
         }
 
         const contentType = n8nResponse.headers.get("content-type");
+        let dataStr = "";
+        let isRawJson = false;
+
         if (contentType && contentType.includes("application/json")) {
-            return await n8nResponse.json();
+            const rawJson = await n8nResponse.json();
+            
+            // Check if it's ALREADY the exact format we asked for
+            if (rawJson.correct !== undefined) {
+                return { 
+                    correct: rawJson.correct === true || String(rawJson.correct).toLowerCase() === "true",
+                    message: rawJson.message || JSON.stringify(rawJson)
+                };
+            }
+            
+            // Otherwise, n8n often nests the AI response string in 'output' or 'text'
+            dataStr = rawJson.output || rawJson.text || rawJson.response || rawJson.message || JSON.stringify(rawJson);
         } else {
-            const text = await n8nResponse.text();
-            return { correct: text.toLowerCase().includes("true") };
+            dataStr = await n8nResponse.text();
+        }
+
+        // Attempt to parse dataStr as JSON if it's a string containing JSON
+        try {
+            // Strip markdown code fences if present
+            const cleanStr = dataStr.replace(/^```json/i, "").replace(/```$/i, "").trim();
+            const parsed = JSON.parse(cleanStr);
+            return {
+                correct: parsed.correct === true || String(parsed.correct).toLowerCase() === "true",
+                message: parsed.message || dataStr
+            };
+        } catch {
+            // Fallback: it's not valid JSON, so search for true/false in the string
+            const isCorrect = dataStr.toLowerCase().includes("true") || dataStr.toLowerCase().includes('"correct": true');
+            return { correct: isCorrect, message: dataStr };
         }
     } catch (error) {
         console.error("Flashcard Evaluation API Error:", error);
