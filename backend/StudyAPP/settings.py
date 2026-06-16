@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'LoginSystem',
     'FlashCards',
     'FileTree',
+    'Group',
+    'Agents',
 ]
 
 REST_FRAMEWORK = {
@@ -75,16 +77,15 @@ DJOSER = {
         # Signup we change the default serializer to our custom one
         'user_create': 'LoginSystem.serializers.MyUserCreateSerializer', 
         #search other users, we use the default one
-        'user': 'djoser.serializers.UserSerializer', 
+        'user': 'LoginSystem.serializers.MyUserSerializer', 
         # after the login -> Profile page, we use the default one
-        'current_user': 'djoser.serializers.UserSerializer', # => page profile
+        'current_user': 'LoginSystem.serializers.MyUserSerializer', # => page profile
     },
 }
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

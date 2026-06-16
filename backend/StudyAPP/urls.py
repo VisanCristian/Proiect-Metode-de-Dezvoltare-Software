@@ -25,4 +25,5 @@ urlpatterns = [
     path('api/flashcards/', include('FlashCards.urls')),
     path('api/filesystem/', include('FileTree.urls')),
     path('api/activity/', include('apps.activity.urls')),
+    path('api/groups/', include('Group.urls')),
 ]

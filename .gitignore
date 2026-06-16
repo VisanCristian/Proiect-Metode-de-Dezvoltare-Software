@@ -1,5 +1,6 @@
 # Virtual environment
 .venv/
+venv/
 
 # Python / Django
 __pycache__/

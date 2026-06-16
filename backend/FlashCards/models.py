@@ -1,7 +1,7 @@
 from django.db import models 
 from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
-
+from FileTree.models import File
 
 class Deck(models.Model):
     # each deck (set of flashcards) belongs to a user and can contain multiple flashcards.
@@ -10,6 +10,8 @@ class Deck(models.Model):
     description = models.TextField(blank=True, null=True, help_text="Description of the set")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    source_file = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='related_decks')
+    
     
     class Meta:
         ordering = ['-created_at'] 

@@ -44,6 +44,7 @@ class FileAddSerializer(serializers.Serializer):
     file = serializers.FileField(allow_empty_file=True)
     folderId = serializers.IntegerField()
     userId = serializers.IntegerField(required=False, default=0)
+    encrypt = serializers.BooleanField(required=False, default=False)
 
     def validate_folderId(self, value):
         if not Folder.objects.filter(id=value).exists():
@@ -59,6 +60,23 @@ class FileAddSerializer(serializers.Serializer):
 
         if extension not in ['txt', 'md', 'pdf']:
             raise serializers.ValidationError("Only files ending in '.txt', '.md' or '.pdf' are allowed.")
+        return value
+
+
+class FileCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=255)
+    content = serializers.CharField(allow_blank=True, default='')
+    folderId = serializers.IntegerField()
+    encrypt = serializers.BooleanField(required=False, default=False)
+
+    def validate_folderId(self, value):
+        if not Folder.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Folder with this ID does not exist.")
+        return value
+
+    def validate_name(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("File name cannot be empty.")
         return value
 
 class FileRemoveSerializer(serializers.Serializer):
@@ -114,3 +132,8 @@ class FileConvertToPdfSerializer(serializers.Serializer):
             raise serializers.ValidationError("Only markdown files can be converted to PDF.")
 
         return attrs
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = '__all__'

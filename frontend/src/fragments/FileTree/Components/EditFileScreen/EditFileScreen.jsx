@@ -1,6 +1,7 @@
 import "./EditFileScreen.css";
 import { useEffect, useMemo, useState } from "react";
 import { getFileContent } from "../../../../services/filetree_api.js";
+import MarkdownRenderer from "../../../MarkdownRenderer/MarkdownRenderer";
 
 function buildPdfUrl(base64Content) {
     return `data:application/pdf;base64,${base64Content}`;
@@ -13,6 +14,7 @@ export default function EditFileScreen({ file, onBack, onSave, onConvertToPdf })
     const [isLoadingContent, setIsLoadingContent] = useState(false);
     const [contentError, setContentError] = useState(false);
     const [isConverting, setIsConverting] = useState(false);
+    const [previewMode, setPreviewMode] = useState(false);
 
     const hasUnsavedChanges = draftContent !== originalContent;
     const isPdfFile = (fileData?.type || file.type) === "pdf";
@@ -21,8 +23,15 @@ export default function EditFileScreen({ file, onBack, onSave, onConvertToPdf })
     useEffect(() => {
         setDraftContent("");
         setOriginalContent("");
-        loadContent(file.id);
-    }, [file.id]);
+        
+        if (file.isNew) {
+            setDraftContent(file.content || "");
+            setOriginalContent("");
+            setFileData({ type: "text", content: file.content || "" });
+        } else {
+            loadContent(file.id);
+        }
+    }, [file.id, file.isNew, file.content]);
 
     const pdfUrl = useMemo(() => {
         if (!fileData || fileData.type !== "pdf") {
@@ -88,11 +97,21 @@ export default function EditFileScreen({ file, onBack, onSave, onConvertToPdf })
                         </button>
                     </div>
                     <div className="edit-content">
-                        {isMarkdownFile && !isPdfFile && (
+                        {!isPdfFile && (
                             <div className="edit-content-options">
-                                <button className="button-pdf" onClick={handleConvertToPdf} disabled={isConverting}>
-                                    {isConverting ? "Converting..." : "Convert to PDF"}
-                                </button>
+                                <button
+                                    className={!previewMode ? "active-tab" : ""}
+                                    onClick={() => setPreviewMode(false)}
+                                >Edit</button>
+                                <button
+                                    className={previewMode ? "active-tab" : ""}
+                                    onClick={() => setPreviewMode(true)}
+                                >Preview</button>
+                                {isMarkdownFile && (
+                                    <button className="button-pdf" onClick={handleConvertToPdf} disabled={isConverting}>
+                                        {isConverting ? "Converting..." : "Convert to PDF"}
+                                    </button>
+                                )}
                             </div>
                         )}
                         <div className="edit-content-display">
@@ -100,6 +119,10 @@ export default function EditFileScreen({ file, onBack, onSave, onConvertToPdf })
                                 <div className="pdf-preview-wrapper">
                                     <p className="pdf-preview-message">PDF files can only be previewed.</p>
                                     <iframe className="pdf-frame" src={pdfUrl} title={file.name} />
+                                </div>
+                            ) : previewMode ? (
+                                <div className="rendered-content">
+                                    <MarkdownRenderer content={draftContent} />
                                 </div>
                             ) : (
                                 <textarea

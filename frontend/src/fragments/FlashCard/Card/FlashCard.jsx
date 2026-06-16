@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import MarkdownRenderer from "../../MarkdownRenderer/MarkdownRenderer";
 
 const MIN_CARD_HEIGHT = 240;
 const CARD_CONTENT_BUFFER = 24;
@@ -45,7 +46,7 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
           <div className="face-front-body" ref={frontBodyRef}>
             {status !== "unanswered" && <span className={`badge ${status}`}>{status}</span>}
             <div className="card-face-label">Question</div>
-            <p className="card-text">{card?.question}</p>
+            <div className="card-text"><MarkdownRenderer content={card?.question} /></div>
             <span className="flip-hint">click to flip</span>
           </div>
         </div>
@@ -55,7 +56,7 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
           <div className="face-back-body" ref={backBodyRef}>
             {status !== "unanswered" && <span className={`badge ${status}`}>{status}</span>}
             <div className="card-face-label">Answer</div>
-            <p className="card-text">{card?.answer}</p>
+            <div className="card-text"><MarkdownRenderer content={card?.answer} /></div>
             <div className="card-divider" />
             <div className="card-mark-row">
               <button className="btn-know" onClick={(e) => { e.stopPropagation(); mark("known"); }} disabled={!flipped}>

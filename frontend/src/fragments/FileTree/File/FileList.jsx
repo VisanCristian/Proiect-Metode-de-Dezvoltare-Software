@@ -17,7 +17,7 @@ export default function FileList({ selectedFolder, filesLoading, files, onRemove
                 <ul>
                     {files.filter((file) => file.name.toLowerCase().includes(searchFilter.toLowerCase())).map((file) => (
                         <li key={file.id}>
-                            <File file={file} onRemove={onRemove} onView={onView} onEdit={onEdit} />
+                            <File file={file} onRemove={file.isOwner === false ? null : onRemove} onView={onView} onEdit={onEdit} />
                         </li>
                     ))}
                 </ul>

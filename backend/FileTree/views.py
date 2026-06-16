@@ -60,7 +60,7 @@ class FileListApi(APIView):
             serializer = serializers.FileListSerializer(data={'id': folder_id})
             serializer.is_valid(raise_exception=True)
             files = selectors.get_folder_contents(folder_id=folder_id)
-            return Response({'contents': [{'id': f.id, 'name': f.name, 'type': services.get_file_type(f.name)} for f in files]}, status=status.HTTP_200_OK)
+            return Response({'contents': [{'id': f.id, 'name': f.name, 'type': services.get_file_type(f.name), 'is_encrypted': f.is_encrypted} for f in files]}, status=status.HTTP_200_OK)
         except ValidationError as exc:
             return Response({'message': 'Could not load the folder files.', 'errors': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
@@ -74,14 +74,18 @@ class FileAddApi(APIView):
             file = request.FILES.get('file')
             folder_id = request.data.get('folderId')
             user_id = request.user.id
-            serializer = serializers.FileAddSerializer(data={'file': file, 'folderId': folder_id, 'userId': user_id})
+            encrypt = request.data.get('encrypt', 'false')
+            encrypt = encrypt in [True, 'true', 'True', '1']
+            serializer = serializers.FileAddSerializer(data={'file': file, 'folderId': folder_id, 'userId': user_id, 'encrypt': encrypt})
             serializer.is_valid(raise_exception=True)
             new_file = services.file_add(
                 file=serializer.validated_data['file'],
                 folder_id=serializer.validated_data['folderId'],
-                user_id=serializer.validated_data['userId']
+                user_id=serializer.validated_data['userId'],
+                encrypt=serializer.validated_data['encrypt'],
+                user=request.user,
             )
-            return Response({'id': new_file.id, 'name': new_file.name}, status=status.HTTP_201_CREATED)
+            return Response({'id': new_file.id, 'name': new_file.name, 'is_encrypted': new_file.is_encrypted}, status=status.HTTP_201_CREATED)
         except ValidationError as exc:
             return Response({'message': 'File upload failed.', 'errors': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
@@ -111,7 +115,7 @@ class FileContentApi(APIView):
             file_id = request.query_params.get('id')
             serializer = serializers.FileContentSerializer(data={'id': file_id})
             serializer.is_valid(raise_exception=True)
-            file_data = services.file_get_content(file_id=serializer.validated_data['id'])
+            file_data = services.file_get_content(file_id=serializer.validated_data['id'], user=request.user)
             return Response(file_data, status=status.HTTP_200_OK)
         except ValidationError as exc:
             return Response({'message': 'Could not load the file content.', 'errors': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
@@ -142,7 +146,7 @@ class FileExportApi(APIView):
             file_id = request.query_params.get('id')
             serializer = serializers.FileContentSerializer(data={'id': file_id})
             serializer.is_valid(raise_exception=True)
-            file_data = services.file_get_content(file_id=serializer.validated_data['id'])
+            file_data = services.file_get_content(file_id=serializer.validated_data['id'], user=request.user)
             return Response(file_data, status=status.HTTP_200_OK)
         except ValidationError as exc:
             return Response({'message': 'Could not export the file.', 'errors': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
@@ -157,10 +161,31 @@ class FileConvertToPdfApi(APIView):
         try:
             serializer = serializers.FileConvertToPdfSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            new_file = services.file_convert_to_pdf(file_id=serializer.validated_data['id'])
-            return Response({'id': new_file.id, 'name': new_file.name, 'type': services.get_file_type(new_file.name)}, status=status.HTTP_201_CREATED)
+            new_file = services.file_convert_to_pdf(file_id=serializer.validated_data['id'], user=request.user)
+            return Response({'id': new_file.id, 'name': new_file.name, 'type': services.get_file_type(new_file.name), 'is_encrypted': new_file.is_encrypted}, status=status.HTTP_201_CREATED)
         except ValidationError as exc:
             return Response({'message': 'Could not convert the file to PDF.', 'errors': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             return Response({'message': 'An unexpected error occurred while converting the file to PDF.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+
+class FileCreateApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            serializer = serializers.FileCreateSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            new_file = services.file_create(
+                name=serializer.validated_data['name'],
+                content=serializer.validated_data['content'],
+                folder_id=serializer.validated_data['folderId'],
+                user_id=request.user.id,
+                encrypt=serializer.validated_data['encrypt'],
+                user=request.user,
+            )
+            return Response({'id': new_file.id, 'name': new_file.name, 'is_encrypted': new_file.is_encrypted}, status=status.HTTP_201_CREATED)
+        except ValidationError as exc:
+            return Response({'message': 'File creation failed.', 'errors': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'message': 'An unexpected error occurred while creating the file.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
