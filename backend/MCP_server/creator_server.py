@@ -12,30 +12,7 @@ if not BACKEND_URL:
 
 mcp = FastMCP("StudyAPP-Creator-Agent")
 
-@mcp.tool()
-async def login_to_backend(username:str, password:str) -> str:
-    """
-    Auth the aggent to the backend.
-    Return the access token if the login is successful, otherwise return an error message.
-    """
-    login_url = f"{BACKEND_URL}/auth/token/login/"
-    
-    date_login = {
-        "username": username,
-        "password": password
-    }
-    
-    async with httpx.AsyncClient() as client:
-        try: 
-            response = await client.post(login_url, json=date_login)
-            if response.status_code == 200:
-                #if its successful, return the access token
-                token = response.json().get("auth_token")
-                return f"Auth successful. Access token: {token}"
-            else:
-                return f"Auth failed. Status code: {response.status_code}, Response: {response.text}"
-        except Exception as e:
-            return f"An error occurred during login: {str(e)}"
+
 
 @mcp.tool()
 async def create_new_deck(token: str, title: str, description: str = ""):
@@ -53,14 +30,14 @@ async def create_new_deck(token: str, title: str, description: str = ""):
         return response.json()
     
 @mcp.tool()
-async def add_flashcard_to_deck(token: str, deck_id: int, question: str, answer: str):
+async def add_flashcard_to_deck(token: str, deck_id: float, question: str, answer: str):
     """
     Add a single flashcard (question and answer) to an existing deck.
     Requires the deck_id of the deck to which the flashcard will be added.
     """
     headers = { "Authorization": f"Token {token}" }
     data = {
-        "deck": deck_id,
+        "deck": int(deck_id),
         "question": question,
         "answer": answer
     }

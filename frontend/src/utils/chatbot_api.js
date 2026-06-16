@@ -31,7 +31,8 @@ export async function sendMessageToChatbot(message) {
             body: JSON.stringify({
                 message: message,
                 user_id: userId,
-                sessionId: userId
+                sessionId: userId,
+                token: token
             })
         });
 
@@ -53,11 +54,13 @@ export async function sendMessageToChatbot(message) {
 
 export async function evaluateFlashcardAnswer(question, answer, userInput, userData) {
     const EVALUATE_URL = "http://localhost:5678/webhook-test/evaluate-flashcard";
+    const token = localStorage.getItem("token");
     const payload = {
         question,
         true_answer: answer,
         user_answer: userInput,
-        user: userData
+        user: userData,
+        token: token
     };
 
     try {
