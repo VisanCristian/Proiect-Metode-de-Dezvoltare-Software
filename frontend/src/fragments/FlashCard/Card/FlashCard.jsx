@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import MarkdownRenderer from "../../MarkdownRenderer/MarkdownRenderer";
 import { evaluateFlashcardAnswer } from "../../../utils/chatbot_api";
+import { addFlashcardPoints } from "../../../services/agents_api";
 
 const MIN_CARD_HEIGHT = 240;
 const CARD_CONTENT_BUFFER = 24;
@@ -57,6 +58,7 @@ export default function FlashCard({ card, flipped, setFlipped, status, flashStat
           const userData = userDataStr ? JSON.parse(userDataStr) : null;
           const result = await evaluateFlashcardAnswer(card.question, card.answer, userInput, userData);
           isCorrect = result.correct;
+          if (isCorrect) addFlashcardPoints(result.points ?? 1).catch(() => {});
       } catch (error) {
           // Fallback to strict string check
           isCorrect = userInput.trim().toLowerCase() === card.answer.trim().toLowerCase();

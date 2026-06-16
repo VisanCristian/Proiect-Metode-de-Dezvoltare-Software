@@ -14,7 +14,7 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
 
     useEffect(() => {
         getUserActivity()
-            .then(setMonths)
+            .then((data) => setMonths(data.months || []))
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
     }, []);
@@ -38,11 +38,17 @@ const ActivityReport = ({ mode = 'personal', groupId = null }) => {
                     {months.map((item) => (
                         <li key={item.month} className="activity-report__item">
                             <span className="activity-report__month">{item.month}</span>
-                            <span className="activity-report__stat">
-                                {Math.round(item.total_focus_time / 60)} min focus
+                            <span className="activity-report__stat activity-report__stat--focus">
+                                ⏱ {Math.round(item.total_focus_time / 60)} min focus
                             </span>
-                            <span className="activity-report__stat">
-                                {item.total_solved_cards} cards solved
+                            <span className="activity-report__stat activity-report__stat--cards">
+                                🃏 {item.total_solved_cards} cards
+                            </span>
+                            <span className="activity-report__stat activity-report__stat--pts">
+                                ★ {item.flashcard_points} pts
+                            </span>
+                            <span className="activity-report__stat activity-report__stat--tokens">
+                                ◈ {item.tokens} tokens
                             </span>
                         </li>
                     ))}

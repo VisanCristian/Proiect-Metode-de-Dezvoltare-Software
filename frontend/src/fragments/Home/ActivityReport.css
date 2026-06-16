@@ -1,4 +1,4 @@
-.home-activity {
+.activity-report {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(10, 17, 70, 0.38);
   backdrop-filter: blur(12px);
@@ -10,7 +10,9 @@
 .activity-report__title {
   margin: 0 0 20px;
   font-size: 1.15rem;
+  font-weight: 700;
   color: #ffffff;
+  letter-spacing: 0.02em;
 }
 
 .activity-report__empty {
@@ -36,42 +38,71 @@
 .activity-report__item {
   display: flex;
   align-items: center;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
   padding: 14px 18px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.2s ease;
+}
+
+.activity-report__item:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .activity-report__month {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.88rem;
   color: #ffffff;
-  min-width: 80px;
+  background: rgba(91, 143, 185, 0.22);
+  border: 1px solid rgba(91, 143, 185, 0.35);
+  border-radius: 8px;
+  padding: 4px 10px;
+  min-width: 72px;
+  text-align: center;
+  letter-spacing: 0.03em;
 }
 
 .activity-report__stat {
-  font-size: 0.9rem;
-  color: rgba(213, 223, 232, 0.78);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 8px;
 }
 
-.activity-report__stat + .activity-report__stat::before {
-  content: '·';
-  margin-right: 16px;
-  color: rgba(255, 255, 255, 0.3);
+.activity-report__stat--focus {
+  color: #ff8e7f;
+  background: rgba(224, 100, 105, 0.12);
+  border: 1px solid rgba(224, 100, 105, 0.2);
+}
+
+.activity-report__stat--cards {
+  color: #7fb4dd;
+  background: rgba(91, 143, 185, 0.12);
+  border: 1px solid rgba(91, 143, 185, 0.2);
+}
+
+.activity-report__stat--pts {
+  color: #7be7d9;
+  background: rgba(78, 205, 196, 0.12);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.activity-report__stat--tokens {
+  color: #ffd166;
+  background: rgba(255, 209, 102, 0.1);
+  border: 1px solid rgba(255, 209, 102, 0.2);
 }
 
 @media (max-width: 640px) {
-  .home-activity {
+  .activity-report {
     padding: 22px;
   }
 
   .activity-report__item {
     flex-direction: column;
     align-items: flex-start;
-    gap: 6px;
-  }
-
-  .activity-report__stat + .activity-report__stat::before {
-    display: none;
+    gap: 8px;
   }
 }
