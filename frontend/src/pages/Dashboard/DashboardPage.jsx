@@ -21,7 +21,7 @@ function getGreeting(username, stats) {
     return `${timeGreeting}${name} 👋 Ready to learn something new today?`;
 }
 
-const GOALS = { focusMin: 120, cards: 50, points: 100, tokens: 10000 };
+const GOALS = { focusMin: 120, cards: 50, points: 5000, tokens: 10000 };
 
 const DashboardPage = () => {
     const [userData, setUserData] = useState({ username: '' });

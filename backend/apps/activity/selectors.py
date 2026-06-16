@@ -80,7 +80,7 @@ def get_monthly_activity(user):
             'points': flashcard_pts_by_month.get(month, 0) + pomodoro_pts_by_month.get(month, 0),
             'tokens': (
                 (flashcard_pts_by_month.get(month, 0) + pomodoro_pts_by_month.get(month, 0))
-                * focus_by_month.get(month, 0)
+                + (focus_by_month.get(month, 0) // 60)
             ),
         }
         for month in all_months
