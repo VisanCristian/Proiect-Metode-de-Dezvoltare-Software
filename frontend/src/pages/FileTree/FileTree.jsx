@@ -7,7 +7,6 @@ import EditFileScreen from "../../fragments/FileTree/Components/EditFileScreen/E
 import { useState, useEffect } from "react";
 import "./FileTree.css";
 import { getUserFolders, getFolderFiles, deleteFile, createFolder, deleteFolder, exportFile, saveFileChanges, addFile, convertMarkdownFileToPdf, createFile } from "../../services/filetree_api.js";
-import ChatbotPanel from "../../fragments/Chatbot/ChatbotPanel.jsx";
 
 
 export default function FileTree() {
@@ -379,7 +378,6 @@ export default function FileTree() {
 
         <>
             <ErrorModal message={errorMessage} onClose={() => setErrorMessage("")} />
-            <ChatbotPanel scope="personal" />
             <div className="file-tree-main">
                 <div className="file-tree-body">
                     <h1>Your personal File Storage System</h1>
