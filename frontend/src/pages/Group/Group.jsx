@@ -84,13 +84,17 @@ export default function Group(group) {
             let storedGroups = JSON.parse(localStorage.getItem("groups") || "[]");
             let foundGroup = storedGroups.find(g => g.name === decodedName);
 
-            if (!foundGroup) {
+            if (!foundGroup || !foundGroup.name) {
                 storedGroups = await getUserGroups();
                 localStorage.setItem("groups", JSON.stringify(storedGroups));
                 foundGroup = storedGroups.find(g => g.name === decodedName);
             }
 
-            setCurrentGroup(foundGroup || { name: decodedName, token: "Not Found" });
+            setCurrentGroup(
+                foundGroup
+                    ? { ...foundGroup, name: foundGroup.name || decodedName }
+                    : { name: decodedName, token: "Not Found" }
+            );
             if (foundGroup) {
                 fetchGroupDetails(foundGroup.id);
             }
@@ -235,7 +239,12 @@ export default function Group(group) {
                                                     key={item.deck}
                                                     className="group-deck-item"
                                                     onClick={() => {
-                                                        fc.setSetId(item.deck);
+                                                        const deckId = item.deck;
+                                                        const deckData = item.deck_details;
+                                                        if (deckData && !fc.sets.find(s => String(s.id) === String(deckId))) {
+                                                            fc.setSets(prev => [...prev.filter(s => String(s.id) !== String(deckId)), deckData]);
+                                                        }
+                                                        fc.setSetId(deckId);
                                                         setPlayingDeck(true);
                                                     }}
                                                 >
@@ -387,7 +396,7 @@ export default function Group(group) {
                                                         <span className="stats-month">{row.month}</span>
                                                         <span className="stats-stat">{Math.round(row.total_focus_time / 60)} min focus</span>
                                                         <span className="stats-stat">{row.total_solved_cards} cards solved</span>
-                                                        <span className="stats-stat">★ {row.flashcard_points} pts</span>
+                                                        <span className="stats-stat">★ {row.points ?? row.flashcard_points ?? 0} pts</span>
                                                     </li>
                                                 ))}
                                             </ul>
@@ -401,7 +410,7 @@ export default function Group(group) {
 
                 {playingDeck && (
                     <Modal
-                        title={`Playing Deck: ${groupDecks.find(item => String(item.deck.id) === String(fc.setId))?.deck.title || ''}`}
+                        title={`Playing Deck: ${groupDecks.find(item => String(item.deck) === String(fc.setId))?.deck_details?.title || ''}`}
                         buttons={[{ label: "Close", onClick: () => setPlayingDeck(false) }]}
                     >
                         <div className="flash-page-modal">
