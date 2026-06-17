@@ -46,7 +46,7 @@ Frontend-ul trimite mesajul utilizatorului printr-un webhook către n8n (Docker,
 
 ### Prompt-urile agenților AI
 
-Workflow-ul n8n folosește două agenturi cu prompt-uri custom:
+Workflow-ul n8n folosește doi agenți cu prompt-uri custom:
 
 **Agentul principal (Teaching Assistant)** — primește mesajul utilizatorului și decide cum să răspundă. Clasifică intent-ul (factual vs conceptual), adaptează explicațiile la nivelul studentului folosind memoria din `AgentMemory`, și deleghează crearea de conținut către sub-agent. Are acces la tool-urile de citire (Viewer Server) pentru a consulta fișierele și deck-urile utilizatorului. Evaluează răspunsurile la flashcard-uri și acordă puncte prin `award_flashcard_points`. Loghează performanța studentului prin `update_agent_memory`.
 
