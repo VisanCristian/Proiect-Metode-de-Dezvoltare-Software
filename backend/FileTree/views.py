@@ -129,7 +129,7 @@ class FileUpdateApi(APIView):
         try:
             serializer = serializers.FileUpdateSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            file = services.file_update(file_id=serializer.validated_data['id'], content=serializer.validated_data['content'])
+            file = services.file_update(file_id=serializer.validated_data['id'], content=serializer.validated_data['content'], user=request.user)
             return Response({'id': file.id, 'name': file.name}, status=status.HTTP_200_OK)
         except ValidationError as exc:
             return Response({'message': 'Could not save the file changes.', 'errors': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
