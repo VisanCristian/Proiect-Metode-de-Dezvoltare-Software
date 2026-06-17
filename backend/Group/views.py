@@ -103,7 +103,7 @@ class GroupShareFileApi(APIView):
         if not models.UserGroup.objects.filter(group_id=group_id, user_id=request.user.id).exists():
             return Response({'message': 'You are not a member of this group.'}, status=status.HTTP_403_FORBIDDEN)
 
-        file = get_object_or_404(File, id=file_id, folder__user=request.user)
+        file = get_object_or_404(File, id=file_id, folder__user=request.user.id)
         group = get_object_or_404(Group, id=group_id)
         GroupFile.objects.get_or_create(group=group, file=file)
         
@@ -160,7 +160,7 @@ class GroupUnshareFileApi(APIView):
         if not instance:
             return Response({"message": "File not found in this group."}, status=status.HTTP_404_NOT_FOUND)
 
-        if instance.file.folder.user != request.user and group.owner != request.user.id:
+        if instance.file.folder.user != request.user.id and group.owner != request.user.id:
             return Response({"message": "Not authorized to unshare this file."}, status=status.HTTP_403_FORBIDDEN)
 
         instance.delete()

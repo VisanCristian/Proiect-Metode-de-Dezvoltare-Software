@@ -109,12 +109,12 @@ export function useFlashCards() {
   function prev() { setIndex((i) => Math.max(i - 1, 0)); setFlipped(false); }
   function next() { setIndex((i) => Math.min(i + 1, cards.length - 1)); setFlipped(false); }
 
-  function mark(value) {
-    if (!card || !flipped) return;
+  function mark(value, force = false, autoAdvance = true) {
+    if (!card || (!flipped && !force)) return;
     if (value === 'known') addFlashcardPoints(1).catch(() => {});
     setStatusById((old) => ({ ...old, [card.id]: value }));
     setFlashStatus(value);
-    
+
     if (autoAdvance) {
         setTimeout(() => {
           setFlashStatus(null);
