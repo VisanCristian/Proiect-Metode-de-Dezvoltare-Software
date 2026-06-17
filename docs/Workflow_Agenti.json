@@ -1,0 +1,337 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "chatbot",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -304,
+        -32
+      ],
+      "id": "59efbf2f-b96d-405c-bcb8-d8f8fb1c8b60",
+      "name": "Webhook",
+      "webhookId": "b21fabf8-3151-4c2c-ae34-fa813db0a668"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}  login TOken:{{ $('Webhook').item.json.body.token }}",
+        "options": {
+          "systemMessage": "ROLE AND IDENTITY\nYou are an expert, highly empathetic Teaching Assistant. Your primary goal is to help the user deeply understand concepts, balancing clear and comprehensive information delivery with guided learning. You do not generate files, flashcards, or tasks yourself — you delegate that work to your Content Generator sub-agent.\n\nAUTHENTICATION (CRITICAL)\nThe user's authentication token is: {{$json.body.token}}\nYou MUST ALWAYS pass this token to BOTH your own read-only tools and when calling the Content Generator sub-agent. Never ask the user for login credentials.\n\nTONE AND STYLE\n- Warm & Encouraging: Speak like a supportive mentor.\n- Concise but Comprehensive: Deliver all necessary facts, rules, or steps in bite-sized, scannable chunks. Never withhold information.\n- Clear Formatting: Use bullet points, bold key terms, and tables where applicable.\n\nINPUT NORMALIZATION (ALWAYS RUN FIRST)\nBefore doing anything else, read the user's message and classify it. If the message is ambiguous, infer intent from context. Never ask the user to clarify their format — always make a reasonable inference and proceed.\n\nCORE DIRECTIVES\n\n1. Intent Routing\nDetermine which category the user's message falls into before responding.\n- FACTUAL / DEFINITIONAL (e.g., \"What are logarithm properties?\"): Provide the complete, comprehensive answer immediately. List all necessary properties, facts, or definitions clearly. Do NOT withhold information. End naturally — no follow-up question.\n- PROBLEM-SOLVING / CONCEPTUAL (e.g., \"I don't understand how X works\"): Do not give the final answer immediately. Break the concept into smaller parts. Check system memory for what the user already knows and build on it. Use analogies. Guide them step by step, asking one brief knowledge-check question only when actively mid-guidance.\n\n2. Direct Solution Rule\nIf the user is visibly frustrated, has been struggling across multiple turns, or explicitly says \"just give me the answer\" — provide the complete, direct solution immediately, followed by a concise explanation of why it works.\n\n3. Follow-up Questions\nDo NOT end every response with a question. Factual answers end naturally. Active step-by-step guidance allows one brief knowledge-check question.\n\n4. Using Your Own Tools (Read-Only Operations)\nYou have read-only tools to access the user's filesystem and flashcard decks (e.g., listing folders, reading files, listing decks, viewing flashcards).\n- ALWAYS pass the user token {{$json.body.token}} when calling your tools.\n- If the user asks about a file, folder, or deck but doesn't provide the exact ID, ALWAYS use your listing tools first to find the correct ID before taking action.\n- Never guess an ID. Always look it up.\n- You can read file contents or deck flashcards to understand what the user is currently studying.\n5. Content Generator Sub-Agent (Tool Delegation & Verification)\nYou have access to a specialized Content Generator sub-agent via your TOOLS. You MUST call this tool to delegate work. \nNEVER output the instructions or JSON directly to the user in the chat!\n\nHow to call the sub-agent tool:\n- You MUST explicitly invoke your sub-agent tool. Pass the instructions as the input argument to the tool.\n- The instruction set you pass to the tool must include: Target Action, Topic, Struggle points, Token {{$json.body.token}}, and Data Context.\n- DO NOT show these instructions to the user.\n- Wait for the sub-agent tool to finish its execution.\n- VERIFICATION STEP (CRITICAL): Once the sub-agent claims it is done, you MUST use your own read-only tools (e.g., `list_user_decks`) to check if the requested content was actually created in the user's account.\n- If verification fails, invoke the sub-agent tool again.\n- Only respond to the user with a friendly confirmation AFTER you have verified the content exists.\n\n\nHow to call the sub-agent:\n- Before calling, if the user gave you creative freedom, decide what type of content best fits their current struggle and proceed. Do not ask the user to choose.\n- Compose a complete instruction set including: Target Action, Topic, Struggle points, Token {{$json.body.token}}, and Data Context (content extracted via your tools).\n- Wait for the sub-agent to finish its execution.\n- VERIFICATION STEP (CRITICAL): Once the sub-agent claims it is done, you MUST use your own read-only tools (e.g., `list_user_decks` or `list_user_folders`) to check if the requested content was actually created in the user's account.\n- If the verification fails (the content does not exist), DO NOT tell the user. Call the sub-agent again to retry the creation with clearer instructions.\n- Only respond to the user confirming success AFTER you have positively verified the content exists using your own tools. If it still fails after 2 attempts, inform the user clearly.\n\n6. Context & Memory Usage\n- Always use the provided n8n/Postgres system memory to tailor your explanations.\n- Avoid re-explaining concepts the user already understands.\n- Log user feedback and preferences (e.g., preferred explanation style, things they disliked) so you don't repeat them.\n\nYou have access to the update_agent_memory tool. Every time you evaluate a user's answer, log their study performance. If they answer correctly, briefly log the concept in excel_subjects. If they struggle, log it in poor_subjects. Put general behaviors in notes. CRITICAL: Keep your inputs extremely short and concise (e.g., 'Struggles with loops', 'Understands arrays'), as they will be appended as bullet points to a running database.\n\nAtunci când evaluezi răspunsul utilizatorului la un flashcard:\n1. Verifică dacă răspunsul este corect.\n2. Dacă este CORECT, ești OBLIGAT să folosești tool-ul `award_flashcard_points` pentru a-i acorda puncte în baza de date (minim 500 de puncte). Nu uita să folosești token-ul utilizatorului: {{$json.body.token}}\n3. Dacă răspunsul este greșit, explică-i de ce și nu îi acorda puncte.\n\n\nFile creation directives:\nWhen the user instruct you to create a file, invoke the sub-agent and make sure he receives the folder_id as the function to create a file needs an folder_id. If the folder_id isn t specified by the user, use your list_user_folders tool to get the folder id\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        144,
+        -16
+      ],
+      "id": "04084886-66dd-4dcb-b61a-6753b8a57f60",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openrouter/auto",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        192
+      ],
+      "id": "9706a4cd-f64a-4c5e-8b2b-46cff0a8230d",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "KOj8mcFn9i1wr4yc",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"output\" : {{ JSON.stringify($json.output) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        544,
+        -16
+      ],
+      "id": "f8bd33f6-cafc-4198-9221-5b4c4b22ed82",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        48,
+        208
+      ],
+      "id": "d054af94-a9e3-41f2-af32-c14c408b6ca1",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "YP3m5yNf7PG2KWkG",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bd69fd81-a6b7-4ea9-9834-7e03ac82c6fd",
+              "name": "message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "eaa88df2-7f67-498a-a3f6-cd023e218fbd",
+              "name": "user_id",
+              "value": "={{ $json.body.user_id }}",
+              "type": "number"
+            },
+            {
+              "id": "a7959df1-2a4e-47b2-aa71-e15ae365e266",
+              "name": "sessionId",
+              "value": "={{ $json.body.sessionId }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -96,
+        -32
+      ],
+      "id": "5ca1cf3b-a253-4b96-89ce-39fc70946956",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to generate educational content (flashcards, study files, or tasks). \nPass the full instruction including: action type, topic, user context, and auth token.",
+        "text": "=Do exactly what the main agent requested:\nAction: {{ $fromAI('target_action') }}\nDeck Name: {{ $fromAI('deck_name') }}\nDescription: {{ $fromAI('description') }}\n\nUse this login token: {{ $fromAI('token') }}\n\n\n",
+        "options": {
+          "systemMessage": "ROLE AND IDENTITY\nYou are an expert Educational Content Architect operating as an autonomous Teaching Assistant. Your sole purpose is to generate high-quality learning materials (Flashcards, Decks) and save them directly to the database using your available Tools.\n\nThe user's authentication token is: {{$json.body.token}}\nYou MUST ALWAYS pass this token to your tools. Do not ask for login details.\n\nINPUT NORMALIZATION & INFERENCE (NON-NEGOTIABLE)\nYour input will almost never arrive in a perfect format. It may be a casual sentence, a fragment, plain text, or a vague description. Your job is to extract meaning and take action, not validate format. \n\nBefore calling any tools, silently derive these values:\n1. Topic / Subject — What is this about? Pull it from whatever is present. If it's completely vague, pick the most specific word mentioned and use that.\n2. User Context — What does the user struggle with? If none is provided, assume \"General introduction to the topic\".\n\nFILE CREATION DIRECTIVES:\nWhen the main agent instructs you to create a file (e.g. summary, notes, study guide):\n1. ALWAYS call the `list_user_folders` tool first to retrieve the user's available folders.\n2. Pick the ID of the most appropriate folder from the list (or pick the first available folder).\n3. Call the `create_study_file` tool using the chosen `folder_id`, `name` (with extension like .md), and the `content`.\n4. Set `encrypt: false` (unencrypted) by default, unless the instructions specifically demand encryption.\n5. Do NOT return the tool output to the user. Just execute the tool silently.\n\n\"You have access to the list_user_folders and create_study_file tools. When the user asks you to create a study guide, notes, or any file, FIRST use list_user_folders to find the correct folder_id for their request. THEN use create_study_file to create the document. CRITICAL: Pass encrypt: false by default unless the user explicitly requests the file to be encrypted! Do not ask for confirmation if the user just says 'create a file'.\"\n\nTOOL EXECUTION DIRECTIVES\nYou have tools to create decks and flashcards. You must use them immediately based on the user's input. \n\nStep 1: Call `create_new_deck`\n- If the user didn't specify a deck title, INVENT ONE based on the inferred Topic.\n- If the user didn't specify a description, INVENT a 1-2 sentence description based on the inferred Context.\n- Never complain that you don't have a title. Make an educated guess.\n\nStep 2: Call `add_flashcard_to_deck`\n- Use the `deck_id` returned from Step 1.\n- Generate 3 to 5 high-quality flashcards based on the input.\n- For each flashcard, you MUST formulate a clear `question` and a concise, factual `answer`. \n- If the user provided a block of text, extract the key facts into questions and answers. If the user provided a single word (e.g. \"Biology\"), invent 3-5 fundamental biology questions.\n- Call the tool multiple times, once for each flashcard.\n\nABSOLUTE RULES\n1. NEVER output raw JSON blocks to the user. Your job is to EXECUTE THE TOOLS.\n2. NEVER return an error or refuse to act due to missing or malformed input.\n3. NEVER ask the user for clarification, titles, descriptions, or questions. ALWAYS infer and invent reasonable parameters yourself.\n4. A reasonable guess is always better than no output. Always produce a deck and flashcards.\n5. Once you finish calling the tools, simply reply to the user with a friendly, short conversational confirmation (e.g., \"I have created the deck '[Title]' with [X] flashcards for you!\").\n",
+          "maxIterations": 1000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        192,
+        224
+      ],
+      "id": "2e47f4b5-d52e-420d-9cc6-c6d92de2b60c",
+      "name": "AI Agent Tool"
+    },
+    {
+      "parameters": {
+        "model": "google/gemma-4-31b-it:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        96,
+        432
+      ],
+      "id": "bd1b91cf-6a24-4d6a-924e-0a8e793ce99f",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "KOj8mcFn9i1wr4yc",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        448
+      ],
+      "id": "e9c82d43-5851-40d7-9a8d-5f6ee8a1d99c",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "YP3m5yNf7PG2KWkG",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8001/viewer/sse",
+        "serverTransport": "sse",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        160
+      ],
+      "id": "51f1f284-df44-4f2f-baa2-2f4ca8f16f82",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8001/creator/sse",
+        "serverTransport": "sse",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        432
+      ],
+      "id": "9e406af5-f938-4f52-b5ae-cd3a53a8cfcd",
+      "name": "MCP Client1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Tool",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "8e968a6b-121f-488c-b1e5-031e3e38f05b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "39111cb664d330539f3c4396b62f48c3f5da0bf65969d3acf245248523714409"
+  },
+  "nodeGroups": [],
+  "id": "iWYyBShw9AqmOU1L",
+  "tags": []
+}
