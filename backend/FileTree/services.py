@@ -194,11 +194,23 @@ def file_get_content(*, file_id: int, user=None) -> dict:
     }
 
 
-def file_update(*, file_id: int, content: str) -> models.File:
+def file_update(*, file_id: int, content: str, user=None) -> models.File:
     file = models.File.objects.get(pk=file_id)
 
-    with default_storage.open(file.location, 'w') as stored_file:
-        stored_file.write(content)
+    if file.is_encrypted and user:
+        import uuid
+        
+        temp_filename = f"temp_{uuid.uuid4().hex}_{file.name}"
+        temp_location = f"id_{user.id}/{temp_filename}"
+        
+        with default_storage.open(temp_location, 'w') as temp_file:
+            temp_file.write(content)
+            
+        file.location = temp_location
+        file = encrypt_file(file, user)
+    else:
+        with default_storage.open(file.location, 'w') as stored_file:
+            stored_file.write(content)
 
     file.updated_at = timezone.now()
     file.save(update_fields=['updated_at'])
