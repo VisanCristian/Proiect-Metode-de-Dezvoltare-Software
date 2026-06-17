@@ -199,8 +199,6 @@ def file_update(*, file_id: int, content: str, user=None) -> models.File:
 
     if file.is_encrypted and user:
         import uuid
-        import os
-        from django.conf import settings
         
         temp_filename = f"temp_{uuid.uuid4().hex}_{file.name}"
         temp_location = f"id_{user.id}/{temp_filename}"
