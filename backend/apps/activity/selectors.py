@@ -98,8 +98,14 @@ def get_monthly_activity(user):
     )
     focus_by_day = {row['day']: row['total_focus_time'] for row in daily_rows if row['day'] is not None}
 
+    from Agents.models import AgentMemory
+    memory, _ = AgentMemory.objects.get_or_create(user=user)
+    earned_tokens = sum(m.get('tokens', 0) for m in months)
+    available_tokens = 2500 + earned_tokens - memory.consumed_tokens
+
     return {
         'months': months,
         'today_focus': focus_by_day.get(today, 0),
         'yesterday_focus': focus_by_day.get(yesterday, 0),
+        'available_tokens': available_tokens,
     }
